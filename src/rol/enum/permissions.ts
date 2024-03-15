@@ -1,0 +1,17 @@
+export enum Permission {
+  super = 'SUPER',
+  user = 'USER',
+  userProfile = 'USER_PROFILE',
+  userAdd = 'USER_ADD',
+  userRead = 'USER_READ',
+  userReadOne = 'USER_READ_ONE',
+  userSearch = 'USER_SEARCH',
+  userUpdate = 'USER_UPDATE',
+  userDelete = 'USER_DELETE',
+  rolAdd = 'ROL_ADD',
+  rolRead = 'ROL_READ',
+  rolReadOne = 'ROL_READ_ONE',
+  rolSearch = 'ROL_SEARCH',
+  rolUpdate = 'ROL_UPDATE',
+  rolDelete = 'ROL_DELETE',
+}
