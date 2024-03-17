@@ -45,7 +45,6 @@ export interface Msg {
   unregister: string;
 }
 
-export type ResponseUser = Promise<{ msg: string } | ResponseError>;
 export type ReturnLoginUser = Promise<{ jwt: string } | ResponseError>;
 export type ResUser = Promise<User | ResponseError>;
 export interface ValidateUser<T> {
@@ -71,9 +70,14 @@ export type ResListUser = Promise<
 >;
 
 export interface GetUsers extends Query {
-  orderProperty: OrderUserProperty;
+  orderProperty?: OrderUserProperty;
   uid?: string;
   search?: string;
+}
+
+export interface Filter<T> {
+  filter: T;
+  uid: string;
 }
 
 export interface PayloadJWT {

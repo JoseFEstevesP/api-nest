@@ -3,10 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { Order } from 'src/constants/order';
+import { ResData } from 'src/types';
 import { Rol } from './entities/rol.entity';
 import { OrderRolProperty } from './enum/orderProperty';
 import { validateRol } from './functions/validateRol';
-import { DataRol, DataRolOfStatus, GetRol, ResListRol, ResRol } from './rol';
+import { DataRol, DataRolOfStatus, GetRol, ResListRol } from './rol';
 import { rolMsg } from './rol.msg';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class RolService {
     @InjectModel(Rol) private readonly rolModel: typeof Rol,
     private jwtService: JwtService,
   ) {}
-  async register({ data }: { data: DataRolOfStatus }) {
+  async register({ data }: { data: DataRolOfStatus }): ResData {
     const isRolByUid = await this.rolModel.findOne({
       where: { uid: data.uid },
     });
@@ -37,7 +38,7 @@ export class RolService {
     throw new HttpException({ msg: rolMsg.register }, 200);
   }
 
-  async findOneRol({ uid }: { uid: string }): ResRol {
+  async findOneRol({ uid }: { uid: string }): ResData {
     const rol = await this.rolModel.findOne({
       where: { uid, status: true },
       attributes: {
@@ -60,8 +61,8 @@ export class RolService {
     search,
     permission,
   }: GetRol) {
-    const li = limit || 30;
-    const pa = page || 1;
+    const li = +limit || 30;
+    const pa = +page || 1;
     const { rows, count } = await this.rolModel.findAndCountAll({
       where: {
         status,
@@ -92,14 +93,8 @@ export class RolService {
     return { rows, count, pages, totalPage, nextPage, previousPage, li };
   }
 
-  async findAll({
-    status,
-    limit,
-    page,
-    orderProperty,
-    order,
-    permission,
-  }: GetRol): ResListRol {
+  async findAll(filter: GetRol): ResListRol {
+    const { status, limit, page, orderProperty, order, permission } = filter;
     const { rows, count, pages, totalPage, nextPage, previousPage, li } =
       await this.findAllRol({
         status,
@@ -124,41 +119,7 @@ export class RolService {
     );
   }
 
-  async findSearch({
-    status,
-    limit,
-    page,
-    orderProperty,
-    order,
-    search,
-    permission,
-  }: GetRol): ResListRol {
-    const { rows, count, pages, totalPage, nextPage, previousPage, li } =
-      await this.findAllRol({
-        status,
-        limit,
-        page,
-        orderProperty,
-        order,
-        search,
-        permission,
-      });
-
-    throw new HttpException(
-      {
-        rows,
-        count,
-        currentPage: totalPage,
-        nextPage: nextPage <= pages ? nextPage : null,
-        previousPage: previousPage > 0 ? previousPage : null,
-        limit: li,
-        pages,
-      },
-      200,
-    );
-  }
-
-  async update({ data }: { data: DataRol }): ResRol {
+  async update({ data }: { data: DataRol }): ResData {
     const { uid, status, name, permissions } = data;
     const rol = await this.rolModel.findOne({
       where: { uid },
@@ -174,7 +135,7 @@ export class RolService {
     throw new HttpException({ msg: rolMsg.update }, 200);
   }
 
-  async deleteRol({ uid }: { uid: string }): ResRol {
+  async deleteRol({ uid }: { uid: string }): ResData {
     const rol = this.rolModel.findOne({ where: { uid, status: true } });
 
     if (!rol)

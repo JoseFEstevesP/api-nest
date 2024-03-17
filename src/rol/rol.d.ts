@@ -9,7 +9,6 @@ export interface DataRol {
 }
 
 export type DataRolOfStatus = Omit<DataRol, 'status'>;
-export type ResRol = Promise<{ msg: string } | ResponseError>;
 
 export interface ValidateRol<T> {
   models: { isRolByUid?: T; isRolByName?: T };
@@ -27,7 +26,7 @@ export interface Msg {
 }
 
 export interface GetRol extends Query {
-  orderProperty: OrderUserProperty;
+  orderProperty?: OrderUserProperty;
   search?: string;
   permission?: Permission;
 }

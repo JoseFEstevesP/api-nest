@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { compare, hash } from 'bcrypt';
 import { Op } from 'sequelize';
 import { Order } from 'src/constants/order';
+import { ResData } from './../types';
 import { OrderUserProperty } from './constant/orderProperty';
 import { salt } from './constants/sal';
 import { User } from './entities/user.entities';
@@ -15,10 +16,10 @@ import {
   DataUserUpdate,
   DataUserUpdateProfile,
   DataUserUpdateProfileEmail,
+  Filter,
   GetUsers,
   ResListUser,
   ResUser,
-  ResponseUser,
   ReturnLoginUser,
 } from './user';
 import { userMsg } from './user.msg';
@@ -30,7 +31,7 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async register({ data }: { data: DataUserOfExtraData }): ResponseUser {
+  async register({ data }: { data: DataUserOfExtraData }): ResData {
     const { uid, ci, email, password } = data;
     const isUserByUid = await this.userModel.findOne({
       where: { uid },
@@ -106,7 +107,7 @@ export class UserService {
     return user;
   }
 
-  async findOneUser({ uid }: { uid: string }): ResUser {
+  async getOne({ uid }: { uid: string }): ResUser {
     const user = await this.userModel.findOne({
       where: { uid, status: true },
       attributes: {
@@ -120,7 +121,7 @@ export class UserService {
     throw new HttpException(user, 200);
   }
 
-  async findAllUser({
+  async get({
     status = true,
     limit,
     page,
@@ -128,8 +129,8 @@ export class UserService {
     order = Order.ASC,
     search,
   }: GetUsers) {
-    const li = limit || 30;
-    const pa = page || 1;
+    const li = +limit || 30;
+    const pa = +page || 1;
     const { rows, count } = await this.userModel.findAndCountAll({
       where: {
         status,
@@ -146,7 +147,7 @@ export class UserService {
         exclude: ['password', 'status', 'createdAt', 'updatedAt'],
       },
       limit: li,
-      offset: ((page || 1) - 1) * li,
+      offset: (pa - 1) * li,
       order: [[orderProperty, order]],
     });
 
@@ -158,22 +159,10 @@ export class UserService {
     return { rows, count, pages, totalPage, nextPage, previousPage, li };
   }
 
-  async findAll({
-    status,
-    limit,
-    page,
-    orderProperty,
-    order,
-    uid,
-  }: GetUsers): ResListUser {
+  async getData({ filter, uid }: Filter<GetUsers>): ResListUser {
+    const { status, limit, page, orderProperty, order, search } = filter;
     const { rows, count, pages, totalPage, nextPage, previousPage, li } =
-      await this.findAllUser({
-        status,
-        limit,
-        page,
-        orderProperty,
-        order,
-      });
+      await this.get({ status, limit, page, orderProperty, order, search });
 
     const data: Array<User> = rows.filter((item) => item.uid !== uid);
 
@@ -191,42 +180,7 @@ export class UserService {
     );
   }
 
-  async findSearch({
-    status,
-    limit,
-    page,
-    orderProperty,
-    order,
-    uid,
-    search,
-  }: GetUsers): ResListUser {
-    const { rows, count, pages, totalPage, nextPage, previousPage, li } =
-      await this.findAllUser({
-        status,
-        limit,
-        page,
-        orderProperty,
-        order,
-        search,
-      });
-
-    const data: Array<User> = rows.filter((item) => item.uid !== uid);
-
-    throw new HttpException(
-      {
-        rows: data,
-        count,
-        currentPage: totalPage,
-        nextPage: nextPage <= pages ? nextPage : null,
-        previousPage: previousPage > 0 ? previousPage : null,
-        limit: li,
-        pages,
-      },
-      200,
-    );
-  }
-
-  async update({ data }: { data: DataUserUpdate }): ResponseUser {
+  async update({ data }: { data: DataUserUpdate }): ResData {
     const { uid, status, ci, name, surname, email } = data;
     const user = await this.userModel.findOne({
       where: { uid },
@@ -250,7 +204,7 @@ export class UserService {
   }: {
     data: DataUserUpdateProfile;
     uid: string;
-  }): ResponseUser {
+  }): ResData {
     const user = await this.userModel.findOne({ where: { uid } });
     if (!user)
       throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
@@ -265,7 +219,7 @@ export class UserService {
   }: {
     data: DataUserUpdateProfileEmail;
     uid: string;
-  }): ResponseUser {
+  }): ResData {
     const { email, password } = data;
     const user = await this.userModel.findOne({ where: { uid } });
     if (!user)
@@ -288,7 +242,7 @@ export class UserService {
   }: {
     data: { olPassword: string; newPassword: string };
     uid: string;
-  }): ResponseUser {
+  }): ResData {
     const { olPassword, newPassword } = data;
     const user = await this.userModel.findOne({ where: { uid } });
     if (!user)
@@ -307,7 +261,7 @@ export class UserService {
     throw new HttpException({ msg: userMsg.update }, 200);
   }
 
-  async unregister({ uid }: { uid: string }) {
+  async unregister({ uid }: { uid: string }): ResData {
     const user = this.userModel.findOne({ where: { uid } });
 
     if (!user) {
@@ -318,7 +272,7 @@ export class UserService {
     throw new HttpException({ msg: userMsg.unregister }, 200);
   }
 
-  async deleteUser({ uid }: { uid: string }): ResponseUser {
+  async deleteItem({ uid }: { uid: string }): ResData {
     const user = this.userModel.findOne({ where: { uid, status: true } });
 
     if (!user)

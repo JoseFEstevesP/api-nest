@@ -16,7 +16,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { Rol } from 'src/rol/entities/rol.entity';
 import { ReqUidDTO } from '../dto/ReqUid.dto';
 import { UserDeleteDTO } from './dto/UserDelete.dto';
-import { UserSearchDTO } from './dto/UserSearch.dto';
 import { UserUpdateDTO } from './dto/UserUpdate.dto';
 import { UserUpdateProfileDataDTO } from './dto/UserUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/UserUpdateProfileEmail.dto';
@@ -30,9 +29,7 @@ import { deleteMiddleware } from './middleware/delete';
 import { getAllMiddleware } from './middleware/getAll';
 import { getOneMiddleware } from './middleware/getOne';
 import { profileMiddleware } from './middleware/profile';
-import { searchMiddleware } from './middleware/search';
 import { updateMiddleware } from './middleware/update';
-import { ResListUser } from './user';
 import { UserService } from './user.service';
 
 @ApiTags('User')
@@ -44,13 +41,13 @@ export class UserController {
   ) {}
 
   @Post()
-  createUser(@Body() newUser: UserRegisterDTO) {
-    return this.userService.register({ data: newUser });
+  createUser(@Body() data: UserRegisterDTO) {
+    return this.userService.register({ data });
   }
 
   @Post('/login')
-  loginUser(@Body() loginUser: UserLoginDTO) {
-    return this.userService.login({ data: loginUser });
+  loginUser(@Body() data: UserLoginDTO) {
+    return this.userService.login({ data });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -68,46 +65,18 @@ export class UserController {
     const validate = await getOneMiddleware({ uidRol: req.user.uidRol });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.userService.findOneUser({ uid: data.uid });
+    return this.userService.getOne({ uid: data.uid });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAllUser(
-    @Query() { limit, order, orderProperty, page, status }: UserGetAllDTO,
-    @Req() req: ReqUidDTO,
-  ) {
+  async getAllUser(@Query() filter: UserGetAllDTO, @Req() req: ReqUidDTO) {
     const validate = await getAllMiddleware({ uidRol: req.user.uidRol });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.userService.findAll({
+    return this.userService.getData({
       uid: req.user.uid,
-      limit: +limit,
-      order,
-      orderProperty,
-      page: +page,
-      status,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/search')
-  async getSearchUser(
-    @Query()
-    { limit, order, orderProperty, page, status, search }: UserSearchDTO,
-    @Req() req: ReqUidDTO,
-  ): ResListUser {
-    const validate = await searchMiddleware({ uidRol: req.user.uidRol });
-    if (validate?.errors) throw new HttpException(validate, 401);
-
-    return this.userService.findSearch({
-      uid: req.user.uid,
-      limit: +limit,
-      order: order,
-      orderProperty: orderProperty,
-      page: +page,
-      status: status,
-      search: search,
+      filter,
     });
   }
 
@@ -171,6 +140,6 @@ export class UserController {
     const validate = await deleteMiddleware({ uidRol: req.user.uidRol });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.userService.deleteUser({ uid: data.uid });
+    return this.userService.deleteItem({ uid: data.uid });
   }
 }

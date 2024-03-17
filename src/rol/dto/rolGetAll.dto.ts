@@ -10,6 +10,7 @@ export class RolGetAllDTO extends PartialType(queryDTO) {
     message: 'La propiedad de orden no es válida',
   })
   readonly orderProperty?: OrderRolProperty;
+
   @IsOptional()
   @IsEnum(Permission, {
     message: 'La propiedad de permiso no es válida',

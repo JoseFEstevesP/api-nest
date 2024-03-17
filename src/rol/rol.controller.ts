@@ -19,12 +19,10 @@ import { RolUpdateDTO } from './dto/RolUpdate.dto';
 import { RolGetDTO } from './dto/rolGet.dto';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
-import { RolSearchDTO } from './dto/rolSearch.dto';
 import { deleteMiddleware } from './middleware/delete';
 import { getAllMiddleware } from './middleware/getAll';
 import { getOneMiddleware } from './middleware/getOne';
 import { registerMiddleware } from './middleware/register';
-import { searchMiddleware } from './middleware/search';
 import { updateMiddleware } from './middleware/update';
 import { RolService } from './rol.service';
 
@@ -55,49 +53,13 @@ export class RolController {
   @Get()
   async getAllRol(
     @Query()
-    { limit, order, orderProperty, page, status, permission }: RolGetAllDTO,
+    filter: RolGetAllDTO,
     @Req() req: ReqUidDTO,
   ) {
     const validate = await getAllMiddleware({ uidRol: req.user.uidRol });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.rolService.findAll({
-      limit: +limit,
-      order,
-      orderProperty,
-      page: +page,
-      status,
-      permission,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/search')
-  async getSearchRol(
-    @Query()
-    {
-      limit,
-      order,
-      orderProperty,
-      page,
-      status,
-      search,
-      permission,
-    }: RolSearchDTO,
-    @Req() req: ReqUidDTO,
-  ) {
-    const validate = await searchMiddleware({ uidRol: req.user.uidRol });
-    if (validate?.errors) throw new HttpException(validate, 401);
-
-    return this.rolService.findSearch({
-      limit: +limit,
-      order: order,
-      orderProperty: orderProperty,
-      page: +page,
-      status: status,
-      search: search,
-      permission,
-    });
+    return this.rolService.findAll(filter);
   }
 
   @UseGuards(JwtAuthGuard)

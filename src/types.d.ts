@@ -8,7 +8,9 @@ export type PromiseError = Promise<ResponseError>;
 
 export interface Query {
   status?: boolean;
-  limit: number;
-  page: number;
-  order: Order;
+  limit?: string;
+  page?: string;
+  order?: Order;
 }
+
+export type ResData = Promise<{ msg: string } | ResponseError>;
