@@ -1,6 +1,6 @@
 import { Query, ResponseError } from 'src/types';
-import { OrderUserProperty } from './constant/orderProperty';
 import { User } from './entities/user.entities';
+import { OrderUserProperty } from './enum/orderProperty';
 
 export interface DataUser {
   uid: string;
@@ -10,6 +10,7 @@ export interface DataUser {
   email: string;
   password: string;
   status: boolean;
+  uidRol: string;
 }
 
 export type DataUserOfExtraData = Omit<DataUser, 'status'>;
@@ -55,19 +56,6 @@ export interface ValidateUser<T> {
 export interface UserJWT {
   user: { uid: string };
 }
-
-export type ResListUser = Promise<
-  | {
-      rows: Array<DataUserGetAll>;
-      count: number;
-      currentPage: number;
-      nextPage: number | null;
-      previousPage: number | null;
-      limit: number;
-      pages: number;
-    }
-  | ResponseError
->;
 
 export interface GetUsers extends Query {
   orderProperty?: OrderUserProperty;

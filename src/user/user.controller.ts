@@ -11,9 +11,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { ApiTags } from '@nestjs/swagger';
-import { Rol } from 'src/rol/entities/rol.entity';
+import { booleanStatus } from 'src/functions/booleanStatus';
+import { validateMiddleware } from 'src/middlewares/validateMiddleware';
+import { Permission } from 'src/rol/enum/permissions';
 import { ReqUidDTO } from '../dto/ReqUid.dto';
 import { UserDeleteDTO } from './dto/UserDelete.dto';
 import { UserUpdateDTO } from './dto/UserUpdate.dto';
@@ -25,24 +26,16 @@ import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserLoginDTO } from './dto/userLogin.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';
 import { JwtAuthGuard } from './jwtUser.guard';
-import { deleteMiddleware } from './middleware/delete';
-import { getAllMiddleware } from './middleware/getAll';
-import { getOneMiddleware } from './middleware/getOne';
-import { profileMiddleware } from './middleware/profile';
-import { updateMiddleware } from './middleware/update';
 import { UserService } from './user.service';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    @InjectModel(Rol) private readonly rolModel: typeof Rol,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post()
   createUser(@Body() data: UserRegisterDTO) {
-    return this.userService.register({ data });
+    return this.userService.create({ data });
   }
 
   @Post('/login')
@@ -53,7 +46,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   async profileUser(@Req() req: ReqUidDTO) {
-    const validate = await profileMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userProfile,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
     return this.userService.profile({ uid: req.user.uid });
@@ -62,28 +58,38 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('/one/:uid')
   async getUser(@Param() data: UserGetDTO, @Req() req: ReqUidDTO) {
-    const validate = await getOneMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userReadOne,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.userService.getOne({ uid: data.uid });
+    return this.userService.findOne({ uid: data.uid });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllUser(@Query() filter: UserGetAllDTO, @Req() req: ReqUidDTO) {
-    const validate = await getAllMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userRead,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.userService.getData({
+    return this.userService.findAll({
+      ...filter,
       uid: req.user.uid,
-      filter,
+      status: booleanStatus({ status: filter.status }),
     });
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch()
   async update(@Body() data: UserUpdateDTO, @Req() req: ReqUidDTO) {
-    const validate = await updateMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userUpdate,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
     return this.userService.update({ data });
@@ -95,9 +101,11 @@ export class UserController {
     @Body() data: UserUpdateProfileDataDTO,
     @Req() req: ReqUidDTO,
   ) {
-    const validate = await profileMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userProfile,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
-
     return this.userService.updateProfile({ data, uid: req.user.uid });
   }
 
@@ -107,9 +115,11 @@ export class UserController {
     @Body() data: UserUpdateProfileEmailDTO,
     @Req() req: ReqUidDTO,
   ) {
-    const validate = await profileMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userProfile,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
-
     return this.userService.updateProfileEmail({ data, uid: req.user.uid });
   }
 
@@ -119,25 +129,32 @@ export class UserController {
     @Body() data: UserUpdateProfilePasswordDTO,
     @Req() req: ReqUidDTO,
   ) {
-    const validate = await profileMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userProfile,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
-
     return this.userService.updateProfilePassword({ data, uid: req.user.uid });
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/profile/unregister')
   async unregister(@Req() req: ReqUidDTO) {
-    const validate = await profileMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userProfile,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
-
     return this.userService.unregister({ uid: req.user.uid });
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('/delete/:uid')
   async delete(@Param() data: UserDeleteDTO, @Req() req: ReqUidDTO) {
-    const validate = await deleteMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.userDelete,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
     return this.userService.deleteItem({ uid: data.uid });

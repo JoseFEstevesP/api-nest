@@ -4,7 +4,7 @@ export const userMsg: Msg = {
   findOne: 'No se a encontrado ningún usuario',
   register: 'Usuario registrado exitosamente',
   validation: {
-    disability: 'Este usuario ya está registrado, pero yo deshabilitado',
+    disability: 'Este usuario ya está registrado, pero está deshabilitado',
     default: 'Este usuario ya está registrado',
   },
   login: {

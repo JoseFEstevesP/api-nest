@@ -1,14 +1,19 @@
+import { validatePermission } from 'src/functions/validatePermissions';
 import { globalMsg } from 'src/globalMsg';
 import { Rol } from 'src/rol/entities/rol.entity';
-import { Permission } from 'src/rol/enum/permissions';
-import { validatePermission } from '../../functions/validatePermissions';
 
-export const updateMiddleware = async ({ uidRol }: { uidRol: string }) => {
+export const validateMiddleware = async ({
+  uidRol,
+  permission,
+}: {
+  uidRol: string;
+  permission: string;
+}) => {
   const validate = await Rol.findOne({ where: { uid: uidRol } });
   if (
     !validatePermission({
       permissions: validate.permissions,
-      permission: Permission.rolUpdate,
+      permission,
     })
   ) {
     return { errors: [{ error: [{ error: globalMsg.userUnauthorized }] }] };

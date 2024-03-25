@@ -1,4 +1,5 @@
-import { BelongsTo, Column, Model, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, HasMany, Model, Table } from 'sequelize-typescript';
+import { Info } from 'src/info/entities/info.entity';
 import { Rol } from 'src/rol/entities/rol.entity';
 import { DataUser } from '../user';
 
@@ -27,5 +28,9 @@ export class User extends Model<User> implements DataUser {
 
   @BelongsTo(() => Rol, { foreignKey: 'uidRol', targetKey: 'uid' })
   rol: Rol;
+  @Column({ defaultValue: true, allowNull: false })
   uidRol: string;
+
+  @HasMany(() => Info, { foreignKey: 'uidUser', sourceKey: 'uid' })
+  info: Info;
 }

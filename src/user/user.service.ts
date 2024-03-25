@@ -4,21 +4,20 @@ import { InjectModel } from '@nestjs/sequelize';
 import { compare, hash } from 'bcrypt';
 import { Op } from 'sequelize';
 import { Order } from 'src/constants/order';
-import { ResData } from './../types';
-import { OrderUserProperty } from './constant/orderProperty';
+import { ResData, ResList } from './../types';
 import { salt } from './constants/sal';
 import { User } from './entities/user.entities';
+import { OrderUserProperty } from './enum/orderProperty';
 import { validateUserLogin } from './functions/validateUserLogin';
 import { validateUser } from './functions/validateUserRegister';
 import {
+  DataUserGetAll,
   DataUserLogin,
   DataUserOfExtraData,
   DataUserUpdate,
   DataUserUpdateProfile,
   DataUserUpdateProfileEmail,
-  Filter,
   GetUsers,
-  ResListUser,
   ResUser,
   ReturnLoginUser,
 } from './user';
@@ -31,7 +30,7 @@ export class UserService {
     private jwtService: JwtService,
   ) {}
 
-  async register({ data }: { data: DataUserOfExtraData }): ResData {
+  async create({ data }: { data: DataUserOfExtraData }): ResData {
     const { uid, ci, email, password } = data;
     const isUserByUid = await this.userModel.findOne({
       where: { uid },
@@ -107,7 +106,7 @@ export class UserService {
     return user;
   }
 
-  async getOne({ uid }: { uid: string }): ResUser {
+  async findOne({ uid }: { uid: string }): ResUser {
     const user = await this.userModel.findOne({
       where: { uid, status: true },
       attributes: {
@@ -121,14 +120,15 @@ export class UserService {
     throw new HttpException(user, 200);
   }
 
-  async get({
-    status = true,
-    limit,
-    page,
-    orderProperty = OrderUserProperty.name,
-    order = Order.ASC,
-    search,
-  }: GetUsers) {
+  async findAll(filter: GetUsers): ResList<DataUserGetAll> {
+    const {
+      limit,
+      page,
+      search,
+      status = true,
+      orderProperty = OrderUserProperty.name,
+      order = Order.ASC,
+    } = filter;
     const li = +limit || 30;
     const pa = +page || 1;
     const { rows, count } = await this.userModel.findAndCountAll({
@@ -156,15 +156,7 @@ export class UserService {
     const nextPage = totalPage + 1;
     const previousPage = totalPage - 1;
 
-    return { rows, count, pages, totalPage, nextPage, previousPage, li };
-  }
-
-  async getData({ filter, uid }: Filter<GetUsers>): ResListUser {
-    const { status, limit, page, orderProperty, order, search } = filter;
-    const { rows, count, pages, totalPage, nextPage, previousPage, li } =
-      await this.get({ status, limit, page, orderProperty, order, search });
-
-    const data: Array<User> = rows.filter((item) => item.uid !== uid);
+    const data: Array<User> = rows.filter((item) => item.uid !== filter.uid);
 
     throw new HttpException(
       {

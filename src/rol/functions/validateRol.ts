@@ -10,7 +10,7 @@ export const validateRol = async ({
   const errors: ResError = [];
 
   validation({ resValidation: models.isRolByUid, errors, msg, name: 'uid' });
-  validation({ resValidation: models.isRolByName, errors, msg, name: 'ci' });
+  validation({ resValidation: models.isRolByName, errors, msg, name: 'name' });
 
   if (errors.length > 0) {
     return { errors };

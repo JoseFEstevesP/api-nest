@@ -57,4 +57,8 @@ export class UserRegisterDTO implements DataUserOfExtraData {
   @IsNotEmpty({ message: 'El campo Contraseña no puede venir vacío' })
   @Transform(({ value }) => value.trim())
   readonly password: string;
+
+  @IsUUID('all', { message: 'EL campo ROL UID, no es un UUID valido' })
+  @IsNotEmpty({ message: 'El campo ROL UID no puede venir vacío' })
+  readonly uidRol: string;
 }

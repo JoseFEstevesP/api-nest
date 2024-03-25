@@ -10,7 +10,7 @@ export class Rol extends Model<Rol> implements DataRol {
   @Column({ allowNull: false })
   name: string;
 
-  @Column({ allowNull: false, type: DataType.STRING(5000) })
+  @Column({ allowNull: false, type: DataType.TEXT })
   permissions: string;
 
   @Column({ defaultValue: true, allowNull: false })

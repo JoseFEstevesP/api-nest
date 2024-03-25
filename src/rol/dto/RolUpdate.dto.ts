@@ -1,5 +1,5 @@
 import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { RolRegisterDTO } from './rolRegister.dto';
+import { RolRegisterDTO } from './RolRegister.dto';
 
 export class RolUpdateDTO extends RolRegisterDTO {
   @IsBoolean({ message: 'Este campo tiene que se de tipo booleano' })

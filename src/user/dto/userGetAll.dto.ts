@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { queryDTO } from 'src/dto/query.dto';
-import { OrderUserProperty } from '../constant/orderProperty';
+import { OrderUserProperty } from '../enum/orderProperty';
 
 export class UserGetAllDTO extends PartialType(queryDTO) {
   @IsEnum(OrderUserProperty, {

@@ -12,18 +12,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ReqUidDTO } from 'src/dto/ReqUid.dto';
+import { booleanStatus } from 'src/functions/booleanStatus';
+import { validateMiddleware } from 'src/middlewares/validateMiddleware';
 import { JwtAuthGuard } from 'src/user/jwtUser.guard';
-import { RolDeleteDTO } from './dto/RolDeleteDTO';
+import { ReqUidDTO } from './../dto/ReqUid.dto';
+import { RolDeleteDTO } from './dto/RolDelete.dto';
+import { RolGetDTO } from './dto/RolGet.dto';
+import { RolGetAllDTO } from './dto/RolGetAll.dto';
+import { RolRegisterDTO } from './dto/RolRegister.dto';
 import { RolUpdateDTO } from './dto/RolUpdate.dto';
-import { RolGetDTO } from './dto/rolGet.dto';
-import { RolGetAllDTO } from './dto/rolGetAll.dto';
-import { RolRegisterDTO } from './dto/rolRegister.dto';
-import { deleteMiddleware } from './middleware/delete';
-import { getAllMiddleware } from './middleware/getAll';
-import { getOneMiddleware } from './middleware/getOne';
-import { registerMiddleware } from './middleware/register';
-import { updateMiddleware } from './middleware/update';
+import { Permission } from './enum/permissions';
 import { RolService } from './rol.service';
 
 @ApiTags('Rol')
@@ -34,19 +32,25 @@ export class RolController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async registerRol(@Body() data: RolRegisterDTO, @Req() req: ReqUidDTO) {
-    const validate = await registerMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.rolAdd,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.rolService.register({ data });
+    return this.rolService.create({ data });
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/one/:uid')
   async getRol(@Param() data: RolGetDTO, @Req() req: ReqUidDTO) {
-    const validate = await getOneMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.rolReadOne,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.rolService.findOneRol({ uid: data.uid });
+    return this.rolService.findOne({ uid: data.uid });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -56,16 +60,25 @@ export class RolController {
     filter: RolGetAllDTO,
     @Req() req: ReqUidDTO,
   ) {
-    const validate = await getAllMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.rolRead,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.rolService.findAll(filter);
+    return this.rolService.findAll({
+      ...filter,
+      status: booleanStatus({ status: filter.status }),
+    });
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch()
   async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
-    const validate = await updateMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.rolUpdate,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
     return this.rolService.update({ data });
@@ -74,9 +87,12 @@ export class RolController {
   @UseGuards(JwtAuthGuard)
   @Delete('/delete/:uid')
   async delete(@Param() data: RolDeleteDTO, @Req() req: ReqUidDTO) {
-    const validate = await deleteMiddleware({ uidRol: req.user.uidRol });
+    const validate = await validateMiddleware({
+      uidRol: req.user.uidRol,
+      permission: Permission.rolDelete,
+    });
     if (validate?.errors) throw new HttpException(validate, 401);
 
-    return this.rolService.deleteRol({ uid: data.uid });
+    return this.rolService.remove({ uid: data.uid });
   }
 }

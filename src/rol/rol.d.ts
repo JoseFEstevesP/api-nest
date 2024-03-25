@@ -1,4 +1,5 @@
-import { Query, ResponseError } from 'src/types';
+import { Query } from 'src/types';
+import { OrderRolProperty } from './enum/orderProperty';
 import { Permission } from './enum/permissions';
 
 export interface DataRol {
@@ -26,20 +27,7 @@ export interface Msg {
 }
 
 export interface GetRol extends Query {
-  orderProperty?: OrderUserProperty;
+  orderProperty?: OrderRolProperty;
   search?: string;
   permission?: Permission;
 }
-
-export type ResListRol = Promise<
-  | {
-      rows: Array<DataRolOfStatus>;
-      count: number;
-      currentPage: number;
-      nextPage: number | null;
-      previousPage: number | null;
-      limit: number;
-      pages: number;
-    }
-  | ResponseError
->;

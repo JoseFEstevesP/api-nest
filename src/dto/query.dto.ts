@@ -1,10 +1,10 @@
-import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { Order } from 'src/constants/order';
 
 export class queryDTO {
-  @IsBoolean({ message: 'El estatus tiene que ser de tipo booleano' })
+  @IsString({ message: 'El estatus tiene que ser de tipo string' })
   @IsOptional()
-  readonly status?: boolean;
+  readonly status?: string;
 
   @IsString({ message: 'La página tiene que ser una cadena de texto' })
   readonly page: string;
