@@ -7,5 +7,8 @@ export const validationLogin = ({ resValidation, msg, name, errors }) => {
     if (!resValidation?.status) {
       errors.push({ [name]: msg.login.status });
     }
+    if (!resValidation?.activatedAccount) {
+      errors.push({ [name]: msg.login.activatedAccount });
+    }
   }
 };

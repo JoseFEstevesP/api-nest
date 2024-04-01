@@ -4,7 +4,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { compare, hash } from 'bcrypt';
 import { Op } from 'sequelize';
 import { Order } from 'src/constants/order';
-import { ResData, ResList } from './../types';
+import { EmailService } from 'src/services/email.service';
+import { ResData, ResList } from 'src/types';
 import { salt } from './constants/sal';
 import { User } from './entities/user.entities';
 import { OrderUserProperty } from './enum/orderProperty';
@@ -23,11 +24,21 @@ import {
 } from './user';
 import { userMsg } from './user.msg';
 
+const excludeColum: string[] = [
+  'password',
+  'status',
+  'createdAt',
+  'updatedAt',
+  'activatedAccount',
+  'code',
+];
+
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private readonly userModel: typeof User,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async create({ data }: { data: DataUserOfExtraData }): ResData {
@@ -49,13 +60,19 @@ export class UserService {
 
     if (val) throw new HttpException(val, 409);
 
-    const hashPass = await hash(password, salt);
+    const code = crypto.randomUUID();
+    const token = this.jwtService.sign({
+      code,
+      ci,
+    });
+    this.emailService.activatedAccount({ code: token, email });
 
+    const hashPass = await hash(password, salt);
     const user = await this.userModel.create({
       ...data,
       password: hashPass,
+      code,
     });
-
     await user.save();
 
     throw new HttpException({ msg: userMsg.register }, 200);
@@ -110,7 +127,7 @@ export class UserService {
     const user = await this.userModel.findOne({
       where: { uid, status: true },
       attributes: {
-        exclude: ['password', 'status', 'createdAt', 'updatedAt'],
+        exclude: excludeColum,
       },
     });
 
@@ -144,7 +161,7 @@ export class UserService {
         }),
       },
       attributes: {
-        exclude: ['password', 'status', 'createdAt', 'updatedAt'],
+        exclude: excludeColum,
       },
       limit: li,
       offset: (pa - 1) * li,
@@ -254,7 +271,7 @@ export class UserService {
   }
 
   async unregister({ uid }: { uid: string }): ResData {
-    const user = this.userModel.findOne({ where: { uid } });
+    const user = await this.userModel.findOne({ where: { uid } });
 
     if (!user) {
       throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
@@ -265,12 +282,76 @@ export class UserService {
   }
 
   async deleteItem({ uid }: { uid: string }): ResData {
-    const user = this.userModel.findOne({ where: { uid, status: true } });
+    const user = await this.userModel.findOne({ where: { uid, status: true } });
 
     if (!user)
       throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
 
     (await user).update({ status: false });
     throw new HttpException({ msg: userMsg.unregister }, 200);
+  }
+
+  async recoveryPassword({ email }: { email: string }): ResData {
+    const user = await this.userModel.findOne({
+      where: { email, status: true },
+    });
+
+    if (!user)
+      throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
+    const code = crypto.randomUUID();
+
+    await user.update({ code });
+
+    const token = this.jwtService.sign({
+      code,
+      email,
+    });
+    this.emailService.recoveryPassword({ code: token, email });
+
+    throw new HttpException({ msg: userMsg.recoveryPassword }, 200);
+  }
+
+  async recoveryPass({ code }: { code: string }): ResData {
+    const { code: codeVerify, email } = await this.jwtService.verify(code, {
+      publicKey: process.env.JWT_KEY,
+    });
+    const user = await this.userModel.findOne({
+      where: { email, code: codeVerify, status: true },
+    });
+
+    if (!user)
+      throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
+
+    const newPassword = `Farmapatria-${user.ci}`;
+    const hashPass = await hash(newPassword, salt);
+    await user.update({
+      password: hashPass,
+      code: null,
+    });
+
+    throw new HttpException({ msg: `Nueva contraseña: ${newPassword}` }, 200);
+  }
+
+  async activatedAccount({ code }: { code: string }): ResData {
+    const { code: codeVerify, ci } = await this.jwtService.verify(code, {
+      publicKey: process.env.JWT_KEY,
+    });
+
+    const user = await this.userModel.findOne({
+      where: { ci, code: codeVerify, status: true },
+    });
+
+    if (!user)
+      throw new HttpException({ errors: [{ uid: userMsg.findOne }] }, 409);
+
+    await user.update({
+      code: null,
+      activatedAccount: true,
+    });
+
+    throw new HttpException(
+      { msg: `Cuenta activada inicie sesión para continuar.` },
+      200,
+    );
   }
 }

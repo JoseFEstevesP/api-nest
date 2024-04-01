@@ -17,6 +17,7 @@ import { validateMiddleware } from 'src/middlewares/validateMiddleware';
 import { Permission } from 'src/rol/enum/permissions';
 import { ReqUidDTO } from '../dto/ReqUid.dto';
 import { UserDeleteDTO } from './dto/UserDelete.dto';
+import { UserRecoveryPasswordDTO } from './dto/UserRecoveryPassword.dto';
 import { UserUpdateDTO } from './dto/UserUpdate.dto';
 import { UserUpdateProfileDataDTO } from './dto/UserUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/UserUpdateProfileEmail.dto';
@@ -158,5 +159,20 @@ export class UserController {
     if (validate?.errors) throw new HttpException(validate, 401);
 
     return this.userService.deleteItem({ uid: data.uid });
+  }
+
+  @Post('/recoveryPassword')
+  async recovery(@Body() data: UserRecoveryPasswordDTO) {
+    return this.userService.recoveryPassword({ email: data.email });
+  }
+
+  @Get('/recoveryPass/:code')
+  async recoveryPass(@Param() code: { code: string }) {
+    return this.userService.recoveryPass(code);
+  }
+
+  @Get('/activated/:code')
+  async activatedAccount(@Param() code: { code: string }) {
+    return this.userService.activatedAccount(code);
   }
 }

@@ -1,6 +1,4 @@
-import { Msg } from './rol';
-
-export const rolMsg: Msg = {
+export const rolMsg = {
   findOne: 'No se a encontrado ningún rol',
   register: 'Rol registrado exitosamente',
   validation: {

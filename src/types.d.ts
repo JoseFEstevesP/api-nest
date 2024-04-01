@@ -14,3 +14,16 @@ export interface Query {
 }
 
 export type ResData = Promise<{ msg: string } | ResponseError>;
+
+export type ResList<T> = Promise<
+  | {
+      rows: Array<T>;
+      count: number;
+      currentPage: number;
+      nextPage: number | null;
+      previousPage: number | null;
+      limit: number;
+      pages: number;
+    }
+  | ResponseError
+>;

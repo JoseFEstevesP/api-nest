@@ -10,7 +10,9 @@ export interface DataUser {
   email: string;
   password: string;
   status: boolean;
+  code?: string;
   uidRol: string;
+  activatedAccount?: boolean;
 }
 
 export type DataUserOfExtraData = Omit<DataUser, 'status'>;
@@ -43,6 +45,7 @@ export interface Msg {
     passwordError: string;
     error: string;
   };
+  recoveryPassword: string;
   unregister: string;
 }
 
