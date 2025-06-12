@@ -1,0 +1,42 @@
+export const msg = {
+	findOne: 'No se ha encontrado ningún rol',
+	findUserExit:
+		'No se puede eliminar ya que un usuario está asignado a este rol',
+	register: 'Rol registrado exitosamente',
+	validation: {
+		disability: 'Este rol ya está registrado, pero está deshabilitado',
+		default: 'Este rol ya está registrado',
+	},
+	update: 'Rol actualizado exitosamente',
+	delete: 'Rol eliminado',
+	dto: {
+		permission: 'La propiedad de permiso no es válida',
+	},
+	log: {
+		create: 'Creando rol',
+		createAut: 'Creando rol automático',
+		createAutProcess: 'Proceso para crear rol automático',
+		createAutVerify: 'Verificando existencia de rol automático',
+		createAutSuccess: 'Rol automático creado exitosamente',
+		createSuccess: 'Rol creado exitosamente',
+		errorValidator: 'Falló la validación',
+		rolError: 'Rol no encontrado',
+		findOne: 'Encontrar rol con UID',
+		findOneSuccess: 'Rol encontrado exitosamente',
+		findAll: 'Encontrar o buscar rol',
+		findAllSuccess: 'Rol encontrado o buscado exitosamente',
+		update: 'Actualizar rol',
+		updateSuccess: 'Rol actualizado exitosamente',
+		remove: 'Eliminar rol',
+		removeSuccess: 'Rol eliminado exitosamente',
+		controller: {
+			create: 'Registrando nuevo rol en el controlador con datos',
+			login: 'Controlador de inicio de sesión de rol con datos',
+			findOne: 'Encontrar controlador de rol con UID',
+			findAll: 'Encontrar o buscar controlador de rol',
+			valError: 'Error de validación del rol',
+			update: 'Actualizar controlador de rol',
+			remove: 'Eliminar controlador de rol',
+		},
+	},
+};
