@@ -53,7 +53,7 @@ export class UserService {
 		private readonly jwtService: JwtService,
 		private readonly auditService: AuditService,
 		private configService: ConfigService<EnvironmentVariables>,
-		@Inject(CACHE_MANAGER) private cacheManager: Cache,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {
 		this.userModel = userModel;
 	}
