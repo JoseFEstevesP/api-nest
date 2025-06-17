@@ -1,7 +1,7 @@
 import { AuditModule } from '@/audit/audit.module';
+import { RolModule } from '@/rol/rol.module';
 import { SharedModule } from '@/shared/shared.module';
-import { SharedServicesModule } from '@/shared/SharedServices.module';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
@@ -11,8 +11,8 @@ import { UserService } from './user.service';
 	imports: [
 		SequelizeModule.forFeature([User]),
 		SharedModule,
-		AuditModule,
-		SharedServicesModule,
+		forwardRef(() => AuditModule),
+		forwardRef(() => RolModule),
 	],
 	controllers: [UserController],
 	providers: [UserService],

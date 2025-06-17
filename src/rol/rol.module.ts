@@ -1,12 +1,12 @@
-import { SharedServicesModule } from '@/shared/SharedServices.module';
-import { Module } from '@nestjs/common';
+import { UserModule } from '@/user/user.module';
+import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Role } from './entities/rol.entity';
 import { RolController } from './rol.controller';
 import { RolService } from './rol.service';
 
 @Module({
-	imports: [SequelizeModule.forFeature([Role]), SharedServicesModule],
+	imports: [SequelizeModule.forFeature([Role]), forwardRef(() => UserModule)],
 	controllers: [RolController],
 	providers: [RolService],
 	exports: [RolService, SequelizeModule.forFeature([Role])],
