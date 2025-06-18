@@ -1,7 +1,8 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
-import { Permission } from '@/rol/enum/permissions';
-import { ValidPermission } from '@/valid-permission/valid-permission.decorator';
-import { PermissionsGuard } from '@/valid-permission/valid-permission.guard';
+import { JwtAuthGuard } from '@/modules/security/auth/guards/jwt-auth.guard';
+import { Permission } from '@/modules/security/rol/enum/permissions';
+import { ValidPermission } from '@/modules/security/valid-permission/valid-permission.decorator';
+import { PermissionsGuard } from '@/modules/security/valid-permission/valid-permission.guard';
 import {
 	Controller,
 	Delete,
@@ -16,7 +17,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { AuditGetAllDTO } from './dto/auditGetAll.dto';
 import { msg } from './msg';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @ApiBearerAuth()
 @ApiTags('Audit')

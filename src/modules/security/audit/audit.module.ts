@@ -1,4 +1,4 @@
-import { RolModule } from '@/rol/rol.module';
+import { RolModule } from '@/modules/security/rol/rol.module';
 import { SharedModule } from '@/shared/shared.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';

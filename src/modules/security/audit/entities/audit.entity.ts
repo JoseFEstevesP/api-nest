@@ -1,4 +1,4 @@
-import { User } from '@/user/entities/user.entity';
+import { User } from '@/modules/security/user/entities/user.entity';
 import {
 	BelongsTo,
 	Column,

@@ -1,7 +1,7 @@
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { Permission } from '@/rol/enum/permissions';
-import { ValidPermission } from '@/valid-permission/valid-permission.decorator';
-import { PermissionsGuard } from '@/valid-permission/valid-permission.guard';
+import { JwtAuthGuard } from '@/modules/security/auth/guards/jwt-auth.guard';
+import { Permission } from '@/modules/security/rol/enum/permissions';
+import { ValidPermission } from '@/modules/security/valid-permission/valid-permission.decorator';
+import { PermissionsGuard } from '@/modules/security/valid-permission/valid-permission.guard';
 import {
 	Body,
 	Controller,
@@ -16,7 +16,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ReqUidDTO } from '../dto/ReqUid.dto';
+import { ReqUidDTO } from '../../../dto/ReqUid.dto';
 import { UserActivateCountDTO } from './dto/UserActivateCount.dto';
 import { UserDeleteDTO } from './dto/UserDelete.dto';
 import { UserNewPasswordDTO } from './dto/UserNewPassword.dto';

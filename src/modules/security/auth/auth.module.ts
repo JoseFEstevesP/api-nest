@@ -1,6 +1,6 @@
-import { AuditModule } from '@/audit/audit.module';
 import { EnvironmentVariables } from '@/config/env.config';
-import { UserModule } from '@/user/user.module';
+import { AuditModule } from '@/modules/security/audit/audit.module';
+import { UserModule } from '@/modules/security/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';

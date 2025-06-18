@@ -1,7 +1,7 @@
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
-import { ValidPermission } from '@/valid-permission/valid-permission.decorator';
-import { PermissionsGuard } from '@/valid-permission/valid-permission.guard';
+import { JwtAuthGuard } from '@/modules/security/auth/guards/jwt-auth.guard';
+import { ValidPermission } from '@/modules/security/valid-permission/valid-permission.decorator';
+import { PermissionsGuard } from '@/modules/security/valid-permission/valid-permission.guard';
 import {
 	Body,
 	Controller,

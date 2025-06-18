@@ -1,4 +1,3 @@
-import { AuditService } from '@/audit/audit.service';
 import { EnvironmentVariables } from '@/config/env.config';
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
@@ -7,10 +6,11 @@ import {
 	throwHttpExceptionUnique,
 } from '@/functions/throwHttpException';
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
-import { Role } from '@/rol/entities/rol.entity';
-import { Permission } from '@/rol/enum/permissions';
-import { TypeRol } from '@/rol/enum/rolData';
-import { RolService } from '@/rol/rol.service';
+import { AuditService } from '@/modules/security/audit/audit.service';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
+import { Permission } from '@/modules/security/rol/enum/permissions';
+import { TypeRol } from '@/modules/security/rol/enum/rolData';
+import { RolService } from '@/modules/security/rol/rol.service';
 import { EmailService } from '@/services/email.service';
 import { PaginationResult } from '@/types';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';

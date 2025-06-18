@@ -1,6 +1,6 @@
 import { validatePermission } from '@/functions/validatePermissions';
 import { globalMsg } from '@/globalMsg';
-import { Role } from '@/rol/entities/rol.entity';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 
 export const validateMiddleware = async ({
 	uidRol,

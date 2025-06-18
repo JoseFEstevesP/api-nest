@@ -5,8 +5,8 @@ import {
 	throwHttpExceptionUnique,
 } from '@/functions/throwHttpException';
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
+import { UserService } from '@/modules/security/user/user.service';
 import { PaginationResult } from '@/types';
-import { UserService } from '@/user/user.service';
 import {
 	forwardRef,
 	HttpStatus,

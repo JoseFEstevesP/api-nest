@@ -1,5 +1,5 @@
-import { AuditModule } from '@/audit/audit.module';
-import { RolModule } from '@/rol/rol.module';
+import { AuditModule } from '@/modules/security/audit/audit.module';
+import { RolModule } from '@/modules/security/rol/rol.module';
 import { SharedModule } from '@/shared/shared.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';

@@ -1,4 +1,4 @@
-import { UserModule } from '@/user/user.module';
+import { UserModule } from '@/modules/security/user/user.module';
 import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Role } from './entities/rol.entity';

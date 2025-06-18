@@ -1,9 +1,9 @@
-import { AuditService } from '@/audit/audit.service';
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { User } from '@/user/entities/user.entity';
-import { UserService } from '@/user/user.service';
+import { AuditService } from '@/modules/security/audit/audit.service';
+import { User } from '@/modules/security/user/entities/user.entity';
+import { UserService } from '@/modules/security/user/user.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

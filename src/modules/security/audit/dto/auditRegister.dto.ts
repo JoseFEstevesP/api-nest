@@ -6,7 +6,7 @@ import {
 	IsString,
 	IsUUID,
 } from 'class-validator';
-import { msg } from './../msg';
+import { msg } from '../msg';
 
 export class AuditRegisterDTO {
 	@IsUUID('all', { message: msg.dto.uid })

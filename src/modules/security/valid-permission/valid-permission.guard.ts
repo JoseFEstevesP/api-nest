@@ -1,7 +1,7 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { validatePermission } from '@/functions/validatePermissions';
 import { globalMsg } from '@/globalMsg';
-import { RolService } from '@/rol/rol.service';
+import { RolService } from '@/modules/security/rol/rol.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 

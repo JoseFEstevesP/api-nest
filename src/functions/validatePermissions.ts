@@ -1,4 +1,4 @@
-import { Permission } from '@/rol/enum/permissions';
+import { Permission } from '@/modules/security/rol/enum/permissions';
 
 export const validatePermission = ({
 	permissions,

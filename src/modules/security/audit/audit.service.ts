@@ -1,7 +1,7 @@
 import { Order } from '@/constants/dataConstants';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
+import { User } from '@/modules/security/user/entities/user.entity';
 import { PaginationResult } from '@/types';
-import { User } from '@/user/entities/user.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
