@@ -5,14 +5,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { join } from 'path';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
 import { CorrelationIdMiddleware } from './correlation-id/correlation-id.middleware';
-import { HandelImageModule } from './handel-image/handel-image.module';
+import { FilesModule } from './files/files.module';
 import { RolModule } from './rol/rol.module';
 import { AppConfigService } from './services/config.service';
 import { UserModule } from './user/user.module';
@@ -33,13 +31,13 @@ import { UserModule } from './user/user.module';
 				},
 			],
 		}),
-		ServeStaticModule.forRoot({
-			rootPath: join(process.cwd(), 'uploads'),
-			serveRoot: '/images',
-			serveStaticOptions: {
-				index: false,
-			},
-		}),
+		// ServeStaticModule.forRoot({
+		// 	rootPath: join(process.cwd(), 'uploads'),
+		// 	serveRoot: '/images',
+		// 	serveStaticOptions: {
+		// 		index: false,
+		// 	},
+		// }),
 		ScheduleModule.forRoot(),
 		SequelizeModule.forRootAsync({
 			inject: [ConfigService],
@@ -64,10 +62,10 @@ import { UserModule } from './user/user.module';
 			}),
 			isGlobal: true,
 		}),
+		FilesModule,
 		UserModule,
 		RolModule,
 		AuditModule,
-		HandelImageModule,
 		AuthModule,
 	],
 	providers: [
