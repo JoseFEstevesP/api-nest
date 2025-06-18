@@ -1,10 +1,10 @@
 import { User } from '@/user/entities/user.entity';
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { TypeRol } from '../enum/rolData';
-import { DataRol } from '../rol';
+import { RolTypes } from '../types';
 
 @Table({ tableName: 'Roles' })
-export class Role extends Model<Role> implements DataRol {
+export class Role extends Model<Role> implements RolTypes {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID() })
 	declare uid: string;
 

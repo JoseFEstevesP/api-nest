@@ -1,7 +1,7 @@
 import { Permission } from './enum/permissions';
 import { TypeRol } from './enum/rolData';
 
-export interface DataRol {
+export interface RolTypes {
 	uid: string;
 	name: string;
 	permissions: string[];
@@ -9,7 +9,7 @@ export interface DataRol {
 	status: boolean;
 }
 
-export type DataRolOfStatus = Omit<DataRol, 'status'>;
+export type DataRolOfStatus = Omit<RolTypes, 'status'>;
 
 export interface ValidateRol<T> {
 	models: { isRolByUid?: T; isRolByName?: T };
