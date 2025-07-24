@@ -65,17 +65,3 @@ export interface Msg {
 	};
 	unregister: string;
 }
-
-export interface ValidateUser<T> {
-	models: { isUserByUid?: T; isUserByCI?: T; isUserByEmail?: T };
-	msg: Msg;
-}
-
-export interface UserJWT {
-	user: { uid: string };
-}
-
-export interface Filter<T> {
-	filter: T;
-	uid: string;
-}
