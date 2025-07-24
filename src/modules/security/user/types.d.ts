@@ -1,6 +1,6 @@
 import { Sex, V_E } from './enum/data';
 
-export interface DataUser {
+export interface UserTypes {
 	uid: string;
 	v_e: V_E;
 	ci: string;
@@ -16,21 +16,21 @@ export interface DataUser {
 	uidRol: string;
 }
 
-export type DataOptional = Partial<DataUser>;
+export type DataOptional = Partial<UserTypes>;
 export type DataUserOfExtraData = Omit<
-	DataUser,
+	UserTypes,
 	'status' | 'attemptCount' | 'code' | 'activatedAccount' | 'uidRol'
 >;
 export type DataUserGetAll = Omit<
-	DataUser,
+	UserTypes,
 	'status' | 'password' | 'attemptCount'
 >;
 export type DataUserUpdate = Omit<
-	DataUser,
+	UserTypes,
 	'password' | 'attemptCount' | 'uidRol' | 'activatedAccount' | 'code'
 >;
 export type DataUserUpdateProfile = Omit<
-	DataUser,
+	UserTypes,
 	| 'password'
 	| 'email'
 	| 'uid'
@@ -40,9 +40,9 @@ export type DataUserUpdateProfile = Omit<
 	| 'activatedAccount'
 	| 'code'
 >;
-export type DataUserUpdateProfileEmail = Pick<DataUser, 'password' | 'email'>;
-export type DataUserLogin = Pick<DataUser, 'ci' | 'password'>;
-export type DataUserUID = Pick<DataUser, 'uid'>;
+export type DataUserUpdateProfileEmail = Pick<UserTypes, 'password' | 'email'>;
+export type DataUserLogin = Pick<UserTypes, 'ci' | 'password'>;
+export type DataUserUID = Pick<UserTypes, 'uid'>;
 
 export interface Msg {
 	findOne: string;

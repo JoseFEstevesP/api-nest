@@ -8,10 +8,10 @@ import {
 	Table,
 } from 'sequelize-typescript';
 import { Sex, V_E } from '../enum/data';
-import { DataUser } from '../types';
+import { UserTypes } from '../types';
 
 @Table
-export class User extends Model<User> implements DataUser {
+export class User extends Model<User> implements UserTypes {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID() })
 	declare uid: string;
 

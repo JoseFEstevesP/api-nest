@@ -34,9 +34,9 @@ services:
     container_name: redis-api
     image: redis:latest
     ports:
-      - '${REDIS_POST}:${REDIS_POST}'
+      - '${REDIS_PORT}:${REDIS_PORT}'
     environment:
-      - REDIS_PORT=${REDIS_POST}
+      - REDIS_PORT=${REDIS_PORT}
     volumes:
       - redis-data:/data
 

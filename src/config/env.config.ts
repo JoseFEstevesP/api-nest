@@ -74,6 +74,9 @@ export class EnvironmentVariables {
 
 	@IsString()
 	REDIS_URL: string;
+
+	@IsNumber()
+	REDIS_PORT: number;
 }
 
 export const validateEnv = (config: Record<string, any>) => {
