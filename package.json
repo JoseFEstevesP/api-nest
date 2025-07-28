@@ -8,8 +8,8 @@
 	"scripts": {
 		"build": "swc src -d dist --config-file=.swcrc --no-swcrc",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"start": "pnpm migrate && node -r @swc/register -r tsconfig-paths/register src/main.ts",
-		"dev": "pnpm migrate && node -r @swc/register -r tsconfig-paths/register src/main.ts",
+		"start": "nest start",
+		"dev": "pnpm migrate && nest start --watch",
 		"start:debug": "node --inspect -r @swc/register -r tsconfig-paths/register src/main.ts",
 		"start:prod": "pnpm run build && node dist/main.js",
 		"migrate": "sequelize-cli db:migrate",
