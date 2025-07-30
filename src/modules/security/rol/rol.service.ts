@@ -7,6 +7,7 @@ import {
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
 import { UserService } from '@/modules/security/user/user.service';
 import { PaginationResult } from '@/types';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
 	forwardRef,
 	HttpStatus,
@@ -15,7 +16,8 @@ import {
 	Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Cache } from 'cache-manager';
+
+// import { Cache } from 'cache-manager';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
@@ -23,16 +25,17 @@ import { RolUpdateDTO } from './dto/rolUpdate.dto';
 import { Role } from './entities/rol.entity';
 import { OrderRolProperty } from './enum/orderProperty';
 import { msg } from './msg';
+import { IRolService } from './types';
 
 @Injectable()
-export class RolService {
+export class RolService implements IRolService {
 	private readonly logger = new Logger(RolService.name);
 
 	constructor(
 		@InjectModel(Role) private readonly rolModel: typeof Role,
 		@Inject(forwardRef(() => UserService))
 		private readonly userService: UserService,
-		@Inject('CACHE_MANAGER') private readonly cacheManager: Cache,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
 	async create({ data, dataLog }: { data: RolRegisterDTO; dataLog: string }) {

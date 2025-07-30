@@ -13,7 +13,7 @@ import { TypeRol } from '@/modules/security/rol/enum/rolData';
 import { RolService } from '@/modules/security/rol/rol.service';
 import { EmailService } from '@/services/email.service';
 import { PaginationResult } from '@/types';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
 	forwardRef,
 	HttpStatus,
@@ -25,8 +25,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { compare, hash } from 'bcrypt';
-import { Cache } from 'cache-manager';
+// import { Cache } from 'cache-manager';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
+import type { IRolService } from '../rol/types';
 import { salt } from './constants/sal';
 import { UserActivateCountDTO } from './dto/UserActivateCount.dto';
 import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
@@ -48,7 +49,7 @@ export class UserService {
 	constructor(
 		@InjectModel(User) userModel: typeof User,
 		@Inject(forwardRef(() => RolService))
-		private readonly rolService: RolService,
+		private readonly rolService: IRolService,
 		private readonly emailService: EmailService,
 		private readonly jwtService: JwtService,
 		private readonly auditService: AuditService,
