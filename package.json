@@ -6,24 +6,29 @@
 	"private": true,
 	"license": "MIT",
 	"type": "module",
+	"engines": {
+		"node": ">=24.4.1",
+		"pnpm": "10.13.1"
+	},
+	"packageManager": "pnpm@10.13.1",
 	"scripts": {
 		"build": "swc src -d dist --config-file=.swcrc --no-swcrc",
-		"start:debug": "node --inspect -r @swc/register -r tsconfig-paths/register src/main.ts",
-		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"start": "nest start",
 		"dev": "pnpm migrate && nest start --watch",
-		"start:prod": "node dist/main --generate-docs && node dist/main",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
-		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json",
+		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+		"lint": "oxlint . --fix",
+		"lintStaged": "lint-staged",
 		"migrate": "sequelize-cli db:migrate",
 		"migrate:undo": "sequelize-cli db:migrate:undo",
 		"migrate:undo:all": "sequelize-cli db:migrate:undo:all",
-		"lint": "oxlint . --fix",
 		"prepare": "husky",
-		"lintStaged": "lint-staged"
+		"start": "nest start",
+		"start:debug": "node --inspect -r @swc/register -r tsconfig-paths/register src/main.ts",
+		"start:prod": "node dist/main --generate-docs && node dist/main",
+		"test": "vitest",
+		"test:cov": "vitest run --coverage",
+		"test:debug": "vitest --inspect-brk",
+		"test:e2e": "vitest --config vitest.e2e.config.ts",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@formkit/tempo": "0.1.2",
@@ -80,9 +85,11 @@
 		"@types/passport-jwt": "4.0.1",
 		"@types/sequelize": "4.28.20",
 		"@types/supertest": "6.0.3",
+		"@vitest/ui": "3.2.4",
 		"cache-manager": "7.0.0",
 		"husky": "9.1.7",
 		"jest": "30.0.0",
+		"jsdom": "26.1.0",
 		"lint-staged": "16.1.0",
 		"oxlint": "1.0.0",
 		"prettier": "3.5.3",
@@ -94,6 +101,25 @@
 		"ts-loader": "9.5.2",
 		"ts-node": "10.9.2",
 		"tsconfig-paths": "4.2.0",
-		"typescript": "5.8.3"
+		"typescript": "5.8.3",
+		"vite-tsconfig-paths": "5.1.4",
+		"vitest": "3.2.4"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged",
+			"pre-push": "pnpm test"
+		}
+	},
+	"lint-staged": {
+		"*.ts": [
+			"oxlint --fix",
+			"prettier --write"
+		]
+	},
+	"pnpm": {
+		"overrides": {
+			"@nestjs/core": "11.1.3"
+		}
 	}
 }
