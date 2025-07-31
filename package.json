@@ -120,6 +120,14 @@
 	"pnpm": {
 		"overrides": {
 			"@nestjs/core": "11.1.3"
-		}
+		},
+		"onlyBuiltDependencies": [
+			"@nestjs/core",
+			"@scarf/scarf",
+			"@swc/core",
+			"bcrypt",
+			"sharp",
+			"unrs-resolver"
+		]
 	}
 }
