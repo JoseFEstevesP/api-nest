@@ -5,7 +5,12 @@
 	"compilerOptions": {
 		"deleteOutDir": false,
 		"plugins": ["@nestjs/swagger"],
-		"builder": "swc",
+		"builder": {
+			"type": "swc",
+			"options": {
+				"swcrcPath": ".swcrc"
+			}
+		},
 		"typeCheck": true
 	}
 }

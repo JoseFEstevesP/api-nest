@@ -1,19 +1,21 @@
+import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
-import path from 'path';
 
 export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'happy-dom',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-    },
-    setupFiles: ['./test/setup.ts'],
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+	plugins: [tsconfigPaths()],
+	test: {
+		include: ['src/**/*.spec.ts'],
+		exclude: ['node_modules', 'dist'],
+		globals: true,
+		environment: 'node',
+		setupFiles: ['src/test/setup.ts'],
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'lcov'],
+			exclude: ['node_modules', 'test', 'src/main.ts'],
+		},
+		alias: {
+			'@': './src',
+		},
+	},
 });

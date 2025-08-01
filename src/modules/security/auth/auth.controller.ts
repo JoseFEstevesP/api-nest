@@ -10,7 +10,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';

@@ -1,6 +1,5 @@
 import { globalMsg } from '@/globalMsg';
 import {
-	ArrayMinSize,
 	ArrayNotEmpty,
 	IsArray,
 	IsDefined,
@@ -38,7 +37,6 @@ export class RolRegisterDTO {
 
 	@IsArray({ message: globalMsg.dto.arrayValue })
 	@ArrayNotEmpty({ message: msg.dto.permission })
-	@ArrayMinSize(1, { message: msg.dto.permission })
 	@IsEnum(Permission, { each: true, message: globalMsg.dto.stringValue })
 	@IsDefined({ message: globalMsg.dto.defined })
 	readonly permissions: Permission[];

@@ -1,5 +1,4 @@
-import { User } from '@/modules/security/user/entities/user.entity';
-import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { TypeRol } from '../enum/rolData';
 import { RolTypes } from '../types';
 
@@ -14,7 +13,7 @@ export class Role extends Model<Role> implements RolTypes {
 	@Column({ allowNull: false })
 	declare description: string;
 
-	@Column({ allowNull: false })
+	@Column({ allowNull: false, type: DataType.ENUM(...Object.values(TypeRol)) })
 	declare typeRol: TypeRol;
 
 	@Column({ allowNull: false, type: DataType.ARRAY(DataType.TEXT) })
@@ -22,7 +21,4 @@ export class Role extends Model<Role> implements RolTypes {
 
 	@Column({ defaultValue: true, allowNull: false })
 	declare status: boolean;
-
-	@HasMany(() => User)
-	user: User;
 }

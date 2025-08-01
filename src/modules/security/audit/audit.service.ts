@@ -2,11 +2,11 @@ import { Order } from '@/constants/dataConstants';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { PaginationResult } from '@/types';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/sequelize';
-import { Cache } from 'cache-manager';
+// import { Cache } from 'cache-manager';
 import {
 	FindAndCountOptions,
 	Includeable,
