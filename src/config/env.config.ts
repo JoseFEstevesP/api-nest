@@ -84,6 +84,19 @@ export const validateEnv = (config: Record<string, any>) => {
 		config.CORS = config.CORS.split(',').map(item => item.trim());
 	}
 
+	const numericFields = [
+		'PORT',
+		'DATABASE_PORT',
+		'RATE_LIMIT_TTL',
+		'RATE_LIMIT_LIMIT',
+		'REDIS_PORT',
+	];
+	numericFields.forEach(field => {
+		if (config[field] && typeof config[field] === 'string') {
+			config[field] = parseInt(config[field], 10);
+		}
+	});
+
 	const validatedConfig = plainToClass(EnvironmentVariables, config, {
 		enableImplicitConversion: true,
 	});

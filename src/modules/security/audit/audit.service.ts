@@ -6,7 +6,6 @@ import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/sequelize';
-// import { Cache } from 'cache-manager';
 import {
 	FindAndCountOptions,
 	Includeable,
@@ -20,6 +19,7 @@ import { AuditUpdateDTO } from './dto/auditUpdate.dto';
 import { Audit } from './entities/audit.entity';
 import { OrderAuditProperty } from './enum/orderProperty';
 import { msg } from './msg';
+
 @Injectable()
 export class AuditService {
 	private readonly logger = new Logger(AuditService.name);

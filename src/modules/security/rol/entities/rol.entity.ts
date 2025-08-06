@@ -4,13 +4,13 @@ import { RolTypes } from '../types';
 
 @Table({ tableName: 'Roles' })
 export class Role extends Model<Role> implements RolTypes {
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID() })
+	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
 	declare uid: string;
 
-	@Column({ allowNull: false })
+	@Column({ allowNull: false, type: DataType.STRING })
 	declare name: string;
 
-	@Column({ allowNull: false })
+	@Column({ allowNull: false, type: DataType.STRING })
 	declare description: string;
 
 	@Column({ allowNull: false, type: DataType.ENUM(...Object.values(TypeRol)) })
@@ -19,6 +19,6 @@ export class Role extends Model<Role> implements RolTypes {
 	@Column({ allowNull: false, type: DataType.ARRAY(DataType.TEXT) })
 	declare permissions: string[];
 
-	@Column({ defaultValue: true, allowNull: false })
+	@Column({ defaultValue: true, allowNull: false, type: DataType.BOOLEAN })
 	declare status: boolean;
 }

@@ -25,7 +25,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { compare, hash } from 'bcrypt';
-// import { Cache } from 'cache-manager';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
 import type { IRolService } from '../rol/types';
 import { salt } from './constants/sal';

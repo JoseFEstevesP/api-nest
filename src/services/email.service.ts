@@ -6,15 +6,16 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class EmailService {
 	private readonly transporter: nodemailer.Transporter;
-
-	constructor(private configService: ConfigService<EnvironmentVariables>) {
+	constructor(
+		private readonly configService: ConfigService<EnvironmentVariables>,
+	) {
 		this.transporter = nodemailer.createTransport({
 			host: 'smtp.gmail.com',
 			port: 465,
 			secure: true,
 			auth: {
-				user: configService.get<string>('EMAIL_USER'),
-				pass: configService.get<string>('EMAIL_PASS'),
+				user: this.configService.get<string>('EMAIL_USER'),
+				pass: this.configService.get<string>('EMAIL_PASS'),
 			},
 		});
 	}
