@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
-export const createTestingModule = async (metadata: any): Promise<TestingModule> => {
+export const createTestingModule = async (
+	metadata: any,
+): Promise<TestingModule> => {
 	return Test.createTestingModule(metadata).compile();
 };
 

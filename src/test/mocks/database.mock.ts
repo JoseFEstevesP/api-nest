@@ -4,7 +4,9 @@ export const mockSequelize = {
 	authenticate: vi.fn().mockResolvedValue(undefined),
 	close: vi.fn().mockResolvedValue(undefined),
 	sync: vi.fn().mockResolvedValue(undefined),
-	transaction: vi.fn().mockImplementation((callback) => callback(mockTransaction)),
+	transaction: vi
+		.fn()
+		.mockImplementation(callback => callback(mockTransaction)),
 };
 
 export const mockTransaction = {
