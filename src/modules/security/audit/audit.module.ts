@@ -6,10 +6,7 @@ import { AuditService } from './audit.service';
 import { Audit } from './entities/audit.entity';
 
 @Module({
-	imports: [
-		SequelizeModule.forFeature([Audit]),
-		forwardRef(() => RolModule),
-	],
+	imports: [SequelizeModule.forFeature([Audit]), forwardRef(() => RolModule)],
 	controllers: [AuditController],
 	providers: [AuditService],
 	exports: [AuditService],
