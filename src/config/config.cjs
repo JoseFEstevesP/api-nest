@@ -1,4 +1,8 @@
-require('dotenv').config();
+const path = require('path');
+
+const envPath = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
+
+require('dotenv').config({ path: path.resolve(process.cwd(), envPath) });
 
 // Extraer las variables de entorno para evitar llamadas repetidas a process.env
 const {

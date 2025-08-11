@@ -1,14 +1,17 @@
-import { EnvironmentVariables } from '@/config/env.config';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
 	private readonly transporter: nodemailer.Transporter;
-	constructor(
-		private readonly configService: ConfigService<EnvironmentVariables>,
-	) {
+
+	constructor(@Optional() private readonly configService?: ConfigService) {
+		if (!this.configService) {
+			throw new Error(
+				'ConfigService es necesario para el servicio EmailService',
+			);
+		}
 		this.transporter = nodemailer.createTransport({
 			host: 'smtp.gmail.com',
 			port: 465,

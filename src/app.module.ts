@@ -20,7 +20,7 @@ import { AppConfigService } from './services/config.service';
 		ConfigModule.forRoot({
 			validate: validateEnv,
 			isGlobal: true,
-			envFilePath: `.env`,
+			envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
 		}),
 		ThrottlerModule.forRootAsync({
 			inject: [ConfigService],
