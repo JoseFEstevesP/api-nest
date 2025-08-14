@@ -1,7 +1,7 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { validatePermission } from '@/functions/validatePermissions';
 import { globalMsg } from '@/globalMsg';
-import { RolService } from '@/modules/security/rol/rol.service';
+import { FindOneRolUseCase } from '@/modules/security/rol/use-case/find-one-rol.use-case';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -9,7 +9,7 @@ import { Reflector } from '@nestjs/core';
 export class PermissionsGuard implements CanActivate {
 	constructor(
 		private reflector: Reflector,
-		private readonly rolService: RolService,
+		private readonly findOneRolUseCase: FindOneRolUseCase,
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,7 +25,7 @@ export class PermissionsGuard implements CanActivate {
 
 		const uidRol = request.user?.uidRol;
 
-		const rol = await this.rolService.findOne({ uid: uidRol });
+		const rol = await this.findOneRolUseCase.execute({ uid: uidRol });
 
 		if (
 			!validatePermission({

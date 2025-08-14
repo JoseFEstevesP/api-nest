@@ -30,20 +30,48 @@ import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
 import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';
 import { msg } from './msg';
-import { UserService } from './user.service';
+import { ActivateAccountUseCase } from './use-case/activateAccount';
+import { CreateProtectUserUseCase } from './use-case/createProtectUser';
+import { CreateUserUseCase } from './use-case/createUser';
+import { FindAllUsersUseCase } from './use-case/findAllUsers';
+import { GetUserProfileUseCase } from './use-case/getUserProfile';
+import { RecoveryPasswordUseCase } from './use-case/recoveryPassword';
+import { RecoveryVerifyPasswordUseCase } from './use-case/recoveryVerifyPassword';
+import { RemoveUserUseCase } from './use-case/removeUser';
+import { SetNewPasswordUseCase } from './use-case/setNewPassword';
+import { UnregisterUserUseCase } from './use-case/unregisterUser';
+import { UpdateUserUseCase } from './use-case/updateUser';
+import { UpdateUserProfileUseCase } from './use-case/updateUserProfile';
+import { UpdateUserProfileEmailUseCase } from './use-case/updateUserProfileEmail';
+import { UpdateUserProfilePasswordUseCase } from './use-case/updateUserProfilePassword';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
 	private readonly logger = new Logger(UserController.name);
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly createUserUseCase: CreateUserUseCase,
+		private readonly createProtectUserUseCase: CreateProtectUserUseCase,
+		private readonly findAllUsersUseCase: FindAllUsersUseCase,
+		private readonly updateUserUseCase: UpdateUserUseCase,
+		private readonly getUserProfileUseCase: GetUserProfileUseCase,
+		private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
+		private readonly updateUserProfileEmailUseCase: UpdateUserProfileEmailUseCase,
+		private readonly updateUserProfilePasswordUseCase: UpdateUserProfilePasswordUseCase,
+		private readonly unregisterUserUseCase: UnregisterUserUseCase,
+		private readonly removeUserUseCase: RemoveUserUseCase,
+		private readonly recoveryPasswordUseCase: RecoveryPasswordUseCase,
+		private readonly recoveryVerifyPasswordUseCase: RecoveryVerifyPasswordUseCase,
+		private readonly setNewPasswordUseCase: SetNewPasswordUseCase,
+		private readonly activateAccountUseCase: ActivateAccountUseCase,
+	) {}
 
 	@Post()
 	create(@Body() data: UserDefaultRegisterDTO) {
 		this.logger.log(
 			`system - ${data.ci} - ${data.first_surname} ${data.first_name} - ${msg.log.create}`,
 		);
-		return this.userService.create({ data });
+		return this.createUserUseCase.execute(data);
 	}
 
 	@ApiBearerAuth()
@@ -54,7 +82,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.create}`);
 
-		return this.userService.createProtect({ data, dataLog });
+		return this.createProtectUserUseCase.execute({ data, dataLog });
 	}
 
 	@ApiBearerAuth()
@@ -65,7 +93,7 @@ export class UserController {
 		const { uid, dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.findAll}`);
 
-		return this.userService.findAll({
+		return this.findAllUsersUseCase.execute({
 			filter,
 			uidUser: uid,
 			dataLog,
@@ -80,7 +108,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.update}`);
 
-		return this.userService.update({ data, dataLog });
+		return this.updateUserUseCase.execute({ data, dataLog });
 	}
 
 	@ApiBearerAuth()
@@ -91,7 +119,7 @@ export class UserController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.profile}`);
 
-		return this.userService.profile({ uid, dataLog });
+		return this.getUserProfileUseCase.execute({ uid, dataLog });
 	}
 
 	@ApiBearerAuth()
@@ -105,7 +133,7 @@ export class UserController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.updateProfile}`);
 
-		return this.userService.updateProfile({ data, uid, dataLog });
+		return this.updateUserProfileUseCase.execute({ data, uid, dataLog });
 	}
 
 	@ApiBearerAuth()
@@ -119,7 +147,7 @@ export class UserController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.updateProfileEmail}`);
 
-		return this.userService.updateProfileEmail({
+		return this.updateUserProfileEmailUseCase.execute({
 			data,
 			uid,
 			dataLog,
@@ -137,7 +165,7 @@ export class UserController {
 		const { uid, dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.updateProfilePassword}`);
 
-		return this.userService.updateProfilePassword({
+		return this.updateUserProfilePasswordUseCase.execute({
 			data,
 			uid,
 			dataLog,
@@ -152,7 +180,7 @@ export class UserController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.unregister}`);
 
-		return this.userService.unregister({ uid, dataLog });
+		return this.unregisterUserUseCase.execute({ uid, dataLog });
 	}
 
 	@ApiBearerAuth()
@@ -163,7 +191,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.remove}`);
 
-		return this.userService.remove({
+		return this.removeUserUseCase.execute({
 			uid: data.uid,
 			dataLog,
 		});
@@ -174,7 +202,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.recoveryPassword}`);
 
-		return this.userService.recoveryPassword({ email: data.email, dataLog });
+		return this.recoveryPasswordUseCase.execute({ email: data.email, dataLog });
 	}
 
 	@Post('/recoveryPassCode')
@@ -185,7 +213,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.recoveryVerifyPassword}`);
 
-		return this.userService.recoveryVerifyPassword({
+		return this.recoveryVerifyPasswordUseCase.execute({
 			code: data.code,
 			email: data.email,
 			dataLog,
@@ -199,7 +227,7 @@ export class UserController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.newPassword}`);
 
-		return this.userService.newPassword({
+		return this.setNewPasswordUseCase.execute({
 			newPassword: data.newPassword,
 			confirmPassword: data.confirmPassword,
 			uidUser: uid,
@@ -217,7 +245,7 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.updatePassword}`);
 
-		return this.userService.newPassword({
+		return this.setNewPasswordUseCase.execute({
 			newPassword: data.newPassword,
 			confirmPassword: data.confirmPassword,
 			uidUser: data.uidUser,
@@ -233,6 +261,6 @@ export class UserController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.activatedAccount}`);
 
-		return this.userService.activatedAccount(code);
+		return this.activateAccountUseCase.execute(code);
 	}
 }

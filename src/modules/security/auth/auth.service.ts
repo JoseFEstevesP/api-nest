@@ -3,20 +3,23 @@ import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { AuditService } from '@/modules/security/audit/audit.service';
 import { User } from '@/modules/security/user/entities/user.entity';
-import { UserService } from '@/modules/security/user/user.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
+import { FindOneUserUseCase } from '../user/use-case/findOneUser';
+import { FindUserForAuthUseCase } from '../user/use-case/findUserById';
+import { ValidateAttemptUseCase } from '../user/use-case/validateAttempt';
 import { msg } from './msg';
 
 @Injectable()
 export class AuthService {
 	private readonly logger = new Logger(AuthService.name);
-
 	constructor(
-		private readonly userService: UserService,
+		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
+		private readonly findOneUserUseCase: FindOneUserUseCase,
+		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
 		private readonly jwtService: JwtService,
 		private readonly auditService: AuditService,
 		private configService: ConfigService<EnvironmentVariables>,
@@ -32,14 +35,14 @@ export class AuthService {
 		loginInfo: DataInfoJWT;
 	}) {
 		const { ci, password } = data;
-		const user = await this.userService.findUserForAuth(ci);
+		const user = await this.findUserForAuthUseCase.execute(ci);
 
 		if (!user) throwHttpExceptionUnique(msg.msg.userError);
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
 			this.logger.error(`system - ${msg.log.loginPassword}`);
-			await this.userService.validateAttempt({ user });
+			await this.validateAttemptUseCase.execute({ user });
 			throwHttpExceptionUnique(msg.msg.credential);
 		}
 
@@ -80,7 +83,7 @@ export class AuthService {
 		res: Response;
 		dataLog: string;
 	}) {
-		const user = await this.userService.findUserById(uid);
+		const user = await this.findOneUserUseCase.execute({ uid });
 
 		if (!user) {
 			this.logger.error(msg.log.userError);
@@ -121,7 +124,9 @@ export class AuthService {
 			return this.logout({ uid: auditRef.uid, res, dataLog: 'system' });
 		}
 
-		const user = await this.userService.findUserById(auditRef.uidUser);
+		const user = await this.findOneUserUseCase.execute({
+			uid: auditRef.uidUser,
+		});
 
 		if (refreshToken !== auditRef.refreshToken) {
 			this.logger.error(`system ${msg.log.refreshTokenUser}`);

@@ -14,7 +14,7 @@ export const mockTransaction = {
 	rollback: vi.fn().mockResolvedValue(undefined),
 };
 
-export const createMockRepository = <T = any>() => ({
+export const createMockRepository = () => ({
 	findAll: vi.fn().mockResolvedValue([]),
 	findOne: vi.fn().mockResolvedValue(null),
 	findByPk: vi.fn().mockResolvedValue(null),

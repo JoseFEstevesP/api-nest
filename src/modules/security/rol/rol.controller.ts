@@ -23,7 +23,13 @@ import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
 import { Permission } from './enum/permissions';
 import { msg } from './msg';
-import { RolService } from './rol.service';
+import { CreateRolUseCase } from './use-case/create-rol.use-case';
+import { FindAllRolsPaginationUseCase } from './use-case/find-all-rols-pagination.use-case';
+import { FindAllRolsUseCase } from './use-case/find-all-rols.use-case';
+import { FindOneRolUseCase } from './use-case/find-one-rol.use-case';
+import { FindRolPermissionsUseCase } from './use-case/find-rol-permissions.use-case';
+import { RemoveRolUseCase } from './use-case/remove-rol.use-case';
+import { UpdateRolUseCase } from './use-case/update-rol.use-case';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -32,7 +38,15 @@ import { RolService } from './rol.service';
 export class RolController {
 	private readonly logger = new Logger(RolController.name);
 
-	constructor(private readonly rolService: RolService) {}
+	constructor(
+		private readonly createRolUseCase: CreateRolUseCase,
+		private readonly findOneRolUseCase: FindOneRolUseCase,
+		private readonly findRolPermissionsUseCase: FindRolPermissionsUseCase,
+		private readonly findAllRolsPaginationUseCase: FindAllRolsPaginationUseCase,
+		private readonly findAllRolsUseCase: FindAllRolsUseCase,
+		private readonly updateRolUseCase: UpdateRolUseCase,
+		private readonly removeRolUseCase: RemoveRolUseCase,
+	) {}
 
 	@ValidPermission(Permission.rolAdd)
 	@Post()
@@ -40,7 +54,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.create}`);
 
-		return this.rolService.create({ data, dataLog });
+		return this.createRolUseCase.execute({ data, dataLog });
 	}
 
 	@ValidPermission(Permission.rolReadOne)
@@ -49,7 +63,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.findOne}`);
 
-		return this.rolService.findOne({ uid: data.uid }, dataLog);
+		return this.findOneRolUseCase.execute({ uid: data.uid }, dataLog);
 	}
 
 	@Get('/per')
@@ -57,7 +71,7 @@ export class RolController {
 		const { dataLog, uidRol } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.findOne}`);
 
-		return this.rolService.findPer({ uid: uidRol, dataLog });
+		return this.findRolPermissionsUseCase.execute({ uid: uidRol, dataLog });
 	}
 
 	@ValidPermission(Permission.rolRead)
@@ -69,7 +83,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
 
-		return this.rolService.findAllPagination({ filter, dataLog });
+		return this.findAllRolsPaginationUseCase.execute({ filter, dataLog });
 	}
 
 	@Get('/all')
@@ -77,7 +91,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
 
-		return this.rolService.findAll({ dataLog });
+		return this.findAllRolsUseCase.execute({ dataLog });
 	}
 
 	@ValidPermission(Permission.rolUpdate)
@@ -86,7 +100,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.update}`);
 
-		return this.rolService.update({ data, dataLog });
+		return this.updateRolUseCase.execute({ data, dataLog });
 	}
 
 	@ValidPermission(Permission.rolDelete)
@@ -95,6 +109,6 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.remove}`);
 
-		return this.rolService.remove({ uid: data.uid, dataLog });
+		return this.removeRolUseCase.execute({ uid: data.uid, dataLog });
 	}
 }

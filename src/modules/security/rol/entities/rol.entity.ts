@@ -1,9 +1,8 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { TypeRol } from '../enum/rolData';
-import { RolTypes } from '../types';
 
 @Table({ tableName: 'Roles' })
-export class Role extends Model<Role> implements RolTypes {
+export class Role extends Model<Role> {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
 	declare uid: string;
 
