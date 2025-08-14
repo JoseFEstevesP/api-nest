@@ -70,7 +70,9 @@ export class RefreshTokenUseCase {
 		const newAccessToken = await this.generateAccessToken(user, loginInfo);
 		const newRefreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		await this.updateAuditUseCase.execute({ data: { uid: auditRef.uid, refreshToken: newRefreshToken } });
+		await this.updateAuditUseCase.execute({
+			data: { uid: auditRef.uid, refreshToken: newRefreshToken },
+		});
 
 		this.setCookies(res, newAccessToken, newRefreshToken);
 		res.json({ msg: 'Token actualizado' });
