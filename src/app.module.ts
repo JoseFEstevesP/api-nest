@@ -7,7 +7,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
-import { CorrelationIdMiddleware } from './correlation-id/correlation-id.middleware';
+import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
 import { FilesModule } from './modules/files/files.module';
 import { AuditModule } from './modules/security/audit/audit.module';
 import { AuthModule } from './modules/security/auth/auth.module';

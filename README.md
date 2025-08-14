@@ -7,23 +7,11 @@ Este proyecto es una API robusta y escalable construida con NestJS, diseñada pa
 - [Descripción del Proyecto](#descripción-del-proyecto)
 - [Características](#características)
 - [Tecnologías Utilizadas](#tecnologías-utilizadas)
-- [Configuración](#configuración)
-  - [Requisitos Previos](#requisitos-previos)
-  - [Instalación](#instalación)
-  - [Variables de Entorno](#variables-de-entorno)
-  - [Configuración de la Base de Datos](#configuración-de-la-base-de-datos)
-- [Ejecución de la Aplicación](#ejecución-de-la-aplicación)
-  - [Modo Desarrollo](#modo-desarrollo)
-  - [Compilación para Producción](#compilación-para-producción)
-- [Endpoints de la API](#endpoints-de-la-api)
-  - [Autenticación (`/auth`)](#autenticación-auth)
-  - [Gestión de Usuarios (`/user`)](#gestión-de-usuarios-user)
-  - [Gestión de Roles (`/rol`)](#gestión-de-roles-rol)
-  - [Registros de Auditoría (`/audit`)](#registros-de-auditoría-audit)
-  - [Gestión de Archivos (`/files`)](#gestión-de-archivos-files)
-- [Pruebas](#pruebas)
+- [Inicio Rápido](#inicio-rápido)
+- [Documentación](#documentación)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Notas Arquitectónicas (Patrón de Casos de Uso)](#notas-arquitectónicas-patrón-de-casos-de-uso)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
 
 ## Descripción del Proyecto
 
@@ -53,177 +41,82 @@ Este proyecto sirve como API backend, ofreciendo una base segura y modular para 
 - **Contenedores**: [Docker](https://www.docker.com/)
 - **Gestor de Paquetes**: [pnpm](https://pnpm.io/)
 
-## Configuración
+## Inicio Rápido
 
 ### Requisitos Previos
 
-Antes de comenzar, asegúrate de tener instalado:
-
-- [Node.js](https://nodejs.org/en/download/) (versión LTS recomendada)
-- [pnpm](https://pnpm.io/installation)
-- [Docker](https://docs.docker.com/get-docker/) (para ejecutar PostgreSQL y Redis vía Docker Compose)
+- [Node.js](https://nodejs.org/) ≥24.4.1
+- [pnpm](https://pnpm.io/) ≥10.13.1
+- [Docker](https://docs.docker.com/get-docker/)
 
 ### Instalación
 
-1. **Clonar el repositorio:**
-
 ```bash
-git clone <url_del_repositorio>
+# Clonar repositorio
+git clone https://github.com/JoseFEstevesP/api-nest.git
+o
+git clone git@github.com:JoseFEstevesP/api-nest.git
+
 cd api-nest
-```
 
-2. **Instalar dependencias:**
-
-```bash
+# Instalar dependencias
 pnpm install
-```
 
-### Variables de Entorno
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores
 
-Crea un archivo `.env` en la raíz del proyecto basado en `.env.example`.
-
-```
-PORT=3000
-JWT_SECRET=# llave para el JWT
-JWT_REFRESH_SECRET=# llave para el JWT de refresco
-
-EMAIL_USER=# correo para envíos del sistema
-EMAIL_PASS=# contraseña del correo
-
-NODE_ENV= # 'development' # 'production'
-DEFAULT_ROL_FROM_USER=# rol por defecto para usuarios
-# múltiples CORS se separan por comas
-# CORS=http://localhost:5173,http://localhost:4173
-CORS=http://localhost:5173
-
-DATABASE_DIALECT=postgres
-DATABASE_HOST='localhost'
-DATABASE_PORT=5432
-POSTGRES_USER='postgres'
-POSTGRES_PASSWORD=# contraseña de la base de datos
-POSTGRES_DB=# nombre de la base de datos
-
-RATE_LIMIT_TTL=60000
-RATE_LIMIT_LIMIT=100
-
-REDIS_POST=6379
-REDIS_URL="redis://localhost:6379"
-```
-
-**Importante:** Reemplaza los valores de ejemplo con tu configuración real. Para `JWT_SECRET` y `JWT_REFRESH_SECRET`, usa cadenas fuertes generadas aleatoriamente.
-
-### Configuración de la Base de Datos
-
-Este proyecto usa Docker Compose para configurar PostgreSQL y Redis.
-
-1. **Iniciar servicios de Docker Compose:**
-
-```bash
+# Iniciar servicios (PostgreSQL y Redis)
 docker-compose up -d
-```
 
-Esto iniciará PostgreSQL en el puerto `5432` y Redis en el puerto `6379`.
-
-2. **Ejecutar migraciones:**
-   Una vez que los contenedores estén en funcionamiento, aplica las migraciones para crear las tablas necesarias:
-
-```bash
+# Ejecutar migraciones
 pnpm run migrate
-```
 
-## Ejecución de la Aplicación
-
-### Modo Desarrollo
-
-Para ejecutar la aplicación en modo desarrollo con recarga en caliente (incluye migraciones):
-
-```bash
+# Iniciar en modo desarrollo
 pnpm run dev
 ```
 
-La API estará accesible en `http://localhost:3000/api` (o el puerto configurado en tus variables de entorno).
-La documentación Swagger estará disponible en `http://localhost:3000/doc`.
+**URLs importantes:**
 
-### Compilación para Producción
+- API: `http://localhost:3000/api`
+- Documentación Swagger: `http://localhost:3000/doc`
 
-Para compilar la aplicación para producción:
+## Documentación
 
-```bash
-pnpm run build
-```
+### 📚 Documentación Completa
 
-Para ejecutar la aplicación compilada:
+- **[Documentación de la API](docs/API.md)** - Endpoints detallados con ejemplos
+- **[Arquitectura del Proyecto](docs/ARCHITECTURE.md)** - Patrón de casos de uso y diseño
+- **[Guía de Desarrollo](docs/DEVELOPMENT.md)** - Setup, convenciones y workflow
+- **[Guía de Despliegue](docs/DEPLOYMENT.md)** - Producción, Docker y monitoreo
+- **[Guía de Testing](TESTING.md)** - Tests unitarios y E2E
+- **[Guía de Contribución](CONTRIBUTING.md)** - Cómo contribuir al proyecto
 
-```bash
-pnpm run start:prod
-```
+### 🚀 Enlaces Rápidos
 
-## Endpoints de la API
+- **Swagger UI**: `http://localhost:3000/doc` (cuando la app esté ejecutándose)
+- **Health Check**: `http://localhost:3000/health`
 
-La documentación Swagger está disponible en `/doc` cuando la aplicación está en ejecución. Aquí un resumen de los principales grupos de endpoints.
-
-### Autenticación (`/auth`)
-
-- `POST /auth/login`: Autentica un usuario y recibe tokens de acceso y refresco.
-- `POST /auth/logout`: Invalida la sesión del usuario y limpia los tokens.
-- `POST /auth/refresh-token`: Obtén un nuevo token de acceso usando un token de refresco.
-
-### Gestión de Usuarios (`/user`)
-
-- `POST /user`: Registra un nuevo usuario por defecto.
-- `POST /user/protect`: Registra un nuevo usuario (solo admin).
-- `GET /user`: Obtiene lista paginada de usuarios (solo admin).
-- `PATCH /user`: Actualiza detalles de usuario (solo admin).
-- `GET /user/profile`: Obtiene el perfil del usuario autenticado.
-- `PATCH /user/profile/data`: Actualiza datos del perfil del usuario autenticado.
-- `PATCH /user/profile/email`: Actualiza email del usuario autenticado.
-- `PATCH /user/profile/password`: Actualiza contraseña del usuario autenticado.
-- `DELETE /user/profile/unregister`: Desactiva la cuenta del usuario autenticado.
-- `DELETE /user/delete/:uid`: Elimina un usuario por UID (solo admin).
-- `POST /user/recoveryPassword`: Inicia recuperación de contraseña.
-- `POST /user/recoveryPassCode`: Verifica código de recuperación.
-- `POST /user/newPassword`: Establece nueva contraseña después de recuperación.
-- `PATCH /user/updatePassword`: Actualiza contraseña de usuario (solo admin).
-- `POST /user/activated`: Activa cuenta de usuario usando un código.
-
-### Gestión de Roles (`/rol`)
-
-- `POST /rol`: Crea un nuevo rol.
-- `GET /rol/one/:uid`: Obtiene un rol por UID.
-- `GET /rol/per`: Obtiene permisos del rol del usuario autenticado.
-- `GET /rol`: Obtiene lista paginada de roles.
-- `GET /rol/all`: Obtiene lista simplificada de todos los roles.
-- `PATCH /rol`: Actualiza detalles de un rol.
-- `DELETE /rol/delete/:uid`: Elimina un rol por UID.
-
-### Registros de Auditoría (`/audit`)
-
-- `GET /audit`: Obtiene lista paginada de registros de auditoría.
-- `DELETE /audit/delete/:uid`: Elimina un registro de auditoría por UID.
-
-### Gestión de Archivos (`/files`)
-
-- `POST /files/upload`: Sube un archivo (imagen o documento).
-- `DELETE /files/delete`: Elimina un archivo por nombre y tipo.
-
-## Pruebas
-
-Para ejecutar todas las pruebas (unitarias y e2e):
+### 📋 Scripts Principales
 
 ```bash
-pnpm run test:unit && pnpm run test:e2e
-```
+# Desarrollo
+pnpm run dev              # Modo desarrollo con hot reload
+pnpm run build            # Compilar para producción
+pnpm run start:prod       # Ejecutar versión de producción
 
-Para ejecutar solo pruebas unitarias:
+# Base de datos
+pnpm run migrate          # Ejecutar migraciones
+pnpm run migrate:undo     # Revertir última migración
 
-```bash
-pnpm run test:unit
-```
+# Testing
+pnpm run test:unit        # Tests unitarios
+pnpm run test:e2e         # Tests end-to-end
+pnpm run test:cov         # Tests con cobertura
 
-Para ejecutar solo pruebas end-to-end:
-
-```bash
-pnpm run test:e2e
+# Calidad de código
+pnpm run lint             # Linting con oxlint
+pnpm run format           # Formatear con prettier
 ```
 
 ## Estructura del Proyecto
@@ -261,14 +154,19 @@ Cada módulo (`user`, `rol`, `auth`, `audit`, `files`) sigue una estructura cons
 - `entities/`: Modelos de Sequelize.
 - `repository/`: Lógica de interacción con la base de datos.
 
-## Notas Arquitectónicas (Patrón de Casos de Uso)
+## Contribuir
 
-Este proyecto usa el patrón "Casos de Uso", alejándose de servicios monolíticos. Este enfoque promueve:
+¡Las contribuciones son bienvenidas! Por favor lee la [Guía de Contribución](CONTRIBUTING.md) para conocer:
 
-- **Principio de Responsabilidad Única**: Cada caso de uso maneja una sola operación.
-- **Mejor Legibilidad**: Lógica de negocio claramente definida y aislada.
-- **Pruebas más Fáciles**: Casos de uso pueden probarse aisladamente.
-- **Mejor Mantenibilidad**: Cambios afectan menos componentes.
-- **Dependencias más Claras**: Dependencias explícitas y granulares.
+- Cómo reportar bugs
+- Cómo sugerir mejoras
+- Estándares de código
+- Proceso de pull requests
 
-Los controladores ahora delegan directamente a los casos de uso apropiados, haciéndolos más delgados y enfocados solo en manejar preocupaciones HTTP.
+### Desarrollo Local
+
+1. Fork el proyecto
+2. Crea tu branch: `git checkout -b feature/mi-caracteristica`
+3. Commit tus cambios: `git commit -m 'feat: agregar nueva característica'`
+4. Push al branch: `git push origin feature/mi-caracteristica`
+5. Abre un Pull Request

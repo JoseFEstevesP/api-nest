@@ -1,7 +1,7 @@
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
-import { ValidPermission } from '@/modules/security/valid-permission/valid-permission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/valid-permission.guard';
+import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
+import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
 	Body,
 	Controller,
@@ -17,15 +17,15 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReqUidDTO } from '../../../dto/ReqUid.dto';
-import { UserActivateCountDTO } from './dto/UserActivateCount.dto';
-import { UserDeleteDTO } from './dto/UserDelete.dto';
-import { UserNewPasswordDTO } from './dto/UserNewPassword.dto';
-import { UserRecoveryPasswordDTO } from './dto/UserRecoveryPassword.dto';
-import { UserUpdateDTO } from './dto/UserUpdate.dto';
-import { UserUpdatePasswordDTO } from './dto/UserUpdatePassword.dto';
-import { UserUpdateProfileDataDTO } from './dto/UserUpdateProfileData.dto';
-import { UserUpdateProfileEmailDTO } from './dto/UserUpdateProfileEmail.dto';
-import { UserUpdateProfilePasswordDTO } from './dto/UserUpdateProfilePassword.dto';
+import { UserActivateCountDTO } from './dto/userActivateCount.dto';
+import { UserDeleteDTO } from './dto/userDelete.dto';
+import { UserNewPasswordDTO } from './dto/userNewPassword.dto';
+import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
+import { UserUpdateDTO } from './dto/userUpdate.dto';
+import { UserUpdatePasswordDTO } from './dto/userUpdatePassword.dto';
+import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
+import { UserUpdateProfileEmailDTO } from './dto/userUpdateProfileEmail.dto';
+import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dto';
 import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
 import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';

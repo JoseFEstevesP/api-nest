@@ -1,7 +1,7 @@
 import { MiddlewareConsumer } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 import { AppModule } from './app.module';
-import { CorrelationIdMiddleware } from './correlation-id/correlation-id.middleware';
+import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
 
 describe('AppModule', () => {
 	it('debería estar definido', () => {

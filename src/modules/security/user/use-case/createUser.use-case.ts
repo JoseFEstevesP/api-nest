@@ -5,7 +5,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { Op } from 'sequelize';
-import { FindOneRolUseCase } from '../../rol/use-case/find-one-rol.use-case';
+import { FindOneRolUseCase } from '../../rol/use-case/findOneRol.use-case';
 import { salt } from '../constants/sal';
 import { UserDefaultRegisterDTO } from '../dto/userDefaultRegister.dto';
 import { User } from '../entities/user.entity';

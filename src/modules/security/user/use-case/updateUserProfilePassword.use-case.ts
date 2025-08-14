@@ -2,7 +2,7 @@ import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 
 import { Injectable, Logger } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
-import { RemoveAuditUseCase } from '../../audit/use-case/remove-audit.use-case';
+import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
 import { salt } from '../constants/sal';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';

@@ -1,12 +1,13 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
-import { UserUpdateProfileDataDTO } from '../dto/UserUpdateProfileData.dto';
+import { compare } from 'bcrypt';
+import { UserUpdateProfileEmailDTO } from '../dto/userUpdateProfileEmail.dto';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
-export class UpdateUserProfileUseCase {
-	private readonly logger = new Logger(UpdateUserProfileUseCase.name);
+export class UpdateUserProfileEmailUseCase {
+	private readonly logger = new Logger(UpdateUserProfileEmailUseCase.name);
 	constructor(private readonly userRepository: UserRepository) {}
 
 	async execute({
@@ -14,10 +15,11 @@ export class UpdateUserProfileUseCase {
 		uid,
 		dataLog,
 	}: {
-		data: UserUpdateProfileDataDTO;
+		data: UserUpdateProfileEmailDTO;
 		uid: string;
 		dataLog: string;
 	}): Promise<{ msg: string }> {
+		const { email, password } = data;
 		const user = await this.userRepository.findOne({ where: { uid } });
 
 		if (!user) {
@@ -25,7 +27,13 @@ export class UpdateUserProfileUseCase {
 			throwHttpExceptionUnique(msg.msg.findOne);
 		}
 
-		await this.userRepository.update(uid, data);
+		const checkPassword = await compare(password, user.password);
+		if (!checkPassword) {
+			this.logger.error(`${dataLog} - ${msg.log.passwordError}`);
+			throwHttpExceptionUnique(msg.msg.passwordError);
+		}
+
+		await this.userRepository.update(uid, { email });
 
 		this.logger.log(`${dataLog} - ${msg.log.profileSuccess}`);
 

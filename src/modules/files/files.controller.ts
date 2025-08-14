@@ -11,8 +11,8 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { SaveFileUseCase } from './use-case/save-file.use-case';
-import { DeleteFileUseCase } from './use-case/delete-file.use-case';
+import { SaveFileUseCase } from './use-case/saveFile.use-case';
+import { DeleteFileUseCase } from './use-case/deleteFile.use-case';
 
 @Controller('files')
 export class FilesController {

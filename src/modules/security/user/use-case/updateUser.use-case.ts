@@ -1,6 +1,6 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
-import { UserUpdateDTO } from '../dto/UserUpdate.dto';
+import { UserUpdateDTO } from '../dto/userUpdate.dto';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
 

@@ -1,7 +1,7 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwt-auth.guard';
-import { ValidPermission } from '@/modules/security/valid-permission/valid-permission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/valid-permission.guard';
+import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
+import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
+import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
 	Body,
 	Controller,
@@ -23,13 +23,13 @@ import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
 import { Permission } from './enum/permissions';
 import { msg } from './msg';
-import { CreateRolUseCase } from './use-case/create-rol.use-case';
-import { FindAllRolsPaginationUseCase } from './use-case/find-all-rols-pagination.use-case';
-import { FindAllRolsUseCase } from './use-case/find-all-rols.use-case';
-import { FindOneRolUseCase } from './use-case/find-one-rol.use-case';
-import { FindRolPermissionsUseCase } from './use-case/find-rol-permissions.use-case';
-import { RemoveRolUseCase } from './use-case/remove-rol.use-case';
-import { UpdateRolUseCase } from './use-case/update-rol.use-case';
+import { CreateRolUseCase } from './use-case/createRol.use-case';
+import { FindAllRolsPaginationUseCase } from './use-case/findAllRolsPagination.use-case';
+import { FindAllRolsUseCase } from './use-case/findAllRols.use-case';
+import { FindOneRolUseCase } from './use-case/findOneRol.use-case';
+import { FindRolPermissionsUseCase } from './use-case/findRolPermissions.use-case';
+import { RemoveRolUseCase } from './use-case/removeRol.use-case';
+import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)

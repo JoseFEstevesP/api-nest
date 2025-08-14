@@ -12,11 +12,11 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthLoginDTO } from './dto/authLogin.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwtAuth.guard';
 import { msg } from './msg';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
-import { RefreshTokenUseCase } from './use-case/refresh-token.use-case';
+import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
 
 @ApiTags('Auth')
 @Controller('auth')

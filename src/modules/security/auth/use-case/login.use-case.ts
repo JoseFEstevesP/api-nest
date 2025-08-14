@@ -1,7 +1,7 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { CreateAuditUseCase } from '@/modules/security/audit/use-case/create-audit.use-case';
+import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt';

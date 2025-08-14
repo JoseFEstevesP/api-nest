@@ -1,8 +1,8 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/find-one-audit.use-case';
-import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/update-audit.use-case';
+import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAudit.use-case';
+import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
 import { Injectable, Logger } from '@nestjs/common';
