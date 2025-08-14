@@ -16,10 +16,7 @@ export class DeleteFileUseCase {
 		}
 	}
 
-	async execute(
-		filename: string,
-		type: 'image' | 'document',
-	): Promise<void> {
+	async execute(filename: string, type: 'image' | 'document'): Promise<void> {
 		const dir = type === 'image' ? this.imagesDir : this.documentsDir;
 		const filePath = path.join(dir, filename);
 		if (fs.existsSync(filePath)) {

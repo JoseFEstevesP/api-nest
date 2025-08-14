@@ -17,9 +17,6 @@ import { DeleteFileUseCase } from './use-case/delete-file.use-case';
 		}),
 	],
 	controllers: [FilesController],
-	providers: [
-		SaveFileUseCase,
-		DeleteFileUseCase,
-	],
+	providers: [SaveFileUseCase, DeleteFileUseCase],
 })
 export class FilesModule {}
