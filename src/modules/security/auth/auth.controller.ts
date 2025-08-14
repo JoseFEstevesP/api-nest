@@ -11,17 +11,23 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import { AuthService } from './auth.service';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { msg } from './msg';
+import { LoginUseCase } from './use-case/login.use-case';
+import { LogoutUseCase } from './use-case/logout.use-case';
+import { RefreshTokenUseCase } from './use-case/refresh-token.use-case';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
 	private readonly logger = new Logger(AuthController.name);
 
-	constructor(private readonly authService: AuthService) {}
+	constructor(
+		private readonly loginUseCase: LoginUseCase,
+		private readonly logoutUseCase: LogoutUseCase,
+		private readonly refreshTokenUseCase: RefreshTokenUseCase,
+	) {}
 
 	@Post('/login')
 	async login(
@@ -30,7 +36,7 @@ export class AuthController {
 		@Req() req: Request & ReqUidDTO,
 	) {
 		this.logger.log(`system - ${msg.log.login}`);
-		await this.authService.login({ data, res, loginInfo: dataInfoJWT(req) });
+		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -38,12 +44,12 @@ export class AuthController {
 	logout(@Res() res: Response, @Req() req: ReqUidDTO) {
 		const { uid, dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.logout}`);
-		return this.authService.logout({ uid, res, dataLog });
+		return this.logoutUseCase.execute({ uid, res, dataLog });
 	}
 
 	@Post('/refresh-token')
 	async refreshToken(@Req() req: Request & ReqUidDTO, @Res() res: Response) {
-		return this.authService.refreshToken({
+		return this.refreshTokenUseCase.execute({
 			req,
 			res,
 			loginInfo: dataInfoJWT(req),

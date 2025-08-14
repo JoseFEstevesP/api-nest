@@ -3,102 +3,26 @@ import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { AuditService } from '@/modules/security/audit/audit.service';
 import { User } from '@/modules/security/user/entities/user.entity';
+import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt';
 import { Request, Response } from 'express';
-import { FindOneUserUseCase } from '../user/use-case/findOneUser';
-import { FindUserForAuthUseCase } from '../user/use-case/findUserById';
-import { ValidateAttemptUseCase } from '../user/use-case/validateAttempt';
-import { msg } from './msg';
+import { msg } from '../msg';
+import { LogoutUseCase } from './logout.use-case';
 
 @Injectable()
-export class AuthService {
-	private readonly logger = new Logger(AuthService.name);
+export class RefreshTokenUseCase {
+	private readonly logger = new Logger(RefreshTokenUseCase.name);
 	constructor(
-		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
-		private readonly findOneUserUseCase: FindOneUserUseCase,
-		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
-		private readonly jwtService: JwtService,
 		private readonly auditService: AuditService,
-		private configService: ConfigService<EnvironmentVariables>,
+		private readonly findOneUserUseCase: FindOneUserUseCase,
+		private readonly jwtService: JwtService,
+		private readonly configService: ConfigService<EnvironmentVariables>,
+		private readonly logoutUseCase: LogoutUseCase,
 	) {}
 
-	async login({
-		data,
-		res,
-		loginInfo,
-	}: {
-		data: { ci: string; password: string };
-		res: Response;
-		loginInfo: DataInfoJWT;
-	}) {
-		const { ci, password } = data;
-		const user = await this.findUserForAuthUseCase.execute(ci);
-
-		if (!user) throwHttpExceptionUnique(msg.msg.userError);
-
-		const checkPassword = await compare(password, user.password);
-		if (!checkPassword) {
-			this.logger.error(`system - ${msg.log.loginPassword}`);
-			await this.validateAttemptUseCase.execute({ user });
-			throwHttpExceptionUnique(msg.msg.credential);
-		}
-
-		const accessToken = await this.generateAccessToken(user, loginInfo);
-		const refreshToken = await this.generateRefreshToken(user, loginInfo);
-
-		await user.update({ attemptCount: 0 });
-
-		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
-		try {
-			await this.auditService.create({
-				data: {
-					uid: crypto.randomUUID(),
-					uidUser: user.uid,
-					refreshToken,
-					dataToken: loginInfoArray,
-				},
-			});
-
-			this.setCookies(res, accessToken, refreshToken);
-			res.json({ msg: msg.msg.loginSuccess });
-		} catch (error) {
-			this.logger.error(msg.log.sessionExisting, error);
-			throwHttpExceptionUnique(msg.log.sessionExisting);
-		}
-
-		this.logger.log(
-			`${user.ci} - ${user.first_surname} ${user.first_name} - ${msg.log.loginSuccess}`,
-		);
-	}
-
-	async logout({
-		uid,
-		res,
-		dataLog,
-	}: {
-		uid: string;
-		res: Response;
-		dataLog: string;
-	}) {
-		const user = await this.findOneUserUseCase.execute({ uid });
-
-		if (!user) {
-			this.logger.error(msg.log.userError);
-			throwHttpExceptionUnique(msg.msg.findOne);
-		}
-
-		await this.auditService.remove({ uidUser: user.uid }, dataLog);
-
-		res
-			.clearCookie('accessToken')
-			.clearCookie('refreshToken')
-			.json({ msg: msg.msg.logout });
-	}
-
-	async refreshToken({
+	async execute({
 		req,
 		res,
 		loginInfo,
@@ -121,7 +45,11 @@ export class AuthService {
 
 		if (!auditRef) {
 			this.logger.error(msg.log.userError);
-			return this.logout({ uid: auditRef.uid, res, dataLog: 'system' });
+			return this.logoutUseCase.execute({
+				uid: auditRef.uid,
+				res,
+				dataLog: 'system',
+			});
 		}
 
 		const user = await this.findOneUserUseCase.execute({
@@ -130,7 +58,11 @@ export class AuthService {
 
 		if (refreshToken !== auditRef.refreshToken) {
 			this.logger.error(`system ${msg.log.refreshTokenUser}`);
-			return this.logout({ uid: auditRef.uid, res, dataLog: 'system' });
+			return this.logoutUseCase.execute({
+				uid: auditRef.uid,
+				res,
+				dataLog: 'system',
+			});
 		}
 
 		const newAccessToken = await this.generateAccessToken(user, loginInfo);

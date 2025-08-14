@@ -1,0 +1,120 @@
+import { EnvironmentVariables } from '@/config/env.config';
+import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
+import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
+import { AuditService } from '@/modules/security/audit/audit.service';
+import { User } from '@/modules/security/user/entities/user.entity';
+import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById';
+import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { compare } from 'bcrypt';
+import { Response } from 'express';
+import { msg } from '../msg';
+
+@Injectable()
+export class LoginUseCase {
+	private readonly logger = new Logger(LoginUseCase.name);
+	constructor(
+		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
+		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
+		private readonly jwtService: JwtService,
+		private readonly auditService: AuditService,
+		private configService: ConfigService<EnvironmentVariables>,
+	) {}
+
+	async execute({
+		data,
+		res,
+		loginInfo,
+	}: {
+		data: { ci: string; password: string };
+		res: Response;
+		loginInfo: DataInfoJWT;
+	}) {
+		const { ci, password } = data;
+		const user = await this.findUserForAuthUseCase.execute(ci);
+
+		if (!user) throwHttpExceptionUnique(msg.msg.userError);
+
+		const checkPassword = await compare(password, user.password);
+		if (!checkPassword) {
+			this.logger.error(`system - ${msg.log.loginPassword}`);
+			await this.validateAttemptUseCase.execute({ user });
+			throwHttpExceptionUnique(msg.msg.credential);
+		}
+
+		const accessToken = await this.generateAccessToken(user, loginInfo);
+		const refreshToken = await this.generateRefreshToken(user, loginInfo);
+
+		await user.update({ attemptCount: 0 });
+
+		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
+		try {
+			await this.auditService.create({
+				data: {
+					uid: crypto.randomUUID(),
+					uidUser: user.uid,
+					refreshToken,
+					dataToken: loginInfoArray,
+				},
+			});
+
+			this.setCookies(res, accessToken, refreshToken);
+			res.json({ msg: msg.msg.loginSuccess });
+		} catch (error) {
+			this.logger.error(msg.log.sessionExisting, error);
+			throwHttpExceptionUnique(msg.log.sessionExisting);
+		}
+
+		this.logger.log(
+			`${user.ci} - ${user.first_surname} ${user.first_name} - ${msg.log.loginSuccess}`,
+		);
+	}
+
+	private setCookies(res: Response, accessToken: string, refreshToken: string) {
+		const isProduction =
+			this.configService.get<string>('NODE_ENV') === 'production';
+		const sameSite = isProduction ? 'none' : 'lax';
+
+		res
+			.cookie('accessToken', accessToken, {
+				httpOnly: true,
+				secure: isProduction,
+				sameSite,
+				maxAge: 3600 * 1000,
+			})
+			.cookie('refreshToken', refreshToken, {
+				httpOnly: true,
+				secure: isProduction,
+				sameSite,
+				maxAge: 7 * 24 * 3600 * 1000,
+			});
+	}
+
+	private async generateAccessToken(user: User, loginInfo: DataInfoJWT) {
+		const dataToken = {
+			uid: user.uid,
+			uidRol: user.uidRol,
+			dataLog: `${user.ci} - ${user.first_surname} ${user.first_name}`,
+			...loginInfo,
+		};
+
+		return this.jwtService.signAsync(dataToken, {
+			expiresIn: '1h',
+			secret: process.env.JWT_SECRET,
+		});
+	}
+
+	private async generateRefreshToken(user: User, loginInfo: DataInfoJWT) {
+		const dataToken = {
+			uid: user.uid,
+			...loginInfo,
+		};
+
+		return this.jwtService.signAsync(dataToken, {
+			expiresIn: '7d',
+			secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+		});
+	}
+}
