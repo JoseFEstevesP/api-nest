@@ -1,9 +1,9 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AuditUpdateDTO } from '@/modules/security/audit/dto/auditUpdate.dto';
-import { Audit } from '@/modules/security/audit/entities/audit.entity';
-import { msg } from '@/modules/security/audit/msg';
+import { AuditUpdateDTO } from '../dto/auditUpdate.dto';
+import { Audit } from '../entities/audit.entity';
+import { msg } from '../msg';
 
 @Injectable()
 export class UpdateAuditUseCase {

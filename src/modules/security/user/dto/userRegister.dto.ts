@@ -15,9 +15,8 @@ import {
 } from 'class-validator';
 import { Sex, V_E } from '../enum/data';
 import { msg } from '../msg';
-import { DataUserOfExtraData } from '../types';
 @ApiExtraModels()
-export class UserRegisterDTO implements DataUserOfExtraData {
+export class UserRegisterDTO {
 	@IsUUID('all', { message: globalMsg.dto.uid.valid })
 	@IsNotEmpty({ message: globalMsg.dto.empty })
 	@IsDefined({ message: globalMsg.dto.defined })

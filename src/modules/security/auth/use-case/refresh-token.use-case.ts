@@ -1,7 +1,8 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { AuditService } from '@/modules/security/audit/audit.service';
+import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/find-one-audit.use-case';
+import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/update-audit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +16,8 @@ import { LogoutUseCase } from './logout.use-case';
 export class RefreshTokenUseCase {
 	private readonly logger = new Logger(RefreshTokenUseCase.name);
 	constructor(
-		private readonly auditService: AuditService,
+		private readonly findOneAuditUseCase: FindOneAuditUseCase,
+		private readonly updateAuditUseCase: UpdateAuditUseCase,
 		private readonly findOneUserUseCase: FindOneUserUseCase,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService<EnvironmentVariables>,
@@ -38,7 +40,7 @@ export class RefreshTokenUseCase {
 		}
 
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
-		const auditRef = await this.auditService.findOne({
+		const auditRef = await this.findOneAuditUseCase.execute({
 			refreshToken,
 			dataToken: loginInfoArray,
 		});
@@ -68,7 +70,7 @@ export class RefreshTokenUseCase {
 		const newAccessToken = await this.generateAccessToken(user, loginInfo);
 		const newRefreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		await auditRef.update({ refreshToken: newRefreshToken });
+		await this.updateAuditUseCase.execute({ data: { uid: auditRef.uid, refreshToken: newRefreshToken } });
 
 		this.setCookies(res, newAccessToken, newRefreshToken);
 		res.json({ msg: 'Token actualizado' });

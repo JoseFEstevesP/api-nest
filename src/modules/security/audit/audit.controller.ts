@@ -14,9 +14,10 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuditService } from './audit.service';
 import { AuditGetAllDTO } from './dto/auditGetAll.dto';
 import { msg } from './msg';
+import { FindAllAuditsUseCase } from './use-case/find-all-audits.use-case';
+import { RemoveAuditUseCase } from './use-case/remove-audit.use-case';
 
 @ApiBearerAuth()
 @ApiTags('Audit')
@@ -25,7 +26,10 @@ import { msg } from './msg';
 export class AuditController {
 	private readonly logger = new Logger(AuditController.name);
 
-	constructor(private readonly auditService: AuditService) {}
+	constructor(
+		private readonly findAllAuditsUseCase: FindAllAuditsUseCase,
+		private readonly removeAuditUseCase: RemoveAuditUseCase,
+	) {}
 
 	@ValidPermission(Permission.auditRead)
 	@Get()
@@ -36,7 +40,7 @@ export class AuditController {
 		const { dataLog, uid } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
 
-		return this.auditService.findAll({
+		return this.findAllAuditsUseCase.execute({
 			filter,
 			uidUser: uid,
 			dataLog,
@@ -49,6 +53,6 @@ export class AuditController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${msg.log.controller.remove}`);
 
-		return this.auditService.remove({ uid }, dataLog);
+		return this.removeAuditUseCase.execute({ uid }, dataLog);
 	}
 }

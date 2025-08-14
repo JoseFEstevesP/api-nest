@@ -1,5 +1,5 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { AuditService } from '@/modules/security/audit/audit.service';
+import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/remove-audit.use-case';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
 import { Injectable, Logger } from '@nestjs/common';
 import { Response } from 'express';
@@ -10,7 +10,7 @@ export class LogoutUseCase {
 	private readonly logger = new Logger(LogoutUseCase.name);
 	constructor(
 		private readonly findOneUserUseCase: FindOneUserUseCase,
-		private readonly auditService: AuditService,
+		private readonly removeAuditUseCase: RemoveAuditUseCase,
 	) {}
 
 	async execute({
@@ -29,7 +29,7 @@ export class LogoutUseCase {
 			throwHttpExceptionUnique(msg.msg.findOne);
 		}
 
-		await this.auditService.remove({ uidUser: user.uid }, dataLog);
+		await this.removeAuditUseCase.execute({ uidUser: user.uid }, dataLog);
 
 		res
 			.clearCookie('accessToken')

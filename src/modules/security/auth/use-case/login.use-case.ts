@@ -1,7 +1,7 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { AuditService } from '@/modules/security/audit/audit.service';
+import { CreateAuditUseCase } from '@/modules/security/audit/use-case/create-audit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt';
@@ -19,7 +19,7 @@ export class LoginUseCase {
 		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
 		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
 		private readonly jwtService: JwtService,
-		private readonly auditService: AuditService,
+		private readonly createAuditUseCase: CreateAuditUseCase,
 		private configService: ConfigService<EnvironmentVariables>,
 	) {}
 
@@ -51,7 +51,7 @@ export class LoginUseCase {
 
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
 		try {
-			await this.auditService.create({
+			await this.createAuditUseCase.execute({
 				data: {
 					uid: crypto.randomUUID(),
 					uidUser: user.uid,

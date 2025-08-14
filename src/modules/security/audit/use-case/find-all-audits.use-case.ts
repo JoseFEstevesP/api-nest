@@ -1,6 +1,8 @@
 import { Order } from '@/constants/dataConstants';
+import { User } from '@/modules/security/user/entities/user.entity';
 import { PaginationResult } from '@/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
@@ -9,7 +11,6 @@ import {
 	OrderItem,
 	WhereOptions,
 } from 'sequelize';
-import { User } from '../../user/entities/user.entity';
 import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';
 import { OrderAuditProperty } from '../enum/orderProperty';
@@ -22,6 +23,7 @@ export class FindAllAuditsUseCase {
 	constructor(
 		@InjectModel(Audit)
 		private readonly auditModel: typeof Audit,
+		@Inject(CACHE_MANAGER) private cacheManager: Cache,
 	) {}
 
 	async execute({

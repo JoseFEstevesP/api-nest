@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Audit } from '@/modules/security/audit/entities/audit.entity';
 import { WhereOptions } from 'sequelize';
-import { msg } from '@/modules/security/audit/msg';
+import { Audit } from '../entities/audit.entity';
+import { msg } from '../msg';
 
 @Injectable()
 export class FindOneAuditUseCase {
@@ -15,6 +15,7 @@ export class FindOneAuditUseCase {
 
 	async execute(where: WhereOptions<Audit>) {
 		this.logger.log(msg.log.controller.getOne);
+
 		return await this.auditModel.findOne({ where });
 	}
 }
