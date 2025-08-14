@@ -8,7 +8,7 @@ import {
 	Table,
 } from 'sequelize-typescript';
 
-@Table
+@Table({ tableName: 'Audit' })
 export class Audit extends Model<Audit> {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
 	declare uid: string;
