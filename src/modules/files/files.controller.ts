@@ -11,11 +11,15 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FilesService } from './files.service';
+import { SaveFileUseCase } from './use-case/save-file.use-case';
+import { DeleteFileUseCase } from './use-case/delete-file.use-case';
 
 @Controller('files')
 export class FilesController {
-	constructor(private readonly filesService: FilesService) {}
+	constructor(
+		private readonly saveFileUseCase: SaveFileUseCase,
+		private readonly deleteFileUseCase: DeleteFileUseCase,
+	) {}
 
 	@Post('upload')
 	@UseInterceptors(FileInterceptor('file'))
@@ -29,7 +33,7 @@ export class FilesController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const filename = await this.filesService.saveFile(file, type);
+		const filename = await this.saveFileUseCase.execute(file, type);
 		return { filename };
 	}
 
@@ -41,7 +45,7 @@ export class FilesController {
 		if (!filename || !type) {
 			throw new BadRequestException('Filename and type are required');
 		}
-		await this.filesService.deleteFile(filename, type);
+		await this.deleteFileUseCase.execute(filename, type);
 		return { deleted: true };
 	}
 }

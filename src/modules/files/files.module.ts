@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FilesController } from './files.controller';
-import { FilesService } from './files.service';
+import { SaveFileUseCase } from './use-case/save-file.use-case';
+import { DeleteFileUseCase } from './use-case/delete-file.use-case';
 
 @Module({
 	imports: [
@@ -16,6 +17,9 @@ import { FilesService } from './files.service';
 		}),
 	],
 	controllers: [FilesController],
-	providers: [FilesService],
+	providers: [
+		SaveFileUseCase,
+		DeleteFileUseCase,
+	],
 })
 export class FilesModule {}

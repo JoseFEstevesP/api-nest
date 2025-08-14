@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
-export class FilesService {
+export class DeleteFileUseCase {
 	private readonly imagesDir = path.join(process.cwd(), 'uploads/images');
 	private readonly documentsDir = path.join(process.cwd(), 'uploads/documents');
 
@@ -16,19 +16,7 @@ export class FilesService {
 		}
 	}
 
-	async saveFile(
-		file: Express.Multer.File,
-		type: 'image' | 'document',
-	): Promise<string> {
-		const dir = type === 'image' ? this.imagesDir : this.documentsDir;
-		const ext = path.extname(file.originalname);
-		const filename = `${crypto.randomUUID()}${ext}`;
-		const filePath = path.join(dir, filename);
-		await fs.promises.writeFile(filePath, file.buffer);
-		return filename;
-	}
-
-	async deleteFile(
+	async execute(
 		filename: string,
 		type: 'image' | 'document',
 	): Promise<void> {
