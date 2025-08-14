@@ -52,7 +52,6 @@ export default async () => {
 								required: true,
 								enum: t['./modules/security/user/enum/data'].V_E,
 							},
-							ci: { required: true, type: () => String },
 							first_name: { required: true, type: () => String },
 							middle_name: { required: true, type: () => String },
 							first_surname: { required: true, type: () => String },
@@ -79,56 +78,6 @@ export default async () => {
 					},
 				],
 				[
-					import('./modules/security/rol/dto/rolRegister.dto'),
-					{
-						RolRegisterDTO: {
-							uid: { required: true, type: () => String, format: 'uuid' },
-							name: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							description: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							permissions: {
-								required: true,
-								enum: t['./modules/security/rol/enum/permissions'].Permission,
-								isArray: true,
-								minItems: 1,
-							},
-							typeRol: {
-								required: true,
-								enum: t['./modules/security/rol/enum/rolData'].TypeRol,
-							},
-						},
-					},
-				],
-				[
-					import('./dto/ReqUid.dto'),
-					{
-						ReqUidDTO: {
-							user: {
-								required: true,
-								type: () => ({
-									uid: { required: true, type: () => String },
-									uidRol: { required: true, type: () => String },
-									uidPharmacy: {
-										required: true,
-										type: () => String,
-										nullable: true,
-									},
-									dataLog: { required: true, type: () => String },
-								}),
-							},
-						},
-					},
-				],
-				[
 					import('./modules/security/user/dto/userActivateCount.dto'),
 					{
 						UserActivateCountDTO: {
@@ -143,60 +92,6 @@ export default async () => {
 					},
 				],
 				[
-					import('./modules/security/user/dto/userDefaultRegister.dto'),
-					{
-						UserDefaultRegisterDTO: {
-							uid: { required: true, type: () => String, format: 'uuid' },
-							v_e: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].V_E,
-							},
-							ci: {
-								required: true,
-								type: () => String,
-								minLength: 6,
-								maxLength: 8,
-								pattern: '/^\\d+$/',
-							},
-							first_name: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							middle_name: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							first_surname: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							last_surname: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							sex: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].Sex,
-							},
-							email: { required: true, type: () => String, format: 'email' },
-							phone: {
-								required: true,
-								type: () => String,
-								pattern: 'regexPhone',
-							},
-							password: { required: true, type: () => String },
-						},
-					},
-				],
-				[
 					import('./modules/security/user/dto/userRegister.dto'),
 					{
 						UserRegisterDTO: {
@@ -204,13 +99,6 @@ export default async () => {
 							v_e: {
 								required: true,
 								enum: t['./modules/security/user/enum/data'].V_E,
-							},
-							ci: {
-								required: true,
-								type: () => String,
-								minLength: 6,
-								maxLength: 8,
-								pattern: '/^\\d+$/',
 							},
 							first_name: {
 								required: true,
@@ -252,8 +140,81 @@ export default async () => {
 					},
 				],
 				[
-					import('./modules/security/user/dto/userDelete.dto'),
-					{ UserDeleteDTO: {} },
+					import('./modules/security/rol/dto/rolRegister.dto'),
+					{
+						RolRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							description: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							permissions: {
+								required: true,
+								enum: t['./modules/security/rol/enum/permissions'].Permission,
+								isArray: true,
+								minItems: 1,
+							},
+							typeRol: {
+								required: true,
+								enum: t['./modules/security/rol/enum/rolData'].TypeRol,
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userDefaultRegister.dto'),
+					{
+						UserDefaultRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							v_e: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].V_E,
+							},
+							first_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							middle_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							first_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							last_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							sex: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].Sex,
+							},
+							email: { required: true, type: () => String, format: 'email' },
+							phone: {
+								required: true,
+								type: () => String,
+								pattern: 'regexPhone',
+							},
+							password: { required: true, type: () => String },
+						},
+					},
 				],
 				[
 					import('./dto/query.dto'),
@@ -283,32 +244,9 @@ export default async () => {
 					},
 				],
 				[
-					import('./modules/security/user/dto/userNewPassword.dto'),
-					{
-						UserNewPasswordDTO: {
-							newPassword: { required: true, type: () => String },
-							confirmPassword: { required: true, type: () => String },
-						},
-					},
-				],
-				[
-					import('./modules/security/user/dto/userRecoveryPassword.dto'),
-					{ UserRecoveryPasswordDTO: {} },
-				],
-				[
 					import('./modules/security/user/dto/userUpdate.dto'),
 					{
 						UserUpdateDTO: { status: { required: true, type: () => Boolean } },
-					},
-				],
-				[
-					import('./modules/security/user/dto/userUpdatePassword.dto'),
-					{
-						UserUpdatePasswordDTO: {
-							newPassword: { required: true, type: () => String },
-							confirmPassword: { required: true, type: () => String },
-							uidUser: { required: true, type: () => String, format: 'uuid' },
-						},
 					},
 				],
 				[
@@ -318,15 +256,6 @@ export default async () => {
 				[
 					import('./modules/security/user/dto/userUpdateProfileEmail.dto'),
 					{ UserUpdateProfileEmailDTO: {} },
-				],
-				[
-					import('./modules/security/user/dto/userUpdateProfilePassword.dto'),
-					{
-						UserUpdateProfilePasswordDTO: {
-							olPassword: { required: true, type: () => String },
-							newPassword: { required: true, type: () => String },
-						},
-					},
 				],
 				[
 					import('./modules/security/audit/entities/audit.entity'),
@@ -341,6 +270,62 @@ export default async () => {
 							},
 							refreshToken: { required: true, type: () => String },
 							dataToken: { required: true, type: () => [String] },
+						},
+					},
+				],
+				[
+					import('./dto/ReqUid.dto'),
+					{
+						ReqUidDTO: {
+							user: {
+								required: true,
+								type: () => ({
+									uid: { required: true, type: () => String },
+									uidRol: { required: true, type: () => String },
+									uidPharmacy: {
+										required: true,
+										type: () => String,
+										nullable: true,
+									},
+									dataLog: { required: true, type: () => String },
+								}),
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userDelete.dto'),
+					{ UserDeleteDTO: {} },
+				],
+				[
+					import('./modules/security/user/dto/userNewPassword.dto'),
+					{
+						UserNewPasswordDTO: {
+							newPassword: { required: true, type: () => String },
+							confirmPassword: { required: true, type: () => String },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userRecoveryPassword.dto'),
+					{ UserRecoveryPasswordDTO: {} },
+				],
+				[
+					import('./modules/security/user/dto/userUpdatePassword.dto'),
+					{
+						UserUpdatePasswordDTO: {
+							newPassword: { required: true, type: () => String },
+							confirmPassword: { required: true, type: () => String },
+							uidUser: { required: true, type: () => String, format: 'uuid' },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userUpdateProfilePassword.dto'),
+					{
+						UserUpdateProfilePasswordDTO: {
+							olPassword: { required: true, type: () => String },
+							newPassword: { required: true, type: () => String },
 						},
 					},
 				],
