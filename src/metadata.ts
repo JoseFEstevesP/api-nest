@@ -1,14 +1,475 @@
 /* eslint-disable */
 export default async () => {
-    const t = {
-        ["./modules/security/rol/enum/rolData"]: await import("./modules/security/rol/enum/rolData"),
-        ["./modules/security/user/enum/data"]: await import("./modules/security/user/enum/data"),
-        ["./modules/security/rol/entities/rol.entity"]: await import("./modules/security/rol/entities/rol.entity"),
-        ["./modules/security/rol/enum/permissions"]: await import("./modules/security/rol/enum/permissions"),
-        ["./constants/dataConstants"]: await import("./constants/dataConstants"),
-        ["./modules/security/user/entities/user.entity"]: await import("./modules/security/user/entities/user.entity"),
-        ["./modules/security/rol/enum/orderProperty"]: await import("./modules/security/rol/enum/orderProperty"),
-        ["./modules/security/audit/enum/orderProperty"]: await import("./modules/security/audit/enum/orderProperty")
-    };
-    return { "@nestjs/swagger": { "models": [[import("./modules/security/rol/entities/rol.entity"), { "Role": { uid: { required: true, type: () => String }, name: { required: true, type: () => String }, description: { required: true, type: () => String }, typeRol: { required: true, enum: t["./modules/security/rol/enum/rolData"].TypeRol }, permissions: { required: true, type: () => [String] }, status: { required: true, type: () => Boolean } } }], [import("./modules/security/user/entities/user.entity"), { "User": { uid: { required: true, type: () => String }, v_e: { required: true, enum: t["./modules/security/user/enum/data"].V_E }, ci: { required: true, type: () => String }, first_name: { required: true, type: () => String }, middle_name: { required: true, type: () => String }, first_surname: { required: true, type: () => String }, last_surname: { required: true, type: () => String }, sex: { required: true, enum: t["./modules/security/user/enum/data"].Sex }, phone: { required: true, type: () => String }, email: { required: true, type: () => String }, password: { required: true, type: () => String }, status: { required: true, type: () => Boolean }, code: { required: true, type: () => String }, activatedAccount: { required: true, type: () => Boolean }, attemptCount: { required: true, type: () => Number }, dataOfAttempt: { required: true, type: () => String }, uidRol: { required: true, type: () => String }, rol: { required: true, type: () => t["./modules/security/rol/entities/rol.entity"].Role } } }], [import("./modules/security/rol/dto/rolRegister.dto"), { "RolRegisterDTO": { uid: { required: true, type: () => String, format: "uuid" }, name: { required: true, type: () => String, minLength: 3, maxLength: 255 }, description: { required: true, type: () => String, minLength: 3, maxLength: 255 }, permissions: { required: true, enum: t["./modules/security/rol/enum/permissions"].Permission, isArray: true, minItems: 1 }, typeRol: { required: true, enum: t["./modules/security/rol/enum/rolData"].TypeRol } } }], [import("./dto/ReqUid.dto"), { "ReqUidDTO": { user: { required: true, type: () => ({ uid: { required: true, type: () => String }, uidRol: { required: true, type: () => String }, uidPharmacy: { required: true, type: () => String, nullable: true }, dataLog: { required: true, type: () => String } }) } } }], [import("./modules/security/user/dto/userActivateCount.dto"), { "UserActivateCountDTO": { code: { required: true, type: () => String, minLength: 13, maxLength: 16, pattern: "/^\\d+$/" } } }], [import("./modules/security/user/dto/userDefaultRegister.dto"), { "UserDefaultRegisterDTO": { uid: { required: true, type: () => String, format: "uuid" }, v_e: { required: true, enum: t["./modules/security/user/enum/data"].V_E }, ci: { required: true, type: () => String, minLength: 6, maxLength: 8, pattern: "/^\\d+$/" }, first_name: { required: true, type: () => String, minLength: 3, maxLength: 255 }, middle_name: { required: true, type: () => String, minLength: 3, maxLength: 255 }, first_surname: { required: true, type: () => String, minLength: 3, maxLength: 255 }, last_surname: { required: true, type: () => String, minLength: 3, maxLength: 255 }, sex: { required: true, enum: t["./modules/security/user/enum/data"].Sex }, email: { required: true, type: () => String, format: "email" }, phone: { required: true, type: () => String, pattern: "regexPhone" }, password: { required: true, type: () => String } } }], [import("./modules/security/user/dto/userRegister.dto"), { "UserRegisterDTO": { uid: { required: true, type: () => String, format: "uuid" }, v_e: { required: true, enum: t["./modules/security/user/enum/data"].V_E }, ci: { required: true, type: () => String, minLength: 6, maxLength: 8, pattern: "/^\\d+$/" }, first_name: { required: true, type: () => String, minLength: 3, maxLength: 255 }, middle_name: { required: true, type: () => String, minLength: 3, maxLength: 255 }, first_surname: { required: true, type: () => String, minLength: 3, maxLength: 255 }, last_surname: { required: true, type: () => String, minLength: 3, maxLength: 255 }, sex: { required: true, enum: t["./modules/security/user/enum/data"].Sex }, email: { required: true, type: () => String, format: "email" }, phone: { required: true, type: () => String, pattern: "regexPhone" }, password: { required: true, type: () => String }, uidRol: { required: false, type: () => String, format: "uuid" } } }], [import("./modules/security/user/dto/userDelete.dto"), { "UserDeleteDTO": {} }], [import("./dto/query.dto"), { "queryDTO": { status: { required: false, type: () => String }, search: { required: false, type: () => String }, page: { required: true, type: () => String }, limit: { required: true, type: () => String }, order: { required: true, enum: t["./constants/dataConstants"].Order } } }], [import("./modules/security/user/dto/userGetAll.dto"), { "UserGetAllDTO": { orderProperty: { required: false, enum: t["./modules/security/user/enum/data"].OrderUserProperty }, search: { required: false, type: () => String } } }], [import("./modules/security/user/dto/userNewPassword.dto"), { "UserNewPasswordDTO": { newPassword: { required: true, type: () => String }, confirmPassword: { required: true, type: () => String } } }], [import("./modules/security/user/dto/userRecoveryPassword.dto"), { "UserRecoveryPasswordDTO": {} }], [import("./modules/security/user/dto/userUpdate.dto"), { "UserUpdateDTO": { status: { required: true, type: () => Boolean } } }], [import("./modules/security/user/dto/userUpdatePassword.dto"), { "UserUpdatePasswordDTO": { newPassword: { required: true, type: () => String }, confirmPassword: { required: true, type: () => String }, uidUser: { required: true, type: () => String, format: "uuid" } } }], [import("./modules/security/user/dto/userUpdateProfileData.dto"), { "UserUpdateProfileDataDTO": {} }], [import("./modules/security/user/dto/userUpdateProfileEmail.dto"), { "UserUpdateProfileEmailDTO": {} }], [import("./modules/security/user/dto/userUpdateProfilePassword.dto"), { "UserUpdateProfilePasswordDTO": { olPassword: { required: true, type: () => String }, newPassword: { required: true, type: () => String } } }], [import("./modules/security/audit/entities/audit.entity"), { "Audit": { uid: { required: true, type: () => String }, uidUser: { required: true, type: () => String }, user: { required: true, type: () => t["./modules/security/user/entities/user.entity"].User }, refreshToken: { required: true, type: () => String }, dataToken: { required: true, type: () => [String] } } }], [import("./modules/security/rol/dto/rolDelete.dto"), { "RolDeleteDTO": {} }], [import("./modules/security/rol/dto/rolGet.dto"), { "RolGetDTO": {} }], [import("./modules/security/rol/dto/rolGetAll.dto"), { "RolGetAllDTO": { orderProperty: { required: false, enum: t["./modules/security/rol/enum/orderProperty"].OrderRolProperty }, permission: { required: false, enum: t["./modules/security/rol/enum/permissions"].Permission } } }], [import("./modules/security/rol/dto/rolUpdate.dto"), { "RolUpdateDTO": { status: { required: true, type: () => Boolean } } }], [import("./modules/security/audit/dto/auditGetAll.dto"), { "AuditGetAllDTO": { orderProperty: { required: false, enum: t["./modules/security/audit/enum/orderProperty"].OrderAuditProperty } } }], [import("./modules/security/audit/dto/auditRegister.dto"), { "AuditRegisterDTO": { uid: { required: true, type: () => String, format: "uuid" }, uidUser: { required: true, type: () => String, format: "uuid" }, refreshToken: { required: true, type: () => String }, dataToken: { required: true, type: () => [String] } } }], [import("./modules/security/audit/dto/auditUpdate.dto"), { "AuditUpdateDTO": { status: { required: false, type: () => Boolean } } }], [import("./modules/security/auth/dto/authLogin.dto"), { "AuthLoginDTO": {} }], [import("./modules/security/audit/dto/auditDelete.dto"), { "AuditDeleteDTO": {} }], [import("./modules/security/audit/dto/auditGet.dto"), { "AuditGetDTO": {} }], [import("./modules/security/user/dto/userGet.dto"), { "UserGetDTO": {} }]], "controllers": [[import("./modules/files/files.controller"), { "FilesController": { "uploadFile": {}, "deleteFile": {} } }], [import("./modules/security/user/user.controller"), { "UserController": { "create": {}, "createProtect": {}, "findAll": {}, "update": {}, "profile": { type: t["./modules/security/user/entities/user.entity"].User }, "updateProfile": {}, "updateProfileEmail": {}, "updateProfilePassword": {}, "unregister": {}, "remove": {}, "recovery": {}, "recoveryVerifyPassword": {}, "newPassword": {}, "newPasswordUpdate": {}, "activatedAccount": {} } }], [import("./modules/security/rol/rol.controller"), { "RolController": { "register": {}, "findOne": { type: t["./modules/security/rol/entities/rol.entity"].Role }, "findPer": { type: t["./modules/security/rol/entities/rol.entity"].Role }, "findAllPagination": {}, "findAll": {}, "update": {}, "delete": {} } }], [import("./modules/security/audit/audit.controller"), { "AuditController": { "findAllPagination": {}, "delete": {} } }], [import("./modules/security/auth/auth.controller"), { "AuthController": { "login": {}, "logout": {}, "refreshToken": {} } }]] } };
+	const t = {
+		['./modules/security/rol/enum/rolData']: await import(
+			'./modules/security/rol/enum/rolData'
+		),
+		['./modules/security/user/enum/data']: await import(
+			'./modules/security/user/enum/data'
+		),
+		['./modules/security/rol/entities/rol.entity']: await import(
+			'./modules/security/rol/entities/rol.entity'
+		),
+		['./modules/security/rol/enum/permissions']: await import(
+			'./modules/security/rol/enum/permissions'
+		),
+		['./constants/dataConstants']: await import('./constants/dataConstants'),
+		['./modules/security/user/entities/user.entity']: await import(
+			'./modules/security/user/entities/user.entity'
+		),
+		['./modules/security/rol/enum/orderProperty']: await import(
+			'./modules/security/rol/enum/orderProperty'
+		),
+		['./modules/security/audit/enum/orderProperty']: await import(
+			'./modules/security/audit/enum/orderProperty'
+		),
+	};
+	return {
+		'@nestjs/swagger': {
+			models: [
+				[
+					import('./modules/security/rol/entities/rol.entity'),
+					{
+						Role: {
+							uid: { required: true, type: () => String },
+							name: { required: true, type: () => String },
+							description: { required: true, type: () => String },
+							typeRol: {
+								required: true,
+								enum: t['./modules/security/rol/enum/rolData'].TypeRol,
+							},
+							permissions: { required: true, type: () => [String] },
+							status: { required: true, type: () => Boolean },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/entities/user.entity'),
+					{
+						User: {
+							uid: { required: true, type: () => String },
+							v_e: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].V_E,
+							},
+							ci: { required: true, type: () => String },
+							first_name: { required: true, type: () => String },
+							middle_name: { required: true, type: () => String },
+							first_surname: { required: true, type: () => String },
+							last_surname: { required: true, type: () => String },
+							sex: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].Sex,
+							},
+							phone: { required: true, type: () => String },
+							email: { required: true, type: () => String },
+							password: { required: true, type: () => String },
+							status: { required: true, type: () => Boolean },
+							code: { required: true, type: () => String },
+							activatedAccount: { required: true, type: () => Boolean },
+							attemptCount: { required: true, type: () => Number },
+							dataOfAttempt: { required: true, type: () => String },
+							uidRol: { required: true, type: () => String },
+							rol: {
+								required: true,
+								type: () =>
+									t['./modules/security/rol/entities/rol.entity'].Role,
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/rol/dto/rolRegister.dto'),
+					{
+						RolRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							description: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							permissions: {
+								required: true,
+								enum: t['./modules/security/rol/enum/permissions'].Permission,
+								isArray: true,
+								minItems: 1,
+							},
+							typeRol: {
+								required: true,
+								enum: t['./modules/security/rol/enum/rolData'].TypeRol,
+							},
+						},
+					},
+				],
+				[
+					import('./dto/ReqUid.dto'),
+					{
+						ReqUidDTO: {
+							user: {
+								required: true,
+								type: () => ({
+									uid: { required: true, type: () => String },
+									uidRol: { required: true, type: () => String },
+									uidPharmacy: {
+										required: true,
+										type: () => String,
+										nullable: true,
+									},
+									dataLog: { required: true, type: () => String },
+								}),
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userActivateCount.dto'),
+					{
+						UserActivateCountDTO: {
+							code: {
+								required: true,
+								type: () => String,
+								minLength: 13,
+								maxLength: 16,
+								pattern: '/^\\d+$/',
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userDefaultRegister.dto'),
+					{
+						UserDefaultRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							v_e: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].V_E,
+							},
+							ci: {
+								required: true,
+								type: () => String,
+								minLength: 6,
+								maxLength: 8,
+								pattern: '/^\\d+$/',
+							},
+							first_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							middle_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							first_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							last_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							sex: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].Sex,
+							},
+							email: { required: true, type: () => String, format: 'email' },
+							phone: {
+								required: true,
+								type: () => String,
+								pattern: 'regexPhone',
+							},
+							password: { required: true, type: () => String },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userRegister.dto'),
+					{
+						UserRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							v_e: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].V_E,
+							},
+							ci: {
+								required: true,
+								type: () => String,
+								minLength: 6,
+								maxLength: 8,
+								pattern: '/^\\d+$/',
+							},
+							first_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							middle_name: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							first_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							last_surname: {
+								required: true,
+								type: () => String,
+								minLength: 3,
+								maxLength: 255,
+							},
+							sex: {
+								required: true,
+								enum: t['./modules/security/user/enum/data'].Sex,
+							},
+							email: { required: true, type: () => String, format: 'email' },
+							phone: {
+								required: true,
+								type: () => String,
+								pattern: 'regexPhone',
+							},
+							password: { required: true, type: () => String },
+							uidRol: { required: false, type: () => String, format: 'uuid' },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userDelete.dto'),
+					{ UserDeleteDTO: {} },
+				],
+				[
+					import('./dto/query.dto'),
+					{
+						queryDTO: {
+							status: { required: false, type: () => String },
+							search: { required: false, type: () => String },
+							page: { required: true, type: () => String },
+							limit: { required: true, type: () => String },
+							order: {
+								required: true,
+								enum: t['./constants/dataConstants'].Order,
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userGetAll.dto'),
+					{
+						UserGetAllDTO: {
+							orderProperty: {
+								required: false,
+								enum: t['./modules/security/user/enum/data'].OrderUserProperty,
+							},
+							search: { required: false, type: () => String },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userNewPassword.dto'),
+					{
+						UserNewPasswordDTO: {
+							newPassword: { required: true, type: () => String },
+							confirmPassword: { required: true, type: () => String },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userRecoveryPassword.dto'),
+					{ UserRecoveryPasswordDTO: {} },
+				],
+				[
+					import('./modules/security/user/dto/userUpdate.dto'),
+					{
+						UserUpdateDTO: { status: { required: true, type: () => Boolean } },
+					},
+				],
+				[
+					import('./modules/security/user/dto/userUpdatePassword.dto'),
+					{
+						UserUpdatePasswordDTO: {
+							newPassword: { required: true, type: () => String },
+							confirmPassword: { required: true, type: () => String },
+							uidUser: { required: true, type: () => String, format: 'uuid' },
+						},
+					},
+				],
+				[
+					import('./modules/security/user/dto/userUpdateProfileData.dto'),
+					{ UserUpdateProfileDataDTO: {} },
+				],
+				[
+					import('./modules/security/user/dto/userUpdateProfileEmail.dto'),
+					{ UserUpdateProfileEmailDTO: {} },
+				],
+				[
+					import('./modules/security/user/dto/userUpdateProfilePassword.dto'),
+					{
+						UserUpdateProfilePasswordDTO: {
+							olPassword: { required: true, type: () => String },
+							newPassword: { required: true, type: () => String },
+						},
+					},
+				],
+				[
+					import('./modules/security/audit/entities/audit.entity'),
+					{
+						Audit: {
+							uid: { required: true, type: () => String },
+							uidUser: { required: true, type: () => String },
+							user: {
+								required: true,
+								type: () =>
+									t['./modules/security/user/entities/user.entity'].User,
+							},
+							refreshToken: { required: true, type: () => String },
+							dataToken: { required: true, type: () => [String] },
+						},
+					},
+				],
+				[
+					import('./modules/security/rol/dto/rolDelete.dto'),
+					{ RolDeleteDTO: {} },
+				],
+				[import('./modules/security/rol/dto/rolGet.dto'), { RolGetDTO: {} }],
+				[
+					import('./modules/security/rol/dto/rolGetAll.dto'),
+					{
+						RolGetAllDTO: {
+							orderProperty: {
+								required: false,
+								enum: t['./modules/security/rol/enum/orderProperty']
+									.OrderRolProperty,
+							},
+							permission: {
+								required: false,
+								enum: t['./modules/security/rol/enum/permissions'].Permission,
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/rol/dto/rolUpdate.dto'),
+					{ RolUpdateDTO: { status: { required: true, type: () => Boolean } } },
+				],
+				[
+					import('./modules/security/audit/dto/auditGetAll.dto'),
+					{
+						AuditGetAllDTO: {
+							orderProperty: {
+								required: false,
+								enum: t['./modules/security/audit/enum/orderProperty']
+									.OrderAuditProperty,
+							},
+						},
+					},
+				],
+				[
+					import('./modules/security/audit/dto/auditRegister.dto'),
+					{
+						AuditRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							uidUser: { required: true, type: () => String, format: 'uuid' },
+							refreshToken: { required: true, type: () => String },
+							dataToken: { required: true, type: () => [String] },
+						},
+					},
+				],
+				[
+					import('./modules/security/audit/dto/auditUpdate.dto'),
+					{
+						AuditUpdateDTO: {
+							status: { required: false, type: () => Boolean },
+						},
+					},
+				],
+				[
+					import('./modules/security/auth/dto/authLogin.dto'),
+					{ AuthLoginDTO: {} },
+				],
+				[
+					import('./modules/security/audit/dto/auditDelete.dto'),
+					{ AuditDeleteDTO: {} },
+				],
+				[
+					import('./modules/security/audit/dto/auditGet.dto'),
+					{ AuditGetDTO: {} },
+				],
+				[import('./modules/security/user/dto/userGet.dto'), { UserGetDTO: {} }],
+			],
+			controllers: [
+				[
+					import('./modules/files/files.controller'),
+					{ FilesController: { uploadFile: {}, deleteFile: {} } },
+				],
+				[
+					import('./modules/security/user/user.controller'),
+					{
+						UserController: {
+							create: {},
+							createProtect: {},
+							findAll: {},
+							update: {},
+							profile: {
+								type: t['./modules/security/user/entities/user.entity'].User,
+							},
+							updateProfile: {},
+							updateProfileEmail: {},
+							updateProfilePassword: {},
+							unregister: {},
+							remove: {},
+							recovery: {},
+							recoveryVerifyPassword: {},
+							newPassword: {},
+							newPasswordUpdate: {},
+							activatedAccount: {},
+						},
+					},
+				],
+				[
+					import('./modules/security/rol/rol.controller'),
+					{
+						RolController: {
+							register: {},
+							findOne: {
+								type: t['./modules/security/rol/entities/rol.entity'].Role,
+							},
+							findPer: {
+								type: t['./modules/security/rol/entities/rol.entity'].Role,
+							},
+							findAllPagination: {},
+							findAll: {},
+							update: {},
+							delete: {},
+						},
+					},
+				],
+				[
+					import('./modules/security/audit/audit.controller'),
+					{ AuditController: { findAllPagination: {}, delete: {} } },
+				],
+				[
+					import('./modules/security/auth/auth.controller'),
+					{ AuthController: { login: {}, logout: {}, refreshToken: {} } },
+				],
+			],
+		},
+	};
 };

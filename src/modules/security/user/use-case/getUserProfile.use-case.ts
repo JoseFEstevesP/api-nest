@@ -22,7 +22,7 @@ export class GetUserProfileUseCase {
 	}): Promise<User> {
 		const attributes = [
 			'v_e',
-			
+
 			'first_name',
 			'middle_name',
 			'first_surname',

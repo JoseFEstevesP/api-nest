@@ -33,8 +33,8 @@ export class LoginUseCase {
 		res: Response;
 		loginInfo: DataInfoJWT;
 	}) {
-				const { email, password } = data;
-				const user = await this.findUserForAuthUseCase.execute(email);
+		const { email, password } = data;
+		const user = await this.findUserForAuthUseCase.execute(email);
 
 		if (!user) throwHttpExceptionUnique(msg.msg.userError);
 

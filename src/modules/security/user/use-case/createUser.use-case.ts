@@ -24,7 +24,6 @@ export class CreateUserUseCase {
 	) {}
 
 	async execute(data: UserDefaultRegisterDTO): Promise<{ msg: string }> {
-		
 		const { uid, phone, email, password } = data;
 		const whereClause = {
 			[Op.or]: [{ uid }, { phone }, { email }],
@@ -60,7 +59,7 @@ export class CreateUserUseCase {
 
 		await this.userRepository.save({
 			...data,
-			
+
 			code: null,
 			activatedAccount: true,
 			password: hashPass,
@@ -70,8 +69,6 @@ export class CreateUserUseCase {
 
 		return { msg: msg.msg.registerDefault };
 	}
-
-	
 
 	private generateCode() {
 		return Math.floor(Math.random() * 9000000) + 1000000;

@@ -28,8 +28,6 @@ export class UserRegisterDTO {
 	@IsEnum(V_E, { message: globalMsg.dto.enumValue })
 	readonly v_e: V_E;
 
-	
-
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsNotEmpty({ message: globalMsg.dto.empty })
 	@Length(3, 255, { message: globalMsg.dto.lengthValue })
