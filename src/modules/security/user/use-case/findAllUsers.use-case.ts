@@ -38,9 +38,9 @@ export class FindAllUsersUseCase {
 		const {
 			limit = 30,
 			page = 1,
+			orderProperty = OrderUserProperty.email,
 			search,
 			status: olStatus,
-			orderProperty = OrderUserProperty.ci,
 			order = Order.ASC,
 		} = filter;
 

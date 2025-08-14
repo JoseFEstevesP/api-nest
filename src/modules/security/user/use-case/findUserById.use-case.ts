@@ -8,7 +8,7 @@ import { UserRepository } from '../repository/user.repository';
 export class FindUserForAuthUseCase {
 	constructor(private readonly userRepository: UserRepository) {}
 
-	async execute(ci: string): Promise<User | null> {
+	async execute(email: string): Promise<User | null> {
 		const includeOptions: Includeable[] = [
 			{
 				model: Role,
@@ -17,7 +17,7 @@ export class FindUserForAuthUseCase {
 		];
 
 		const user = await this.userRepository.findOne({
-			where: { ci },
+			where: { email },
 			include: includeOptions,
 		});
 

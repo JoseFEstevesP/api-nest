@@ -18,32 +18,32 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ReqUidDTO } from '../../../dto/ReqUid.dto';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
+import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
 import { UserDeleteDTO } from './dto/userDelete.dto';
+import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserNewPasswordDTO } from './dto/userNewPassword.dto';
 import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
+import { UserRegisterDTO } from './dto/userRegister.dto';
 import { UserUpdateDTO } from './dto/userUpdate.dto';
 import { UserUpdatePasswordDTO } from './dto/userUpdatePassword.dto';
 import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/userUpdateProfileEmail.dto';
 import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dto';
-import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
-import { UserGetAllDTO } from './dto/userGetAll.dto';
-import { UserRegisterDTO } from './dto/userRegister.dto';
 import { msg } from './msg';
-import { ActivateAccountUseCase } from './use-case/activateAccount';
-import { CreateProtectUserUseCase } from './use-case/createProtectUser';
-import { CreateUserUseCase } from './use-case/createUser';
-import { FindAllUsersUseCase } from './use-case/findAllUsers';
-import { GetUserProfileUseCase } from './use-case/getUserProfile';
-import { RecoveryPasswordUseCase } from './use-case/recoveryPassword';
-import { RecoveryVerifyPasswordUseCase } from './use-case/recoveryVerifyPassword';
-import { RemoveUserUseCase } from './use-case/removeUser';
-import { SetNewPasswordUseCase } from './use-case/setNewPassword';
-import { UnregisterUserUseCase } from './use-case/unregisterUser';
-import { UpdateUserUseCase } from './use-case/updateUser';
-import { UpdateUserProfileUseCase } from './use-case/updateUserProfile';
-import { UpdateUserProfileEmailUseCase } from './use-case/updateUserProfileEmail';
-import { UpdateUserProfilePasswordUseCase } from './use-case/updateUserProfilePassword';
+import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
+import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
+import { CreateUserUseCase } from './use-case/createUser.use-case';
+import { FindAllUsersUseCase } from './use-case/findAllUsers.use-case';
+import { GetUserProfileUseCase } from './use-case/getUserProfile.use-case';
+import { RecoveryPasswordUseCase } from './use-case/recoveryPassword.use-case';
+import { RecoveryVerifyPasswordUseCase } from './use-case/recoveryVerifyPassword.use-case';
+import { RemoveUserUseCase } from './use-case/removeUser.use-case';
+import { SetNewPasswordUseCase } from './use-case/setNewPassword.use-case';
+import { UnregisterUserUseCase } from './use-case/unregisterUser.use-case';
+import { UpdateUserUseCase } from './use-case/updateUser.use-case';
+import { UpdateUserProfileUseCase } from './use-case/updateUserProfile.use-case';
+import { UpdateUserProfileEmailUseCase } from './use-case/updateUserProfileEmail.use-case';
+import { UpdateUserProfilePasswordUseCase } from './use-case/updateUserProfilePassword.use-case';
 
 @ApiTags('User')
 @Controller('user')
@@ -69,7 +69,7 @@ export class UserController {
 	@Post()
 	create(@Body() data: UserDefaultRegisterDTO) {
 		this.logger.log(
-			`system - ${data.ci} - ${data.first_surname} ${data.first_name} - ${msg.log.create}`,
+			`system - ${data.first_surname} ${data.first_name} - ${msg.log.create}`,
 		);
 		return this.createUserUseCase.execute(data);
 	}

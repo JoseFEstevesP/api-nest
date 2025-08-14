@@ -3,14 +3,15 @@ import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
-import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById';
-import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt';
+import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
+import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { msg } from '../msg';
+import { AuthLoginDTO } from '../dto/authLogin.dto';
 
 @Injectable()
 export class LoginUseCase {
@@ -28,12 +29,12 @@ export class LoginUseCase {
 		res,
 		loginInfo,
 	}: {
-		data: { ci: string; password: string };
+		data: AuthLoginDTO;
 		res: Response;
 		loginInfo: DataInfoJWT;
 	}) {
-		const { ci, password } = data;
-		const user = await this.findUserForAuthUseCase.execute(ci);
+				const { email, password } = data;
+				const user = await this.findUserForAuthUseCase.execute(email);
 
 		if (!user) throwHttpExceptionUnique(msg.msg.userError);
 
@@ -68,7 +69,7 @@ export class LoginUseCase {
 		}
 
 		this.logger.log(
-			`${user.ci} - ${user.first_surname} ${user.first_name} - ${msg.log.loginSuccess}`,
+			`${user.first_surname} ${user.first_name} - ${msg.log.loginSuccess}`,
 		);
 	}
 
@@ -96,7 +97,7 @@ export class LoginUseCase {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
-			dataLog: `${user.ci} - ${user.first_surname} ${user.first_name}`,
+			dataLog: `${user.first_surname} ${user.first_name}`,
 			...loginInfo,
 		};
 

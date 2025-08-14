@@ -10,7 +10,6 @@ export enum Sex {
 
 export enum OrderUserProperty {
 	v_e = 'v_e',
-	ci = 'ci',
 	first_name = 'first_name',
 	middle_name = 'middle_name',
 	firstS_surname = 'first_surname',

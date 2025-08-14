@@ -1,6 +1,6 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
-import { FindOneUserUseCase } from '../../user/use-case/findOneUser';
+import { FindOneUserUseCase } from '../../user/use-case/findOneUser.use-case';
 import { msg } from '../msg';
 import { RolRepository } from '../repository/rol.repository';
 

@@ -24,17 +24,17 @@ export class CreateUserUseCase {
 	) {}
 
 	async execute(data: UserDefaultRegisterDTO): Promise<{ msg: string }> {
-		const formattedCI = this.formatCI(data.ci);
+		
 		const { uid, phone, email, password } = data;
 		const whereClause = {
-			[Op.or]: [{ uid }, { ci: formattedCI }, { phone }, { email }],
+			[Op.or]: [{ uid }, { phone }, { email }],
 		};
 		const existingPatient = await this.userRepository.findOne({
 			where: whereClause,
 		});
 
 		const errors = validatePropertyData({
-			property: { uid, ci: formattedCI, phone, email },
+			property: { uid, phone, email },
 			data: existingPatient,
 			msg: msg,
 			checkErrors: checkValidationErrorsUser,
@@ -45,7 +45,7 @@ export class CreateUserUseCase {
 			throwHttpExceptionProperties(errors, HttpStatus.CONFLICT);
 		}
 
-		const code = `${formattedCI}${this.generateCode()}`;
+		const code = `${this.generateCode()}`;
 
 		if (process.env.NODE_ENV !== 'development') {
 			this.logger.log(`system - ${msg.log.emailActivated}`);
@@ -60,20 +60,18 @@ export class CreateUserUseCase {
 
 		await this.userRepository.save({
 			...data,
-			ci: formattedCI,
+			
 			code: null,
 			activatedAccount: true,
 			password: hashPass,
 			uidRol,
 		} as User);
-		this.logger.log(`${formattedCI} ${msg.log.createSuccess}`);
+		this.logger.log(`${msg.log.createSuccess}`);
 
 		return { msg: msg.msg.registerDefault };
 	}
 
-	private formatCI(ci: string): string {
-		return ci.replace(/\\D/g, '');
-	}
+	
 
 	private generateCode() {
 		return Math.floor(Math.random() * 9000000) + 1000000;

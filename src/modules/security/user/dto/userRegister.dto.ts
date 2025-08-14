@@ -28,13 +28,7 @@ export class UserRegisterDTO {
 	@IsEnum(V_E, { message: globalMsg.dto.enumValue })
 	readonly v_e: V_E;
 
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(6, 8, { message: msg.validation.dto.ci.length })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@Matches(/^\d+$/, { message: msg.validation.dto.ci.invalidCharacters })
-	@Transform(({ value }) => value.trim())
-	readonly ci: string;
+	
 
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsNotEmpty({ message: globalMsg.dto.empty })

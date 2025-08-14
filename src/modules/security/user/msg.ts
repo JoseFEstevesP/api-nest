@@ -64,11 +64,7 @@ export const msg = {
 			'Este usuario ya está registrado, pero está deshabilitado. Por favor, póngase en contacto con los administradores.',
 		default: 'Este usuario ya está registrado.',
 		dto: {
-			ci: {
-				length: 'El campo CI no puede tener más de 8 caracteres.',
-				invalidCharacters:
-					'El campo CI no puede tener caracteres no numéricos.',
-			},
+			
 			email: 'El campo email no es válido.',
 			phone: `El número de teléfono ingresado no es válido.
 Asegúrate de que el número tenga el formato correcto:

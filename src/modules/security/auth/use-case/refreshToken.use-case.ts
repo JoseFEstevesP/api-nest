@@ -4,7 +4,7 @@ import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAudit.use-case';
 import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
-import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
+import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -102,7 +102,7 @@ export class RefreshTokenUseCase {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
-			dataLog: `${user.ci} - ${user.first_surname} ${user.first_name}`,
+			dataLog: `${user.first_surname} ${user.first_name}`,
 			...loginInfo,
 		};
 

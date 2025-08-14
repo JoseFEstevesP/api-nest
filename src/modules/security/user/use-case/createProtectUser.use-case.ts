@@ -22,14 +22,14 @@ export class CreateProtectUserUseCase {
 		data: UserRegisterDTO;
 		dataLog: string;
 	}): Promise<{ msg: string }> {
-		const { uid, ci, phone, email, password } = data;
-		const whereClause = { [Op.or]: [{ uid }, { ci }, { phone }, { email }] };
+		const { uid, phone, email, password } = data;
+		const whereClause = { [Op.or]: [{ uid }, { phone }, { email }] };
 		const existingPatient = await this.userRepository.findOne({
 			where: whereClause,
 		});
 
 		const errors = validatePropertyData({
-			property: { uid, ci, phone, email },
+			property: { uid, phone, email },
 			data: existingPatient,
 			msg: msg,
 			checkErrors: checkValidationErrorsUser,

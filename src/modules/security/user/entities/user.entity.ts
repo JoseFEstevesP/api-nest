@@ -17,8 +17,7 @@ export class User extends Model<User> {
 	@Column({ allowNull: false, type: DataType.ENUM(V_E.e, V_E.v) })
 	declare v_e: V_E;
 
-	@Column({ unique: true, type: DataType.STRING })
-	declare ci: string;
+	
 
 	@Column({ allowNull: false, type: DataType.STRING })
 	declare first_name: string;

@@ -1,6 +1,6 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
-import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser';
+import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
 import { Injectable, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { msg } from '../msg';

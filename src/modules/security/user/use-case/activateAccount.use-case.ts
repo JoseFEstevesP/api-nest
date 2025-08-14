@@ -25,7 +25,7 @@ export class ActivateAccountUseCase {
 		});
 
 		this.logger.log(
-			`${user.ci} - ${user.first_surname} ${user.first_name} - ${msg.log.activatedAccountSuccess}`,
+			`${user.first_surname} ${user.first_name} - ${msg.log.activatedAccountSuccess}`,
 		);
 
 		return { msg: msg.msg.activationAccount };
