@@ -27,28 +27,14 @@ export class UserRegisterDTO {
 	@Length(3, 255, { message: globalMsg.dto.lengthValue })
 	@IsDefined({ message: globalMsg.dto.defined })
 	@Transform(({ value }) => value.trim())
-	readonly first_name: string;
+	readonly names: string;
 
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsNotEmpty({ message: globalMsg.dto.empty })
 	@Length(3, 255, { message: globalMsg.dto.lengthValue })
 	@IsDefined({ message: globalMsg.dto.defined })
 	@Transform(({ value }) => value.trim())
-	readonly middle_name: string;
-
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(3, 255, { message: globalMsg.dto.lengthValue })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@Transform(({ value }) => value.trim())
-	readonly first_surname: string;
-
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(3, 255, { message: globalMsg.dto.lengthValue })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@Transform(({ value }) => value.trim())
-	readonly last_surname: string;
+	readonly surnames: string;
 
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsNotEmpty({ message: globalMsg.dto.empty })

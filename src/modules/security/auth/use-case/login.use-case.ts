@@ -69,7 +69,7 @@ export class LoginUseCase {
 		}
 
 		this.logger.log(
-			`${user.first_surname} ${user.first_name} - ${msg.log.loginSuccess}`,
+			`${user.surnames} ${user.names} - ${msg.log.loginSuccess}`,
 		);
 	}
 
@@ -97,7 +97,7 @@ export class LoginUseCase {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
-			dataLog: `${user.first_surname} ${user.first_name}`,
+			dataLog: `${user.surnames} ${user.names}`,
 			...loginInfo,
 		};
 

@@ -21,10 +21,8 @@ export class GetUserProfileUseCase {
 		dataLog: string;
 	}): Promise<User> {
 		const attributes = [
-			'first_name',
-			'middle_name',
-			'first_surname',
-			'last_surname',
+			'names',
+			'surnames',
 			'sex',
 			'phone',
 			'email',

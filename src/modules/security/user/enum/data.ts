@@ -4,10 +4,8 @@ export enum Sex {
 }
 
 export enum OrderUserProperty {
-	first_name = 'first_name',
-	middle_name = 'middle_name',
-	firstS_surname = 'first_surname',
-	lastS_surname = 'last_surname',
+	names = 'names',
+	surnames = 'surnames',
 	sex = 'sex',
 	phone = 'phone',
 	email = 'email',

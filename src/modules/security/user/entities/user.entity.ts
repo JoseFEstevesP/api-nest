@@ -15,16 +15,10 @@ export class User extends Model<User> {
 	declare uid: string;
 
 	@Column({ allowNull: false, type: DataType.STRING })
-	declare first_name: string;
+	declare names: string;
 
 	@Column({ allowNull: false, type: DataType.STRING })
-	declare middle_name: string;
-
-	@Column({ allowNull: false, type: DataType.STRING })
-	declare first_surname: string;
-
-	@Column({ allowNull: false, type: DataType.STRING })
-	declare last_surname: string;
+	declare surnames: string;
 
 	@Column({ allowNull: false, type: DataType.ENUM(Sex.m, Sex.f) })
 	declare sex: Sex;

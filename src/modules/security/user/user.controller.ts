@@ -69,7 +69,7 @@ export class UserController {
 	@Post()
 	create(@Body() data: UserDefaultRegisterDTO) {
 		this.logger.log(
-			`system - ${data.first_surname} ${data.first_name} - ${msg.log.create}`,
+			`system - ${data.surnames} ${data.names} - ${msg.log.create}`,
 		);
 		return this.createUserUseCase.execute(data);
 	}

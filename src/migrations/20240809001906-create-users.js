@@ -14,19 +14,11 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			first_name: {
+			names: {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			middle_name: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			first_surname: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
-			last_surname: {
+			surnames: {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},

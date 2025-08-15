@@ -1,6 +1,6 @@
 export enum OrderAuditProperty {
-	first_name = 'first_name',
-	first_surname = 'first_surname',
+	names = 'names',
+	surnames = 'surnames',
 	ip = 'ip',
 	userAgent = 'userAgent',
 	userPlatform = 'userPlatform',

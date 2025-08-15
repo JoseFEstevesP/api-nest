@@ -39,7 +39,7 @@ export class FindAllAuditsUseCase {
 			limit = 30,
 			page = 1,
 			search,
-
+			orderProperty = OrderAuditProperty.names,
 			order = Order.ASC,
 		} = filter;
 
@@ -81,8 +81,8 @@ export class FindAllAuditsUseCase {
 
 	private getSearchConditions(search: string): WhereOptions[] {
 		const searchableFields = [
-			'$user.first_name$',
-			'$user.first_surname$',
+			'$user.names$',
+			'$user.surnames$',
 			'ip',
 			'userAgent',
 			'userPlatform',
@@ -117,7 +117,7 @@ export class FindAllAuditsUseCase {
 			{
 				model: User,
 				required: true,
-				attributes: ['first_name', 'first_surname'],
+				attributes: ['names', 'surnames'],
 			},
 		];
 	}
@@ -145,8 +145,8 @@ export class FindAllAuditsUseCase {
 
 	private getOrder(orderProperty: OrderAuditProperty, direction: Order) {
 		const orderMap: Record<OrderAuditProperty, any[]> = {
-			first_name: ['user', 'first_name', direction],
-			first_surname: ['user', 'first_surname', direction],
+			names: ['user', 'names', direction],
+			surnames: ['user', 'surnames', direction],
 			ip: ['ip', direction],
 			userAgent: ['userAgent', direction],
 			userPlatform: ['userPlatform', direction],

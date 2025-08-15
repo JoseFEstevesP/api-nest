@@ -100,10 +100,8 @@ export class FindAllUsersUseCase {
 
 	private getSearchConditions(search: string): WhereOptions[] {
 		const searchableFields = [
-			'first_name',
-			'middle_name',
-			'first_surname',
-			'last_surname',
+			'names',
+			'surnames',
 			'ci',
 			'email',
 		];

@@ -50,10 +50,8 @@ export default async () => {
 							uid: { required: true, type: () => String },
 
 							ci: { required: true, type: () => String },
-							first_name: { required: true, type: () => String },
-							middle_name: { required: true, type: () => String },
-							first_surname: { required: true, type: () => String },
-							last_surname: { required: true, type: () => String },
+							names: { required: true, type: () => String },
+							surnames: { required: true, type: () => String },
 							sex: {
 								required: true,
 								enum: t['./modules/security/user/enum/data'].Sex,
@@ -152,25 +150,13 @@ export default async () => {
 								maxLength: 8,
 								pattern: '/^\\d+$/',
 							},
-							first_name: {
+							names: {
 								required: true,
 								type: () => String,
 								minLength: 3,
 								maxLength: 255,
 							},
-							middle_name: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							first_surname: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							last_surname: {
+							surnames: {
 								required: true,
 								type: () => String,
 								minLength: 3,
@@ -203,25 +189,13 @@ export default async () => {
 								maxLength: 8,
 								pattern: '/^\\d+$/',
 							},
-							first_name: {
+							names: {
 								required: true,
 								type: () => String,
 								minLength: 3,
 								maxLength: 255,
 							},
-							middle_name: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							first_surname: {
-								required: true,
-								type: () => String,
-								minLength: 3,
-								maxLength: 255,
-							},
-							last_surname: {
+							surnames: {
 								required: true,
 								type: () => String,
 								minLength: 3,

@@ -102,7 +102,7 @@ export class RefreshTokenUseCase {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
-			dataLog: `${user.first_surname} ${user.first_name}`,
+			dataLog: `${user.surnames} ${user.names}`,
 			...loginInfo,
 		};
 
