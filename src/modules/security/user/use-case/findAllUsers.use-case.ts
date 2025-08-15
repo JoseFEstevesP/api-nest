@@ -99,12 +99,7 @@ export class FindAllUsersUseCase {
 	}
 
 	private getSearchConditions(search: string): WhereOptions[] {
-		const searchableFields = [
-			'names',
-			'surnames',
-			'ci',
-			'email',
-		];
+		const searchableFields = ['names', 'surnames', 'ci', 'email'];
 
 		return searchableFields.map(field => ({
 			[field]: { [Op.iLike]: `%${search}%` },

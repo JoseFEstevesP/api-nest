@@ -68,9 +68,7 @@ export class LoginUseCase {
 			throwHttpExceptionUnique(msg.log.sessionExisting);
 		}
 
-		this.logger.log(
-			`${user.surnames} ${user.names} - ${msg.log.loginSuccess}`,
-		);
+		this.logger.log(`${user.surnames} ${user.names} - ${msg.log.loginSuccess}`);
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

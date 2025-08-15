@@ -20,13 +20,7 @@ export class GetUserProfileUseCase {
 		status?: boolean;
 		dataLog: string;
 	}): Promise<User> {
-		const attributes = [
-			'names',
-			'surnames',
-			'sex',
-			'phone',
-			'email',
-		];
+		const attributes = ['names', 'surnames', 'sex', 'phone', 'email'];
 
 		const includeOptions: Includeable[] = [
 			{
