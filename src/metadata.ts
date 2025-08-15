@@ -48,10 +48,7 @@ export default async () => {
 					{
 						User: {
 							uid: { required: true, type: () => String },
-							v_e: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].V_E,
-							},
+
 							ci: { required: true, type: () => String },
 							first_name: { required: true, type: () => String },
 							middle_name: { required: true, type: () => String },
@@ -147,10 +144,7 @@ export default async () => {
 					{
 						UserDefaultRegisterDTO: {
 							uid: { required: true, type: () => String, format: 'uuid' },
-							v_e: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].V_E,
-							},
+
 							ci: {
 								required: true,
 								type: () => String,
@@ -201,10 +195,7 @@ export default async () => {
 					{
 						UserRegisterDTO: {
 							uid: { required: true, type: () => String, format: 'uuid' },
-							v_e: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].V_E,
-							},
+
 							ci: {
 								required: true,
 								type: () => String,

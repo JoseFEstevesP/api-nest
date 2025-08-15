@@ -7,15 +7,12 @@ import {
 	Model,
 	Table,
 } from 'sequelize-typescript';
-import { Sex, V_E } from '../enum/data';
+import { Sex } from '../enum/data';
 
 @Table
 export class User extends Model<User> {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
 	declare uid: string;
-
-	@Column({ allowNull: false, type: DataType.ENUM(V_E.e, V_E.v) })
-	declare v_e: V_E;
 
 	@Column({ allowNull: false, type: DataType.STRING })
 	declare first_name: string;

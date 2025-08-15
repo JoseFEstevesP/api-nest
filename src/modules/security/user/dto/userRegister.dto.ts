@@ -13,7 +13,7 @@ import {
 	Length,
 	Matches,
 } from 'class-validator';
-import { Sex, V_E } from '../enum/data';
+import { Sex } from '../enum/data';
 import { msg } from '../msg';
 @ApiExtraModels()
 export class UserRegisterDTO {
@@ -21,12 +21,6 @@ export class UserRegisterDTO {
 	@IsNotEmpty({ message: globalMsg.dto.empty })
 	@IsDefined({ message: globalMsg.dto.defined })
 	readonly uid: string;
-
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@IsEnum(V_E, { message: globalMsg.dto.enumValue })
-	readonly v_e: V_E;
 
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsNotEmpty({ message: globalMsg.dto.empty })

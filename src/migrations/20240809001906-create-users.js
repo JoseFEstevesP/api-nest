@@ -10,7 +10,7 @@ module.exports = {
 				unique: true,
 				allowNull: false,
 			},
-			v_e: {
+			ci: {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
