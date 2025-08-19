@@ -10,10 +10,6 @@ module.exports = {
 				unique: true,
 				allowNull: false,
 			},
-			ci: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
 			names: {
 				type: Sequelize.STRING,
 				allowNull: false,
