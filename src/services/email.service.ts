@@ -81,10 +81,10 @@ export class EmailService {
               <p>Para ${action}, por favor utiliza el siguiente código de verificación:</p>
               <div class="code">${code}</div>
               <p>Este código expirará en 15 minutos. Si no solicitaste esto, por favor ignora este correo.</p>
-              <p>Gracias,<br>El equipo de Farmapatria</p>
+              <p>Gracias,<br>El equipo de soporte</p>
           </div>
           <div class="footer">
-              <p>© ${new Date().getFullYear()} Farmapatria. Todos los derechos reservados.</p>
+              <p>© ${new Date().getFullYear()} <nombre empresa>. Todos los derechos reservados.</p>
           </div>
       </body>
       </html>
@@ -114,7 +114,7 @@ export class EmailService {
 	}
 
 	async recoveryPassword({ email, code }: { email: string; code: string }) {
-		const subject = 'Restaurar contraseña | Farmapatria';
+		const subject = 'Restaurar contraseña';
 		const html = this.getHtmlTemplate(
 			'Restablecer tu contraseña',
 			code,
@@ -126,7 +126,7 @@ export class EmailService {
 	}
 
 	async activatedAccount({ email, code }: { email: string; code: string }) {
-		const subject = 'Activar cuenta | Farmapatria';
+		const subject = 'Activar cuenta';
 		const html = this.getHtmlTemplate(
 			'Activar tu cuenta',
 			code,
