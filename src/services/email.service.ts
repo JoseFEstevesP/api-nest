@@ -1,19 +1,19 @@
-import { Injectable, Optional } from '@nestjs/common';
+import {
+	Injectable,
+	InternalServerErrorException,
+	Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
 	private readonly transporter: nodemailer.Transporter;
+	private readonly logger = new Logger(EmailService.name);
 
-	constructor(@Optional() private readonly configService?: ConfigService) {
-		if (!this.configService) {
-			throw new Error(
-				'ConfigService es necesario para el servicio EmailService',
-			);
-		}
+	constructor(private readonly configService: ConfigService) {
 		this.transporter = nodemailer.createTransport({
-			host: 'smtp.gmail.com',
+			host: this.configService.get<string>('EMAIL_HOST'),
 			port: 465,
 			secure: true,
 			auth: {
@@ -91,6 +91,28 @@ export class EmailService {
     `;
 	}
 
+	private async sendEmail(
+		to: string,
+		subject: string,
+		html: string,
+		text: string,
+	) {
+		try {
+			await this.transporter.sendMail({
+				from: this.configService.get<string>('EMAIL_USER'),
+				to,
+				subject,
+				html,
+				text,
+			});
+		} catch (error) {
+			this.logger.error(`Error al enviar email a ${to}:`, error);
+			throw new InternalServerErrorException(
+				'Error al intentar enviar el correo.',
+			);
+		}
+	}
+
 	async recoveryPassword({ email, code }: { email: string; code: string }) {
 		const subject = 'Restaurar contraseña | Farmapatria';
 		const html = this.getHtmlTemplate(
@@ -98,14 +120,9 @@ export class EmailService {
 			code,
 			'restablecer tu contraseña',
 		);
+		const text = `Tu código para restablecer la contraseña es: ${code}`;
 
-		await this.transporter.sendMail({
-			from: `Farmapatria <${process.env.EMAIL_USER}>`,
-			to: email,
-			subject,
-			html,
-			text: `Tu código para restablecer la contraseña es: ${code}`,
-		});
+		await this.sendEmail(email, subject, html, text);
 	}
 
 	async activatedAccount({ email, code }: { email: string; code: string }) {
@@ -115,13 +132,8 @@ export class EmailService {
 			code,
 			'activar tu cuenta',
 		);
+		const text = `Tu código de activación es: ${code}`;
 
-		await this.transporter.sendMail({
-			from: `Farmapatria <${process.env.EMAIL_USER}>`,
-			to: email,
-			subject,
-			html,
-			text: `Tu código de activación es: ${code}`,
-		});
+		await this.sendEmail(email, subject, html, text);
 	}
 }

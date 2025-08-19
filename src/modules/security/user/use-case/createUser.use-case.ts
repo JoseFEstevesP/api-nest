@@ -46,7 +46,7 @@ export class CreateUserUseCase {
 
 		const code = `${this.generateCode()}`;
 
-		if (process.env.NODE_ENV !== 'development') {
+		if (this.configService.get<string>('NODE_ENV') !== 'development') {
 			this.logger.log(`system - ${msg.log.emailActivated}`);
 			this.emailService.activatedAccount({ code, email });
 		}

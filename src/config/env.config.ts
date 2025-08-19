@@ -32,6 +32,9 @@ export class EnvironmentVariables {
 	@MinLength(64)
 	JWT_REFRESH_SECRET: string;
 
+	@IsString()
+	EMAIL_HOST: string;
+
 	@IsEmail()
 	EMAIL_USER: string;
 
