@@ -1,6 +1,6 @@
-FROM node:20-alpine
+FROM node:24.6.0-alpine
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10.14.0
 
 WORKDIR /home/app
 
@@ -14,6 +14,6 @@ RUN pnpm install \
 
 COPY . .
 
-RUN if [ "$NODE_ENV" = "production" ]; then pnpm build; fi
+RUN pnpm build
 
-CMD if [ "$NODE_ENV" = "production" ]; then pnpm start:prod; else pnpm dev; fi
+CMD ["pnpm", "start"]

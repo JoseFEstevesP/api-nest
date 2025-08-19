@@ -77,9 +77,6 @@ export class EnvironmentVariables {
 
 	@IsString()
 	REDIS_URL: string;
-
-	@IsNumber()
-	REDIS_PORT: number;
 }
 
 export const validateEnv = (config: Record<string, any>) => {
@@ -92,7 +89,6 @@ export const validateEnv = (config: Record<string, any>) => {
 		'DATABASE_PORT',
 		'RATE_LIMIT_TTL',
 		'RATE_LIMIT_LIMIT',
-		'REDIS_PORT',
 	];
 	numericFields.forEach(field => {
 		if (config[field] && typeof config[field] === 'string') {
