@@ -21,6 +21,7 @@ describe('EmailService', () => {
 				const env = {
 					EMAIL_USER: 'test@farmapatria.com',
 					EMAIL_PASS: 'test-password',
+					EMAIL_HOST: 'smtp.gmail.com',
 				};
 				return env[key];
 			}),
@@ -53,10 +54,10 @@ describe('EmailService', () => {
 		await service.recoveryPassword({ email, code });
 
 		expect(mockTransporter.sendMail).toHaveBeenCalledWith({
-			from: expect.stringContaining('Farmapatria'),
+			from: 'test@farmapatria.com',
 			to: email,
-			subject: 'Restaurar contraseña | Farmapatria',
-			html: expect.stringContaining(code),
+			subject: 'Restaurar contraseña',
+			html: expect.stringContaining('Restablecer tu contraseña'),
 			text: `Tu código para restablecer la contraseña es: ${code}`,
 		});
 	});
@@ -68,10 +69,10 @@ describe('EmailService', () => {
 		await service.activatedAccount({ email, code });
 
 		expect(mockTransporter.sendMail).toHaveBeenCalledWith({
-			from: expect.stringContaining('Farmapatria'),
+			from: 'test@farmapatria.com',
 			to: email,
-			subject: 'Activar cuenta | Farmapatria',
-			html: expect.stringContaining(code),
+			subject: 'Activar cuenta',
+			html: expect.stringContaining('Activar tu cuenta'),
 			text: `Tu código de activación es: ${code}`,
 		});
 	});

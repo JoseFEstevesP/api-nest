@@ -22,7 +22,7 @@ export class CreateProtectUserUseCase {
 		data: UserRegisterDTO;
 		dataLog: string;
 	}): Promise<{ msg: string }> {
-		const { uid, phone, email, password } = data;
+		const { uid, phone, email, password, _confirmPassword, ...rest } = data;
 		const whereClause = { [Op.or]: [{ uid }, { phone }, { email }] };
 		const existingPatient = await this.userRepository.findOne({
 			where: whereClause,
@@ -43,7 +43,10 @@ export class CreateProtectUserUseCase {
 		const hashPass = await hash(password, salt);
 
 		await this.userRepository.save({
-			...data,
+			...rest,
+			uid,
+			phone,
+			email,
 			password: hashPass,
 			activatedAccount: true,
 			code: null,

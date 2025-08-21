@@ -11,8 +11,36 @@ import {
 	IsUUID,
 	Length,
 	Matches,
+	ValidationOptions,
+	registerDecorator,
 } from 'class-validator';
 import { msg } from '../msg';
+
+export function Match(property: string, validationOptions?: ValidationOptions) {
+	return (object: object, propertyName: string) => {
+		registerDecorator({
+			name: 'Match',
+			target: object.constructor,
+			propertyName: propertyName,
+			constraints: [property],
+			options: validationOptions,
+			validator: {
+				validate(
+					value: any,
+					args: import('class-validator').ValidationArguments,
+				) {
+					const [relatedPropertyName] = args.constraints;
+					const relatedValue = (args.object as any)[relatedPropertyName];
+					return value === relatedValue;
+				},
+				defaultMessage(args: import('class-validator').ValidationArguments) {
+					const [relatedPropertyName] = args.constraints;
+					return `${propertyName} must match ${relatedPropertyName}`;
+				},
+			},
+		});
+	};
+}
 
 @ApiExtraModels()
 export class UserDefaultRegisterDTO {
@@ -64,4 +92,10 @@ export class UserDefaultRegisterDTO {
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: globalMsg.dto.defined })
 	readonly password: string;
+
+	@IsString({ message: globalMsg.dto.stringValue })
+	@IsNotEmpty({ message: globalMsg.dto.empty })
+	@IsDefined({ message: globalMsg.dto.defined })
+	@Match('password', { message: msg.validation.dto.passwordMatch })
+	readonly confirmPassword: string;
 }

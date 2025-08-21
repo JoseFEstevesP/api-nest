@@ -24,7 +24,8 @@ export class CreateUserUseCase {
 	) {}
 
 	async execute(data: UserDefaultRegisterDTO): Promise<{ msg: string }> {
-		const { uid, phone, email, password } = data;
+		const { uid, phone, email, password, _confirmPassword } = data;
+
 		const whereClause = {
 			[Op.or]: [{ uid }, { phone }, { email }],
 		};
@@ -57,14 +58,15 @@ export class CreateUserUseCase {
 			typeRol: this.configService.get<string>('DEFAULT_ROL_FROM_USER'),
 		});
 
-		await this.userRepository.save({
+		const user: User = {
 			...data,
-
-			code: null,
-			activatedAccount: true,
 			password: hashPass,
+			activatedAccount: true,
+			code: null,
 			uidRol,
-		} as User);
+		};
+
+		await this.userRepository.save(user);
 		this.logger.log(`${msg.log.createSuccess}`);
 
 		return { msg: msg.msg.registerDefault };

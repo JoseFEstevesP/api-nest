@@ -78,6 +78,7 @@ Ejemplo de un número válido: +582412345678 o 0412345678.`,
 				invalidCharacters:
 					'El campo code no puede tener caracteres no numéricos.',
 			},
+			passwordMatch: 'Las contraseñas no coinciden.',
 		},
 	},
 };
