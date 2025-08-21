@@ -4,9 +4,6 @@ export default async () => {
 		['./modules/security/rol/enum/rolData']: await import(
 			'./modules/security/rol/enum/rolData'
 		),
-		['./modules/security/user/enum/data']: await import(
-			'./modules/security/user/enum/data'
-		),
 		['./modules/security/rol/entities/rol.entity']: await import(
 			'./modules/security/rol/entities/rol.entity'
 		),
@@ -50,10 +47,6 @@ export default async () => {
 							uid: { required: true, type: () => String },
 							names: { required: true, type: () => String },
 							surnames: { required: true, type: () => String },
-							sex: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].Sex,
-							},
 							phone: { required: true, type: () => String },
 							email: { required: true, type: () => String },
 							password: { required: true, type: () => String },
@@ -101,10 +94,6 @@ export default async () => {
 								type: () => String,
 								minLength: 3,
 								maxLength: 255,
-							},
-							sex: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].Sex,
 							},
 							email: { required: true, type: () => String, format: 'email' },
 							phone: {
@@ -163,10 +152,6 @@ export default async () => {
 								type: () => String,
 								minLength: 3,
 								maxLength: 255,
-							},
-							sex: {
-								required: true,
-								enum: t['./modules/security/user/enum/data'].Sex,
 							},
 							email: { required: true, type: () => String, format: 'email' },
 							phone: {

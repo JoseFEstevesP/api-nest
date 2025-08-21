@@ -18,10 +18,6 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			sex: {
-				type: Sequelize.STRING,
-				allowNull: false,
-			},
 			phone: {
 				type: Sequelize.STRING,
 				allowNull: false,

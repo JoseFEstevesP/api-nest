@@ -7,7 +7,6 @@ import {
 	Model,
 	Table,
 } from 'sequelize-typescript';
-import { Sex } from '../enum/data';
 
 @Table
 export class User extends Model<User> {
@@ -19,9 +18,6 @@ export class User extends Model<User> {
 
 	@Column({ allowNull: false, type: DataType.STRING })
 	declare surnames: string;
-
-	@Column({ allowNull: false, type: DataType.ENUM(Sex.m, Sex.f) })
-	declare sex: Sex;
 
 	@Column({ allowNull: false, type: DataType.STRING })
 	declare phone: string;
