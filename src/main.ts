@@ -10,24 +10,20 @@ import { globalMsg } from './globalMsg';
 import { LoggerService } from './services/logger.service';
 
 async function bootstrap() {
-	console.log('Starting application...');
 	const app = await NestFactory.create(AppModule, {
 		logger: new LoggerService(),
 	});
-	console.log('Nest application created.');
 
 	const expressApp = app.getHttpAdapter().getInstance();
 	expressApp.set('trust proxy', true);
 
 	const configService = app.get(ConfigService<EnvironmentVariables>);
-	console.log('ConfigService obtained.');
 
 	app.enableCors({
 		origin: configService.get<string[]>('CORS'),
 		credentials: true,
 		methods: 'GET,PATCH,POST,DELETE',
 	});
-	console.log('CORS enabled.');
 
 	app.useGlobalPipes(
 		new ValidationPipe({
@@ -44,13 +40,10 @@ async function bootstrap() {
 			stopAtFirstError: true,
 		}),
 	);
-	console.log('Global pipes set.');
 
 	app.setGlobalPrefix('api');
-	console.log('Global prefix set to "api".');
 
 	app.use(cookieParser());
-	console.log('Cookie parser middleware added.');
 
 	// Configuración de Swagger
 	const config = new DocumentBuilder()
@@ -77,7 +70,6 @@ async function bootstrap() {
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);
-	console.log('Swagger document created.');
 
 	// Generación de documentación si se especifica el flag
 	if (process.argv.includes('--generate-docs')) {
@@ -95,16 +87,13 @@ async function bootstrap() {
 			'utf8',
 		);
 
-		console.log(globalMsg.docs.generateSuccess);
 		process.exit(0);
 	}
 
 	SwaggerModule.setup('doc', app, document);
-	console.log('Swagger UI setup.');
 
 	const port = configService.get<number>('PORT');
 	await app.listen(port, '0.0.0.0');
-	console.log(`Application started on port ${port}.`);
 }
 
 bootstrap();
