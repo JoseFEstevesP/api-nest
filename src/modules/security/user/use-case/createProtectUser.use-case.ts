@@ -22,7 +22,10 @@ export class CreateProtectUserUseCase {
 		data: UserRegisterDTO;
 		dataLog: string;
 	}): Promise<{ msg: string }> {
-		const { uid, phone, email, password, _confirmPassword, ...rest } = data;
+		// oxlint-disable-next-line no-unused-vars
+		const { confirmPassword, ...userData } = data;
+		const { uid, phone, email, password } = userData;
+
 		const whereClause = { [Op.or]: [{ uid }, { phone }, { email }] };
 		const existingPatient = await this.userRepository.findOne({
 			where: whereClause,
@@ -42,16 +45,14 @@ export class CreateProtectUserUseCase {
 
 		const hashPass = await hash(password, salt);
 
-		await this.userRepository.save({
-			...rest,
-			uid,
-			phone,
-			email,
+		const user = {
+			...userData,
 			password: hashPass,
 			activatedAccount: true,
 			code: null,
-		} as User);
+		} as User;
 
+		await this.userRepository.save(user);
 		this.logger.log(`${dataLog} ${msg.log.createSuccess}`);
 
 		return { msg: msg.msg.registerAdmin };
