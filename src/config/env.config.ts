@@ -8,7 +8,7 @@ import {
 	Validate,
 	validateSync,
 } from 'class-validator';
-import { Dialect } from 'sequelize';
+import { type Dialect } from 'sequelize';
 import { IsCorsValidConstraint } from './isCorsValid';
 
 export enum Environment {
