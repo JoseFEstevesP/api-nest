@@ -1,4 +1,4 @@
 module.exports = {
-	extends: ['oxlint:recommended', 'plugin:prettier/recommended'],
+	extends: ['./.oxlintrc.json'],
 	ignorePatterns: ['dist/', 'node_modules/', 'test/', '*.js', '*.json'],
 };

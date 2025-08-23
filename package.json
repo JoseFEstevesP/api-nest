@@ -14,12 +14,14 @@
 		"build": "swc src -d dist --config-file=.swcrc --no-swcrc",
 		"dev": "nest start --watch",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-		"lint": "oxlint . --fix",
+		"lint": "oxlint src/ --quiet",
+		"lint:fix": "oxlint src/ --fix --quiet",
+		"lint:check": "oxlint src/",
 		"lintStaged": "lint-staged",
 		"migrate:undo:all": "sequelize-cli db:migrate:undo:all",
 		"migrate:undo": "sequelize-cli db:migrate:undo",
 		"migrate": "sequelize-cli db:migrate",
-		"create:migration": "sequelize-cli migration:generate --name",
+		"migrate:create": "sequelize-cli migration:generate --name",
 		"module:generate": "node scripts/moduleGenerator.js",
 		"prepare": "husky",
 		"start:debug": "node --inspect -r @swc/register -r tsconfig-paths/register src/main.ts",
@@ -119,7 +121,7 @@
 	},
 	"lint-staged": {
 		"*.ts": [
-			"oxlint --fix",
+			"oxlint --fix --quiet",
 			"prettier --write"
 		]
 	},
