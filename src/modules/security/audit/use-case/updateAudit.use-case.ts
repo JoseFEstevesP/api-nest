@@ -1,22 +1,18 @@
 import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { AuditUpdateDTO } from '../dto/auditUpdate.dto';
-import { Audit } from '../entities/audit.entity';
 import { msg } from '../msg';
+import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class UpdateAuditUseCase {
 	private readonly logger = new Logger(UpdateAuditUseCase.name);
 
-	constructor(
-		@InjectModel(Audit)
-		private readonly auditModel: typeof Audit,
-	) {}
+	constructor(private readonly auditRepository: AuditRepository) {}
 
 	async execute({ data }: { data: AuditUpdateDTO }) {
 		const { uid, refreshToken } = data;
-		const audit = await this.auditModel.findOne({
+		const audit = await this.auditRepository.findOne({
 			where: { uid },
 		});
 
@@ -25,7 +21,7 @@ export class UpdateAuditUseCase {
 			throwHttpExceptionUnique(msg.msg.findOne);
 		}
 
-		await audit.update({ refreshToken });
+		await this.auditRepository.update(uid, { refreshToken });
 
 		this.logger.log(msg.log.updateSuccess);
 

@@ -89,10 +89,10 @@ export class FindAllUsersUseCase {
 		const where: WhereOptions = {
 			status,
 			uid: { [Op.ne]: uidUser },
-		};
+		} as WhereOptions;
 
 		if (search) {
-			where[Op.or as any] = this.getSearchConditions(search);
+			where[Op.or] = this.getSearchConditions(search);
 		}
 
 		return where;

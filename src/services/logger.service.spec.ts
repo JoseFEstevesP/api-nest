@@ -31,7 +31,7 @@ vi.mock('winston-daily-rotate-file');
 
 describe('LoggerService', () => {
 	let loggerService: LoggerService;
-	let mockLogger: any;
+	let mockLogger: winston.Logger;
 
 	beforeEach(async () => {
 		// Limpiar todos los mocks antes de cada test
@@ -43,7 +43,7 @@ describe('LoggerService', () => {
 			warn: vi.fn(),
 			debug: vi.fn(),
 			verbose: vi.fn(),
-		};
+		} as unknown as winston.Logger;
 
 		vi.mocked(winston.createLogger).mockReturnValue(mockLogger);
 

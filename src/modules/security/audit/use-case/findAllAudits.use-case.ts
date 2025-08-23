@@ -3,7 +3,6 @@ import { User } from '@/modules/security/user/entities/user.entity';
 import { PaginationResult } from '@/types';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
 	Includeable,
@@ -15,14 +14,14 @@ import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';
 import { OrderAuditProperty } from '../enum/orderProperty';
 import { msg } from '../msg';
+import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class FindAllAuditsUseCase {
 	private readonly logger = new Logger(FindAllAuditsUseCase.name);
 
 	constructor(
-		@InjectModel(Audit)
-		private readonly auditModel: typeof Audit,
+		private readonly auditRepository: AuditRepository,
 		@Inject(CACHE_MANAGER) private cacheManager: Cache,
 	) {}
 
@@ -55,7 +54,8 @@ export class FindAllAuditsUseCase {
 			parsedPage,
 		);
 
-		const { rows, count } = await this.auditModel.findAndCountAll(queryOptions);
+		const { rows, count } =
+			await this.auditRepository.findAndCountAll(queryOptions);
 
 		const pagination = this.calculatePagination(count, parsedLimit, parsedPage);
 
@@ -70,10 +70,10 @@ export class FindAllAuditsUseCase {
 	private buildWhereClause(uidUser: string, search?: string): WhereOptions {
 		const where: WhereOptions = {
 			uid: { [Op.ne]: uidUser },
-		};
+		} as WhereOptions;
 
 		if (search) {
-			where[Op.or as any] = this.getSearchConditions(search);
+			where[Op.or] = this.getSearchConditions(search);
 		}
 
 		return where;
@@ -81,8 +81,8 @@ export class FindAllAuditsUseCase {
 
 	private getSearchConditions(search: string): WhereOptions[] {
 		const searchableFields = [
-			'$user.names$',
-			'$user.surnames$',
+			'$user.names',
+			'$user.surnames',
 			'ip',
 			'userAgent',
 			'userPlatform',
@@ -144,7 +144,7 @@ export class FindAllAuditsUseCase {
 	}
 
 	private getOrder(orderProperty: OrderAuditProperty, direction: Order) {
-		const orderMap: Record<OrderAuditProperty, any[]> = {
+		const orderMap: Record<OrderAuditProperty, unknown[]> = {
 			names: ['user', 'names', direction],
 			surnames: ['user', 'surnames', direction],
 			ip: ['ip', direction],

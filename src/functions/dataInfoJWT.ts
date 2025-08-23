@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Request } from 'express';
 import { DataInfoJWT } from './dataInfoJWT.d';
 
@@ -8,6 +9,7 @@ const isPrivateIP = ({ ip }: { ip: string }): boolean => {
 };
 
 export const dataInfoJWT = (req: Request): DataInfoJWT => {
+	const logger = new Logger('dataInfoJWT');
 	let ip = 'Unknown IP';
 
 	const xForwardedFor = req.headers['x-forwarded-for'];
@@ -29,7 +31,7 @@ export const dataInfoJWT = (req: Request): DataInfoJWT => {
 		try {
 			userPlatform = platformHeader.replace(/^"+|"+$/g, '');
 		} catch (e) {
-			console.warn('Error parsing platform header:', e);
+			logger.error('Error parsing platform header:', e);
 		}
 	}
 

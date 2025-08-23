@@ -1,6 +1,6 @@
 export interface ErrorsAll {
 	[key: string]: {
-		message: any;
+		message: string;
 	};
 }
 

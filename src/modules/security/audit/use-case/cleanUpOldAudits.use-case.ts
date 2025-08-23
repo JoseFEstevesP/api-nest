@@ -1,9 +1,7 @@
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
-import { Audit } from '../entities/audit.entity';
+import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class CleanUpOldAuditsUseCase {
@@ -12,8 +10,7 @@ export class CleanUpOldAuditsUseCase {
 	private readonly lockTimeout = 60000;
 
 	constructor(
-		@InjectModel(Audit)
-		private readonly auditModel: typeof Audit,
+		private readonly auditRepository: AuditRepository,
 		@Inject(CACHE_MANAGER) private cacheManager: Cache,
 	) {}
 
@@ -37,11 +34,9 @@ export class CleanUpOldAuditsUseCase {
 	private async removeOldAudits() {
 		const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 		try {
-			const result = await this.auditModel.destroy({
-				where: {
-					createdAt: { [Op.lte]: twentyFourHoursAgo },
-				},
-			});
+			// Usamos el método deleteOldRecords del repositorio
+			const result =
+				await this.auditRepository.deleteOldRecords(twentyFourHoursAgo);
 			this.logger.log(
 				`system - Tarea programada: Eliminados ${result} registros de auditoría antiguos.`,
 			);

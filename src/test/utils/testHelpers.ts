@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
 export const createTestingModule = async (
-	metadata: any,
+	metadata: Record<string, unknown>,
 ): Promise<TestingModule> => {
 	return Test.createTestingModule(metadata).compile();
 };
@@ -39,7 +39,7 @@ export const mockCacheManager = {
 	keys: vi.fn(),
 	store: {},
 	wrap: vi.fn(),
-} as any;
+} as unknown as typeof mockCacheManager;
 
 export const mockLoggerService = {
 	log: vi.fn(),

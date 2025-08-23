@@ -16,21 +16,21 @@ vi.mock('sequelize-typescript', () => ({
 		}
 		static associate() {}
 	},
-	Table: () => (_target: any) => {},
-	Column: () => (_target: any, _key: string) => {},
-	PrimaryKey: () => (_target: any, _key: string) => {},
-	AutoIncrement: () => (_target: any, _key: string) => {},
-	CreatedAt: () => (_target: any, _key: string) => {},
-	UpdatedAt: () => (_target: any, _key: string) => {},
-	ForeignKey: () => (_target: any, _key: string) => {},
-	BelongsTo: () => (_target: any, _key: string) => {},
-	HasMany: () => (_target: any, _key: string) => {},
+	Table: () => (_target: unknown) => {},
+	Column: () => (_target: unknown, _key: string) => {},
+	PrimaryKey: () => (_target: unknown, _key: string) => {},
+	AutoIncrement: () => (_target: unknown, _key: string) => {},
+	CreatedAt: () => (_target: unknown, _key: string) => {},
+	UpdatedAt: () => (_target: unknown, _key: string) => {},
+	ForeignKey: () => (_target: unknown, _key: string) => {},
+	BelongsTo: () => (_target: unknown, _key: string) => {},
+	HasMany: () => (_target: unknown, _key: string) => {},
 	DataType: {
 		UUID: 'uuid',
 		STRING: 'string',
 		BOOLEAN: 'boolean',
-		ENUM: (...values: any[]) => `enum(${values.join(',')})`,
-		ARRAY: (type: any) => `array(${type})`,
+		ENUM: (...values: unknown[]) => `enum(${values.join(',')})`,
+		ARRAY: (type: unknown) => `array(${type})`,
 		TEXT: 'text',
 	},
 }));
@@ -55,7 +55,7 @@ vi.mock('@nestjs/sequelize', () => ({
 		}),
 	},
 	InjectModel: () => vi.fn(),
-	getModelToken: (model: any) => `${model.name}Model`,
+	getModelToken: (model: { name: string }) => `${model.name}Model`,
 }));
 
 // Mock global de console para tests más limpios
@@ -209,10 +209,12 @@ vi.mock('@nestjs/schedule', () => ({
 			exports: [],
 		}),
 	},
-	Cron: () => (target: any, key: string, descriptor: PropertyDescriptor) =>
+	Cron: () => (target: unknown, key: string, descriptor: PropertyDescriptor) =>
 		descriptor,
-	Interval: () => (target: any, key: string, descriptor: PropertyDescriptor) =>
-		descriptor,
-	Timeout: () => (target: any, key: string, descriptor: PropertyDescriptor) =>
-		descriptor,
+	Interval:
+		() => (target: unknown, key: string, descriptor: PropertyDescriptor) =>
+			descriptor,
+	Timeout:
+		() => (target: unknown, key: string, descriptor: PropertyDescriptor) =>
+			descriptor,
 }));

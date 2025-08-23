@@ -12,6 +12,7 @@ import {
 	Length,
 	Matches,
 	ValidationOptions,
+	ValidationArguments,
 	registerDecorator,
 } from 'class-validator';
 import { msg } from '../msg';
@@ -25,15 +26,14 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 			constraints: [property],
 			options: validationOptions,
 			validator: {
-				validate(
-					value: any,
-					args: import('class-validator').ValidationArguments,
-				) {
+				validate(value: unknown, args: ValidationArguments) {
 					const [relatedPropertyName] = args.constraints;
-					const relatedValue = (args.object as any)[relatedPropertyName];
+					const relatedValue = (args.object as Record<string, unknown>)[
+						relatedPropertyName
+					];
 					return value === relatedValue;
 				},
-				defaultMessage(args: import('class-validator').ValidationArguments) {
+				defaultMessage(args: ValidationArguments) {
 					const [relatedPropertyName] = args.constraints;
 					return `${propertyName} must match ${relatedPropertyName}`;
 				},

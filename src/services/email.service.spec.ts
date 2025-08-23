@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EmailService } from './email.service';
@@ -8,13 +9,13 @@ vi.mock('nodemailer', () => ({
 
 describe('EmailService', () => {
 	let service: EmailService;
-	let mockTransporter: any;
-	let mockConfigService: any;
+	let mockTransporter: nodemailer.Transporter;
+	let mockConfigService: ConfigService;
 
 	beforeEach(() => {
 		mockTransporter = {
 			sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
-		};
+		} as unknown as nodemailer.Transporter;
 
 		mockConfigService = {
 			get: vi.fn((key: string) => {
@@ -25,7 +26,7 @@ describe('EmailService', () => {
 				};
 				return env[key];
 			}),
-		};
+		} as unknown as ConfigService;
 
 		vi.mocked(nodemailer.createTransport).mockReturnValue(mockTransporter);
 		service = new EmailService(mockConfigService);
