@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { Dialect } from 'sequelize';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
 import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
 import { FilesModule } from './modules/files/files.module';
@@ -35,7 +36,7 @@ import { AppConfigService } from './services/config.service';
 		SequelizeModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (config: ConfigService<EnvironmentVariables>) => ({
-				dialect: config.get<string>('DATABASE_DIALECT', 'postgres') as any,
+				dialect: config.get<string>('DATABASE_DIALECT') as Dialect,
 				host: config.get<string>('DATABASE_HOST'),
 				port: config.get<number>('DATABASE_PORT'),
 				username: config.get<string>('POSTGRES_USER'),

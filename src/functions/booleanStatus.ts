@@ -3,7 +3,6 @@ export const booleanStatus = ({ status }: { status: string }) => {
 		return true;
 	} else if (status === 'false') {
 		return false;
-	} else {
-		return undefined;
 	}
+	return undefined;
 };

@@ -8,6 +8,7 @@ import {
 	Validate,
 	validateSync,
 } from 'class-validator';
+import { Dialect } from 'sequelize';
 import { IsCorsValidConstraint } from './isCorsValid';
 
 export enum Environment {
@@ -52,7 +53,7 @@ export class EnvironmentVariables {
 	CORS: string[];
 
 	@IsString()
-	DATABASE_DIALECT: string;
+	DATABASE_DIALECT: Dialect;
 
 	@IsString()
 	DATABASE_HOST: string;
@@ -79,7 +80,7 @@ export class EnvironmentVariables {
 	REDIS_URL: string;
 }
 
-export const validateEnv = (config: Record<string, any>) => {
+export const validateEnv = (config: Record<string, unknown>) => {
 	if (typeof config.CORS === 'string') {
 		config.CORS = config.CORS.split(',').map(item => item.trim());
 	}

@@ -211,7 +211,7 @@ function createMigration(moduleName) {
 		console.log(`\nGenerando migración para: ${tableName}`);
 
 		// Ejecutar el comando para crear la migración
-		execSync(`pnpm create:migration ${migrationName}`, {
+		execSync(`pnpm migrate:create ${migrationName}`, {
 			stdio: 'inherit',
 			cwd: path.resolve(__dirname, '..'),
 		});
@@ -281,7 +281,7 @@ module.exports = {
 			error.message,
 		);
 		console.log('💡 Ejecuta manualmente:');
-		console.log(`pnpm create:migration create-${moduleName}`);
+		console.log(`pnpm migrate:create create-${moduleName}`);
 		console.log('Y luego actualiza el contenido del archivo de migración con:');
 		console.log(`
 'use strict';
