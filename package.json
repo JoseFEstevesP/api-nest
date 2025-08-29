@@ -120,7 +120,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.ts": [
+		"**/*.{ts,js}": [
 			"oxlint --fix --quiet",
 			"prettier --write"
 		]
