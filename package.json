@@ -95,8 +95,8 @@
 	},
 	"lint-staged": {
 		"**/*.{ts,js}": [
-			"oxlint --fix --quiet",
-			"prettier --write"
+			"pnpm format",
+			"pnpm lint:check"
 		]
 	},
 	"pnpm": {
