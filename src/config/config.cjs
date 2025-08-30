@@ -1,8 +1,4 @@
-const path = require('path');
-
-const envPath = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
-
-require('dotenv').config({ path: path.resolve(process.cwd(), envPath) });
+require('dotenv').config();
 
 // Extraer las variables de entorno para evitar llamadas repetidas a process.env
 const {
@@ -11,7 +7,7 @@ const {
 	DATABASE_PORT,
 	POSTGRES_USER,
 	POSTGRES_PASSWORD,
-	POSTGRES_DB
+	POSTGRES_DB,
 } = process.env;
 
 // Configuración base para todos los entornos

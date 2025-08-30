@@ -233,10 +233,9 @@ function createMigration(moduleName) {
 			);
 
 			// Contenido de la migración basado en el ejemplo
-			const migrationContent = `'use strict';
-
+			const migrationContent = `
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default = {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.createTable('${tableName}', {
 			uid: {
@@ -284,10 +283,8 @@ module.exports = {
 		console.log(`pnpm migrate:create create-${moduleName}`);
 		console.log('Y luego actualiza el contenido del archivo de migración con:');
 		console.log(`
-'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default = {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.createTable('${capitalizeFirstLetter(moduleName)}s', {
 			uid: {

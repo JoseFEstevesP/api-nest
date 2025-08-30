@@ -131,6 +131,24 @@ Esto iniciará PostgreSQL en el puerto `5432` y Redis en el puerto `6379`.
 pnpm run migrate
 ```
 
+### Migraciones con ES Modules
+
+Desde la versión 1.2.0, las migraciones de Sequelize usan ES Modules (ESM) en lugar de CommonJS. Para más detalles sobre cómo crear y usar migraciones ESM, consulta [la documentación específica](docs/ESM_MIGRATIONS.md).
+
+- Las nuevas migraciones deben usar la extensión `.mjs`
+- El formato de migración sigue el estándar ESM con `export default`
+- La configuración de Sequelize CLI sigue usando CommonJS por compatibilidad
+
+#### Crear una nueva migración ESM
+
+Para crear una nueva migración ESM, usa el comando:
+
+```bash
+pnpm migrate:create nombre-de-la-migracion
+```
+
+Este comando generará automáticamente un archivo de migración en formato ESM en el directorio `src/migrations/`.
+
 ## Ejecución de la Aplicación
 
 ### Modo Desarrollo
