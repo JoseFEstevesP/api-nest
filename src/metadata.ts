@@ -198,7 +198,7 @@ export default async () => {
 				[
 					import('./modules/security/user/dto/userUpdate.dto'),
 					{
-						UserUpdateDTO: { status: { required: true, type: () => Boolean } },
+						UserUpdateDTO: { status: { required: false, type: () => Boolean } },
 					},
 				],
 				[
@@ -220,6 +220,17 @@ export default async () => {
 								type: () =>
 									t['./modules/security/user/entities/user.entity'].User,
 							},
+							refreshToken: { required: true, type: () => String },
+							dataToken: { required: true, type: () => [String] },
+						},
+					},
+				],
+				[
+					import('./modules/security/audit/dto/auditRegister.dto'),
+					{
+						AuditRegisterDTO: {
+							uid: { required: true, type: () => String, format: 'uuid' },
+							uidUser: { required: true, type: () => String, format: 'uuid' },
 							refreshToken: { required: true, type: () => String },
 							dataToken: { required: true, type: () => [String] },
 						},
@@ -315,17 +326,6 @@ export default async () => {
 								enum: t['./modules/security/audit/enum/orderProperty']
 									.OrderAuditProperty,
 							},
-						},
-					},
-				],
-				[
-					import('./modules/security/audit/dto/auditRegister.dto'),
-					{
-						AuditRegisterDTO: {
-							uid: { required: true, type: () => String, format: 'uuid' },
-							uidUser: { required: true, type: () => String, format: 'uuid' },
-							refreshToken: { required: true, type: () => String },
-							dataToken: { required: true, type: () => [String] },
 						},
 					},
 				],
