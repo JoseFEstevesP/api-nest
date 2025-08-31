@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Includeable } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
@@ -38,7 +37,7 @@ export class GetUserProfileUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		this.logger.log(`${dataLog} - ${msg.log.profileSuccess}`);

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { handleDatabaseError } from '@/functions/handleDatabaseError';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
@@ -10,14 +11,19 @@ import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository {
+	private readonly logger = new Logger(UserRepository.name);
+
 	constructor(
 		@InjectModel(User)
 		private readonly userModel: typeof User,
 	) {}
 
-	async save(user: User): Promise<User> {
-		const createdUser = await this.userModel.create(user);
-		return createdUser;
+	async create(user: User): Promise<User> {
+		try {
+			return await this.userModel.create(user);
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la creación del usuario');
+		}
 	}
 
 	async findOne({
@@ -48,19 +54,27 @@ export class UserRepository {
 	}
 
 	async update(uid: string, user: Partial<User>): Promise<User | null> {
-		const [affectedCount] = await this.userModel.update(user, {
-			where: { uid },
-		});
-		if (affectedCount === 0) {
-			return null;
+		try {
+			const [affectedCount] = await this.userModel.update(user, {
+				where: { uid },
+			});
+			if (affectedCount === 0) {
+				return null;
+			}
+			return this.findOne({ where: { uid } });
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la actualización del usuario');
 		}
-		return this.findOne({ where: { uid } });
 	}
 
 	async delete(uid: string): Promise<boolean> {
-		const deletedCount = await this.userModel.destroy({
-			where: { uid },
-		});
-		return deletedCount > 0;
+		try {
+			const deletedCount = await this.userModel.destroy({
+				where: { uid },
+			});
+			return deletedCount > 0;
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la eliminación del usuario');
+		}
 	}
 }

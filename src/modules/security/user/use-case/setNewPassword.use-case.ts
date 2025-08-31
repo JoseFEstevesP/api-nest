@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { salt } from '../constants/sal';
 import { msg } from '../msg';
@@ -27,12 +26,12 @@ export class SetNewPasswordUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		if (newPassword !== confirmPassword) {
 			this.logger.error(`${dataLog} - ${msg.log.userErrorNewPassword}`);
-			throwHttpExceptionUnique(msg.msg.newPassword);
+			throw new BadRequestException(msg.msg.newPassword);
 		}
 
 		const hashPass = await hash(newPassword, salt);

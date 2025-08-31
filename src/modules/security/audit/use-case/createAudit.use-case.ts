@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { AuditRegisterDTO } from '../dto/auditRegister.dto';
 import { Audit } from '../entities/audit.entity';
 import { msg } from '../msg';
@@ -23,7 +22,7 @@ export class CreateAuditUseCase {
 
 		if (audit) {
 			this.logger.error(msg.error.service.create);
-			throwHttpExceptionUnique(msg.error.service.create);
+			throw new ConflictException(msg.error.service.create);
 		}
 
 		this.logger.log(msg.log.createSuccess);

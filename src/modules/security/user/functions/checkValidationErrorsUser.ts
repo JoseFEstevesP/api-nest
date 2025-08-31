@@ -1,4 +1,5 @@
 import { objectError } from '@/functions/objectError';
+import { ConflictException } from '@nestjs/common';
 import { CheckValidationErrorsUserProps } from './types';
 
 export const checkValidationErrorsUser = <
@@ -7,7 +8,7 @@ export const checkValidationErrorsUser = <
 	data,
 	msg,
 	name,
-}: CheckValidationErrorsUserProps<T>) => {
+}: CheckValidationErrorsUserProps<T>): void => {
 	const possibleErrors = {
 		status: objectError({
 			name,
@@ -24,15 +25,15 @@ export const checkValidationErrorsUser = <
 	};
 
 	if (data.status === false) {
-		return possibleErrors.default;
+		throw new ConflictException(possibleErrors.default);
 	}
 
 	if (data.status === true) {
-		return possibleErrors.status;
+		throw new ConflictException(possibleErrors.status);
 	}
 
 	if (data.activatedAccount === false) {
-		return possibleErrors.activatedAccount;
+		throw new ConflictException(possibleErrors.activatedAccount);
 	}
 };
 

@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RolUpdateDTO } from '../dto/rolUpdate.dto';
 import { msg } from '../msg';
 import { RolRepository } from '../repository/rol.repository';
@@ -10,17 +9,16 @@ export class UpdateRolUseCase {
 
 	constructor(private readonly rolRepository: RolRepository) {}
 
-	async execute({ data, dataLog }: { data: RolUpdateDTO; dataLog: string }) {
-		const { uid, ...updatedData } = data;
+	async execute({ uid, data, dataLog }: { uid: string; data: RolUpdateDTO; dataLog: string }) {
 		const rol = await this.rolRepository.findOne({ uid });
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${msg.log.rolError}`);
-			throwHttpExceptionUnique(msg.findOne);
+			throw new NotFoundException(msg.findOne);
 		}
 
 		await rol.update({
-			...updatedData,
-			...(updatedData.status !== undefined && { status: !updatedData.status }),
+			...data,
+			...(data.status !== undefined && { status: !data.status }),
 		});
 
 		this.logger.log(`${dataLog} - ${msg.log.updateSuccess}`);

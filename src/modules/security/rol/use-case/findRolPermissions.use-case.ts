@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { msg } from '../msg';
 import { RolRepository } from '../repository/rol.repository';
 
@@ -17,7 +16,7 @@ export class FindRolPermissionsUseCase {
 
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${msg.log.rolError}`);
-			throwHttpExceptionUnique(msg.findOne);
+			throw new NotFoundException(msg.findOne);
 		}
 
 		this.logger.log(`${dataLog} - ${msg.log.findOneSuccess}`);

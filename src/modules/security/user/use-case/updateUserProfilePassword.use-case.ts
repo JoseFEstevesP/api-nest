@@ -1,6 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
 import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
 import { salt } from '../constants/sal';
@@ -28,13 +26,13 @@ export class UpdateUserProfilePasswordUseCase {
 		const user = await this.userRepository.findOne({ where: { uid } });
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		const checkPassword = await compare(olPassword, user.password);
 		if (!checkPassword) {
 			this.logger.error(`${dataLog} - ${msg.log.passwordError}`);
-			throwHttpExceptionUnique(msg.msg.passwordError);
+			throw new UnauthorizedException(msg.msg.passwordError);
 		}
 
 		const hashPass = await hash(newPassword, salt);

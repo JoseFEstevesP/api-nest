@@ -1,18 +1,23 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { EnvironmentVariables } from './config/env.config';
+import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 import { objectError } from './functions/objectError';
 import { globalMsg } from './globalMsg';
 import { LoggerService } from './services/logger.service';
 
 async function bootstrap() {
+	const logger = new LoggerService();
 	const app = await NestFactory.create(AppModule, {
-		logger: new LoggerService(),
+		logger,
 	});
+
+	const httpAdapterHost = app.get(HttpAdapterHost);
+	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
 
 	const expressApp = app.getHttpAdapter().getInstance();
 	expressApp.set('trust proxy', true);

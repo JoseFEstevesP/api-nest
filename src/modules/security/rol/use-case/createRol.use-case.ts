@@ -1,6 +1,5 @@
-import { throwHttpExceptionProperties } from '@/functions/throwHttpException';
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
 import { msg } from '../msg';
@@ -17,16 +16,11 @@ export class CreateRolUseCase {
 		const whereClause = { [Op.or]: [{ uid }, { name }] };
 		const existingPatient = await this.rolRepository.findOne(whereClause);
 
-		const errors = validatePropertyData({
+		validatePropertyData({
 			property: { uid, name },
 			data: existingPatient,
 			msg: msg,
 		});
-
-		if (errors) {
-			this.logger.error(`${dataLog} - ${msg.log.errorValidator}`);
-			throwHttpExceptionProperties(errors, HttpStatus.CONFLICT);
-		}
 
 		await this.rolRepository.create(data);
 

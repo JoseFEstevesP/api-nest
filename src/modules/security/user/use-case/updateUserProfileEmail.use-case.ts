@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserUpdateProfileEmailDTO } from '../dto/userUpdateProfileEmail.dto';
 import { msg } from '../msg';
@@ -24,13 +23,13 @@ export class UpdateUserProfileEmailUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
 			this.logger.error(`${dataLog} - ${msg.log.passwordError}`);
-			throwHttpExceptionUnique(msg.msg.passwordError);
+			throw new UnauthorizedException(msg.msg.passwordError);
 		}
 
 		await this.userRepository.update(uid, { email });

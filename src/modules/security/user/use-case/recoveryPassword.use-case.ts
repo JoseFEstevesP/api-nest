@@ -1,6 +1,5 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { EmailService } from '@/services/email.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
 
@@ -25,12 +24,12 @@ export class RecoveryPasswordUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		if (!user.activatedAccount) {
 			this.logger.error(`${dataLog} - ${msg.log.userErrorActiveAccount}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new BadRequestException(msg.msg.findOne);
 		}
 
 		const generateCode = () => Math.floor(Math.random() * 9000000) + 1000000;

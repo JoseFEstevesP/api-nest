@@ -1,5 +1,9 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+	ForbiddenException,
+	Injectable,
+	Logger,
+	NotFoundException,
+} from '@nestjs/common';
 import { Includeable, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { TypeRol } from '../../rol/enum/rolData';
@@ -24,12 +28,12 @@ export class FindOneUserUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		if (user.rol.typeRol !== TypeRol.admin) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.userType);
+			throw new ForbiddenException(msg.msg.userType);
 		}
 		this.logger.log(`${dataLog} - ${msg.log.findOneSuccess}`);
 

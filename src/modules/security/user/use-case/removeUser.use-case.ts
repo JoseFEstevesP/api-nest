@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
 
@@ -21,7 +20,7 @@ export class RemoveUserUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		try {
@@ -33,7 +32,7 @@ export class RemoveUserUseCase {
 		} catch (err) {
 			if (err) {
 				this.logger.error(`${dataLog} - ${msg.log.relationError}`);
-				throwHttpExceptionUnique(msg.log.relationError);
+				throw new ConflictException(msg.log.relationError);
 			}
 		}
 		return { msg: msg.msg.unregister };

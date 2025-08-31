@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ForbiddenException } from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
@@ -31,7 +30,7 @@ export class ValidateAttemptUseCase {
 				attemptCount: maxAttempt,
 				status: false,
 			});
-			throwHttpExceptionUnique(msg.msg.attempt);
+			throw new ForbiddenException(msg.msg.attempt);
 		}
 	}
 }

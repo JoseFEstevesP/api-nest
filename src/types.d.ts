@@ -1,9 +1,3 @@
-export interface ErrorsAll {
-	[key: string]: {
-		message: string;
-	};
-}
-
 export interface PaginationResult<T> {
 	rows: T[];
 	count: number;

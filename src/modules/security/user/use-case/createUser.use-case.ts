@@ -1,7 +1,6 @@
-import { throwHttpExceptionProperties } from '@/functions/throwHttpException';
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
 import { EmailService } from '@/services/email.service';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { Op } from 'sequelize';
@@ -35,17 +34,12 @@ export class CreateUserUseCase {
 			where: whereClause,
 		});
 
-		const errors = validatePropertyData({
+		validatePropertyData({
 			property: { uid, phone, email },
 			data: existingPatient,
 			msg: msg,
 			checkErrors: checkValidationErrorsUser,
 		});
-
-		if (errors) {
-			this.logger.error(`system ${msg.log.create}`);
-			throwHttpExceptionProperties(errors, HttpStatus.CONFLICT);
-		}
 
 		const code = `${this.generateCode()}`;
 
@@ -68,7 +62,7 @@ export class CreateUserUseCase {
 			uidRol,
 		} as User;
 
-		await this.userRepository.save(user);
+		await this.userRepository.create(user);
 		this.logger.log(`${msg.log.createSuccess}`);
 
 		return { msg: msg.msg.registerDefault };

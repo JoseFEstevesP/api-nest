@@ -1,11 +1,10 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAudit.use-case';
 import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -36,7 +35,7 @@ export class RefreshTokenUseCase {
 		const refreshToken = req.cookies?.refreshToken;
 		if (!refreshToken) {
 			this.logger.error(`system - ${msg.log.refreshToken}`);
-			throwHttpExceptionUnique(msg.msg.refreshToken);
+			throw new UnauthorizedException(msg.msg.refreshToken);
 		}
 
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);

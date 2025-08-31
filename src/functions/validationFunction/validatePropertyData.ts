@@ -1,37 +1,20 @@
-import { ErrorsAll } from '@/types';
 import { checkValidationErrors } from './checkValidationErrors';
 import { ValidatePropertyDataProps } from './interface';
 
-export const validatePropertyData = <T extends { status: boolean }>({
+export const validatePropertyData = <T extends { status: boolean }>({ // eslint-disable-line
 	property,
 	data,
 	msg,
 	checkErrors,
-}: ValidatePropertyDataProps<T>) => {
-	const propertyData = Object.keys(property);
-
-	const error = propertyData.map(item => {
+}: ValidatePropertyDataProps<T>): void => {
+	for (const item of Object.keys(property)) {
 		if (data && data[item] === property[item]) {
-			if (checkErrors) {
-				return checkErrors({
-					data,
-					msg,
-					name: item,
-				});
-			}
-
-			return checkValidationErrors({
+			const validationFn = checkErrors || checkValidationErrors;
+			validationFn({
 				data,
 				msg,
 				name: item,
 			});
 		}
-	});
-
-	const resError: ErrorsAll = Object.assign(
-		{},
-		...error.filter(items => items !== undefined),
-	);
-
-	return Object.keys(resError).length > 0 ? resError : undefined;
+	}
 };

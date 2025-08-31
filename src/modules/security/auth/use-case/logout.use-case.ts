@@ -1,7 +1,6 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { msg } from '../msg';
 
@@ -26,7 +25,7 @@ export class LogoutUseCase {
 
 		if (!user) {
 			this.logger.error(msg.log.userError);
-			throwHttpExceptionUnique(msg.msg.findOne);
+			throw new NotFoundException(msg.msg.findOne);
 		}
 
 		await this.removeAuditUseCase.execute({ uidUser: user.uid }, dataLog);

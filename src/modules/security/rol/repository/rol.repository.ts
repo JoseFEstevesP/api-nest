@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { handleDatabaseError } from '@/functions/handleDatabaseError';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
@@ -10,10 +11,16 @@ import { Role } from '../entities/rol.entity';
 
 @Injectable()
 export class RolRepository {
+	private readonly logger = new Logger(RolRepository.name);
+
 	constructor(@InjectModel(Role) private readonly rolModel: typeof Role) {}
 
 	async create(data: RolRegisterDTO): Promise<Role> {
-		return await this.rolModel.create(data);
+		try {
+			return await this.rolModel.create(data);
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la creación del rol');
+		}
 	}
 
 	async findOne(where: WhereOptions<Role>): Promise<Role | null> {
@@ -40,10 +47,19 @@ export class RolRepository {
 	}
 
 	async update(uid: string, data: Partial<Role>): Promise<void> {
-		await this.rolModel.update(data, { where: { uid } });
+		try {
+			await this.rolModel.update(data, { where: { uid } });
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la actualización del rol');
+		}
 	}
 
 	async remove(uid: string): Promise<void> {
-		await this.rolModel.destroy({ where: { uid } });
+		try {
+			await this.rolModel.destroy({ where: { uid } });
+		} catch (error) {
+			handleDatabaseError(error, this.logger, 'la eliminación del rol');
+		}
 	}
 }
+

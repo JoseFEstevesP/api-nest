@@ -1,5 +1,4 @@
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { Role } from '../entities/rol.entity';
 import { msg } from '../msg';
@@ -21,7 +20,7 @@ export class FindOneRolUseCase {
 			this.logger.error(
 				`${dataLog ? dataLog : 'system'} - No se encontro el rol`,
 			);
-			throwHttpExceptionUnique(msg.findOne);
+			throw new NotFoundException(msg.findOne);
 		}
 
 		this.logger.log(`${dataLog ? dataLog : 'system'} - Exito al buscar el rol`);

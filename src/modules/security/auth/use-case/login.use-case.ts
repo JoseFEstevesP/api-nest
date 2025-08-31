@@ -1,11 +1,16 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
-import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+	ConflictException,
+	Injectable,
+	Logger,
+	NotFoundException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
@@ -36,13 +41,13 @@ export class LoginUseCase {
 		const { email, password } = data;
 		const user = await this.findUserForAuthUseCase.execute(email);
 
-		if (!user) throwHttpExceptionUnique(msg.msg.userError);
+		if (!user) throw new NotFoundException(msg.msg.userError);
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
 			this.logger.error(`system - ${msg.log.loginPassword}`);
 			await this.validateAttemptUseCase.execute({ user });
-			throwHttpExceptionUnique(msg.msg.credential);
+			throw new UnauthorizedException(msg.msg.credential);
 		}
 
 		const accessToken = await this.generateAccessToken(user, loginInfo);
@@ -65,7 +70,7 @@ export class LoginUseCase {
 			res.json({ msg: msg.msg.loginSuccess });
 		} catch (error) {
 			this.logger.error(msg.log.sessionExisting, error);
-			throwHttpExceptionUnique(msg.log.sessionExisting);
+			throw new ConflictException(msg.log.sessionExisting);
 		}
 
 		this.logger.log(`${user.surnames} ${user.names} - ${msg.log.loginSuccess}`);
