@@ -78,6 +78,9 @@ export class EnvironmentVariables {
 
 	@IsString()
 	REDIS_URL: string;
+
+	@IsNumber()
+	SALT_ROUNDS: number;
 }
 
 export const validateEnv = (config: Record<string, unknown>) => {
@@ -87,6 +90,7 @@ export const validateEnv = (config: Record<string, unknown>) => {
 
 	const numericFields = [
 		'PORT',
+		'SALT_ROUNDS',
 		'DATABASE_PORT',
 		'RATE_LIMIT_TTL',
 		'RATE_LIMIT_LIMIT',

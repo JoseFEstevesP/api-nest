@@ -1,13 +1,16 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
-import { salt } from '../constants/sal';
 import { msg } from '../msg';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
 export class SetNewPasswordUseCase {
 	private readonly logger = new Logger(SetNewPasswordUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly configService: ConfigService,
+	) {}
 
 	async execute({
 		newPassword,
@@ -34,7 +37,7 @@ export class SetNewPasswordUseCase {
 			throw new BadRequestException(msg.msg.newPassword);
 		}
 
-		const hashPass = await hash(newPassword, salt);
+		const hashPass = await hash(newPassword, this.configService.get<number>('SALT_ROUNDS'));
 
 		await this.userRepository.update(uidUser, {
 			password: hashPass,

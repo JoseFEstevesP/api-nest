@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { Op } from 'sequelize';
 import { FindOneRolUseCase } from '../../rol/use-case/findOneRol.use-case';
-import { salt } from '../constants/sal';
 import { UserDefaultRegisterDTO } from '../dto/userDefaultRegister.dto';
 import { User } from '../entities/user.entity';
 import { checkValidationErrorsUser } from '../functions/checkValidationErrorsUser';
@@ -48,7 +47,7 @@ export class CreateUserUseCase {
 			this.emailService.activatedAccount({ code, email });
 		}
 
-		const hashPass = await hash(password, salt);
+		const hashPass = await hash(password, this.configService.get<number>('SALT_ROUNDS'));
 
 		const { uid: uidRol } = await this.findOneRolUseCase.execute({
 			typeRol: this.configService.get<string>('DEFAULT_ROL_FROM_USER'),
