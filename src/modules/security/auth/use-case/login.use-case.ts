@@ -16,7 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Sequelize, Transaction } from 'sequelize';
-import { msg } from '../msg';
+import { authMessages } from '../auth.messages';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
 @Injectable()
@@ -43,13 +43,13 @@ export class LoginUseCase {
 		const { email, password } = data;
 		const user = await this.findUserForAuthUseCase.execute(email);
 
-		if (!user) throw new NotFoundException(msg.msg.userError);
+		if (!user) throw new NotFoundException(authMessages.msg.userError);
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
-			this.logger.error(`system - ${msg.log.loginPassword}`);
+			this.logger.error(`system - ${authMessages.log.loginPassword}`);
 			await this.validateAttemptUseCase.execute({ user });
-			throw new UnauthorizedException(msg.msg.credential);
+			throw new UnauthorizedException(authMessages.msg.credential);
 		}
 
 		const accessToken = await this.generateAccessToken(user, loginInfo);
@@ -75,13 +75,13 @@ export class LoginUseCase {
 			});
 
 			this.setCookies(res, accessToken, refreshToken);
-			res.json({ msg: msg.msg.loginSuccess });
+			res.json({ msg: authMessages.msg.loginSuccess });
 		} catch (error) {
-			this.logger.error(msg.log.sessionExisting, error);
-			throw new ConflictException(msg.log.sessionExisting);
+			this.logger.error(authMessages.log.sessionExisting, error);
+			throw new ConflictException(authMessages.log.sessionExisting);
 		}
 
-		this.logger.log(`${user.surnames} ${user.names} - ${msg.log.loginSuccess}`);
+		this.logger.log(`${user.surnames} ${user.names} - ${authMessages.log.loginSuccess}`);
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

@@ -8,7 +8,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
-import { msg } from '../msg';
+import { authMessages } from '../auth.messages';
 import { LogoutUseCase } from './logout.use-case';
 
 @Injectable()
@@ -34,8 +34,8 @@ export class RefreshTokenUseCase {
 	}) {
 		const refreshToken = req.cookies?.refreshToken;
 		if (!refreshToken) {
-			this.logger.error(`system - ${msg.log.refreshToken}`);
-			throw new UnauthorizedException(msg.msg.refreshToken);
+			this.logger.error(`system - ${authMessages.log.refreshToken}`);
+			throw new UnauthorizedException(authMessages.msg.refreshToken);
 		}
 
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
@@ -45,7 +45,7 @@ export class RefreshTokenUseCase {
 		});
 
 		if (!auditRef) {
-			this.logger.error(msg.log.userError);
+			this.logger.error(authMessages.log.userError);
 			return this.logoutUseCase.execute({
 				uid: auditRef.uid,
 				res,
@@ -58,7 +58,7 @@ export class RefreshTokenUseCase {
 		});
 
 		if (refreshToken !== auditRef.refreshToken) {
-			this.logger.error(`system ${msg.log.refreshTokenUser}`);
+			this.logger.error(`system ${authMessages.log.refreshTokenUser}`);
 			return this.logoutUseCase.execute({
 				uid: auditRef.uid,
 				res,

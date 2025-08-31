@@ -13,7 +13,7 @@ import { ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
-import { msg } from './msg';
+import { authMessages } from './auth.messages';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
 import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
@@ -35,7 +35,7 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response,
 		@Req() req: Request & ReqUidDTO,
 	) {
-		this.logger.log(`system - ${msg.log.login}`);
+		this.logger.log(`system - ${authMessages.log.login}`);
 		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
 	}
 
@@ -43,7 +43,7 @@ export class AuthController {
 	@Post('/logout')
 	logout(@Res() res: Response, @Req() req: ReqUidDTO) {
 		const { uid, dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.logout}`);
+		this.logger.log(`${dataLog} - ${authMessages.log.logout}`);
 		return this.logoutUseCase.execute({ uid, res, dataLog });
 	}
 

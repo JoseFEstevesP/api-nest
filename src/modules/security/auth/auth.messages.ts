@@ -1,4 +1,15 @@
-export const msg = {
+import { userMessages } from '../user/user.messages';
+
+export const authMessages = {
+	// General messages
+	credential: 'Credenciales no válidos.',
+	loginSuccess: 'Sesión iniciada exitosamente.',
+	findOne: 'No se ha encontrado ningún usuario.',
+	logout: 'Sesión cerrada exitosamente.',
+	userError: 'Usuario no encontrado.',
+	refreshToken: 'No se encontró el token de refresco.',
+
+	// Log messages
 	log: {
 		login: 'Iniciando sesión...',
 		loginSuccess: 'Sesión iniciada exitosamente...',
@@ -11,11 +22,7 @@ export const msg = {
 		refreshToken: 'Token de refresco no encontrado...',
 	},
 	msg: {
-		credential: 'Credenciales no válidos.',
 		loginSuccess: 'Sesión iniciada exitosamente.',
-		findOne: 'No se ha encontrado ningún usuario.',
-		logout: 'Sesión cerrada exitosamente.',
-		userError: 'Usuario no encontrado.',
-		refreshToken: 'No se encontró el token de refresco.',
+		...userMessages.msg,
 	},
 };

@@ -2,7 +2,7 @@ import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudi
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
-import { msg } from '../msg';
+import { authMessages } from '../auth.messages';
 
 @Injectable()
 export class LogoutUseCase {
@@ -24,8 +24,8 @@ export class LogoutUseCase {
 		const user = await this.findOneUserUseCase.execute({ uid });
 
 		if (!user) {
-			this.logger.error(msg.log.userError);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(authMessages.log.userError);
+			throw new NotFoundException(authMessages.msg.findOne);
 		}
 
 		await this.removeAuditUseCase.execute({ uidUser: user.uid }, dataLog);
@@ -33,6 +33,6 @@ export class LogoutUseCase {
 		res
 			.clearCookie('accessToken')
 			.clearCookie('refreshToken')
-			.json({ msg: msg.msg.logout });
+			.json({ msg: authMessages.msg.logout });
 	}
 }
