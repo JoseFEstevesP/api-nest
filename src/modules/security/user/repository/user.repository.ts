@@ -5,6 +5,7 @@ import {
 	FindAndCountOptions,
 	FindAttributeOptions,
 	Includeable,
+	Transaction,
 	WhereOptions,
 } from 'sequelize';
 import { User } from '../entities/user.entity';
@@ -53,10 +54,11 @@ export class UserRepository {
 		return result;
 	}
 
-	async update(uid: string, user: Partial<User>): Promise<User | null> {
+	async update(uid: string, user: Partial<User>, transaction?: Transaction): Promise<User | null> {
 		try {
 			const [affectedCount] = await this.userModel.update(user, {
 				where: { uid },
+				...(transaction && { transaction }),
 			});
 			if (affectedCount === 0) {
 				return null;

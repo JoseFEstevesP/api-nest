@@ -1,4 +1,5 @@
 import { Injectable, Logger, ConflictException } from '@nestjs/common';
+import { Transaction } from 'sequelize';
 import { AuditRegisterDTO } from '../dto/auditRegister.dto';
 import { Audit } from '../entities/audit.entity';
 import { msg } from '../msg';
@@ -10,7 +11,7 @@ export class CreateAuditUseCase {
 
 	constructor(private readonly auditRepository: AuditRepository) {}
 
-	async execute({ data }: { data: AuditRegisterDTO }): Promise<Audit> {
+	async execute({ data }: { data: AuditRegisterDTO }, t?: Transaction): Promise<Audit> {
 		this.logger.log(msg.log.create);
 
 		const audit = await this.auditRepository.findOne({
@@ -26,6 +27,6 @@ export class CreateAuditUseCase {
 		}
 
 		this.logger.log(msg.log.createSuccess);
-		return await this.auditRepository.create(data);
+		return await this.auditRepository.create(data, t);
 	}
 }

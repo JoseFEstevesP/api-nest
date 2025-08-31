@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
+import { Sequelize, Transaction } from 'sequelize';
 import { msg } from '../msg';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
@@ -27,6 +28,7 @@ export class LoginUseCase {
 		private readonly jwtService: JwtService,
 		private readonly createAuditUseCase: CreateAuditUseCase,
 		private configService: ConfigService<EnvironmentVariables>,
+		private sequelize: Sequelize,
 	) {}
 
 	async execute({
@@ -53,17 +55,23 @@ export class LoginUseCase {
 		const accessToken = await this.generateAccessToken(user, loginInfo);
 		const refreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		await user.update({ attemptCount: 0 });
-
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
+
 		try {
-			await this.createAuditUseCase.execute({
-				data: {
-					uid: crypto.randomUUID(),
-					uidUser: user.uid,
-					refreshToken,
-					dataToken: loginInfoArray,
-				},
+			await this.sequelize.transaction(async (t: Transaction) => {
+				await user.update({ attemptCount: 0 }, { transaction: t });
+
+				await this.createAuditUseCase.execute(
+					{
+						data: {
+							uid: crypto.randomUUID(),
+							uidUser: user.uid,
+							refreshToken,
+							dataToken: loginInfoArray,
+						},
+					},
+					t,
+				);
 			});
 
 			this.setCookies(res, accessToken, refreshToken);

@@ -6,6 +6,7 @@ import {
 	FindAttributeOptions,
 	Includeable,
 	Op,
+	Transaction,
 	WhereOptions,
 } from 'sequelize';
 import { AuditRegisterDTO } from '../dto/auditRegister.dto';
@@ -20,9 +21,9 @@ export class AuditRepository {
 		private readonly auditModel: typeof Audit,
 	) {}
 
-	async create(data: AuditRegisterDTO): Promise<Audit> {
+	async create(data: AuditRegisterDTO, transaction?: Transaction): Promise<Audit> {
 		try {
-			return await this.auditModel.create(data);
+			return await this.auditModel.create(data, { ...(transaction && { transaction }) });
 		} catch (error) {
 			handleDatabaseError(
 				error,
