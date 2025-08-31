@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { msg } from '../msg';
+import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+
 
 @Injectable()
 export class FindRolPermissionsUseCase {
@@ -15,11 +16,11 @@ export class FindRolPermissionsUseCase {
 		});
 
 		if (!rol) {
-			this.logger.error(`${dataLog} - ${msg.log.rolError}`);
-			throw new NotFoundException(msg.findOne);
+			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
+			throw new NotFoundException(rolMessages.findOne);
 		}
 
-		this.logger.log(`${dataLog} - ${msg.log.findOneSuccess}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.findOneSuccess}`);
 
 		return rol;
 	}

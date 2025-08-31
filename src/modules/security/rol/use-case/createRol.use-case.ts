@@ -2,7 +2,7 @@ import { validatePropertyData } from '@/functions/validationFunction/validatePro
 import { Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
-import { msg } from '../msg';
+import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
 @Injectable()
@@ -19,13 +19,13 @@ export class CreateRolUseCase {
 		validatePropertyData({
 			property: { uid, name },
 			data: existingPatient,
-			msg: msg,
+			msg: rolMessages,
 		});
 
 		await this.rolRepository.create(data);
 
-		this.logger.log(`${dataLog} - ${msg.log.createSuccess}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.createSuccess}`);
 
-		return { msg: msg.register };
+		return { msg: rolMessages.register };
 	}
 }

@@ -1,7 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RolUpdateDTO } from '../dto/rolUpdate.dto';
-import { msg } from '../msg';
+import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+
 
 @Injectable()
 export class UpdateRolUseCase {
@@ -12,8 +13,8 @@ export class UpdateRolUseCase {
 	async execute({ uid, data, dataLog }: { uid: string; data: RolUpdateDTO; dataLog: string }) {
 		const rol = await this.rolRepository.findOne({ uid });
 		if (!rol) {
-			this.logger.error(`${dataLog} - ${msg.log.rolError}`);
-			throw new NotFoundException(msg.findOne);
+			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
+			throw new NotFoundException(rolMessages.findOne);
 		}
 
 		await rol.update({
@@ -21,8 +22,8 @@ export class UpdateRolUseCase {
 			...(data.status !== undefined && { status: !data.status }),
 		});
 
-		this.logger.log(`${dataLog} - ${msg.log.updateSuccess}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.updateSuccess}`);
 
-		return { msg: msg.update };
+		return { msg: rolMessages.update };
 	}
 }

@@ -7,7 +7,7 @@ import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { RolGetAllDTO } from '../dto/rolGetAll.dto';
 import { Role } from '../entities/rol.entity';
 import { OrderRolProperty } from '../enum/orderProperty';
-import { msg } from '../msg';
+import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
 @Injectable()
@@ -67,7 +67,7 @@ export class FindAllRolsPaginationUseCase {
 		};
 
 		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-		this.logger.log(`${dataLog} - ${msg.log.findAllSuccess}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.findAllSuccess}`);
 
 		return result;
 	}

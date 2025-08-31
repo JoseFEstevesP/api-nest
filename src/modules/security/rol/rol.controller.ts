@@ -22,7 +22,7 @@ import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
 import { Permission } from './enum/permissions';
-import { msg } from './msg';
+import { rolMessages } from './rol.messages';
 import { CreateRolUseCase } from './use-case/createRol.use-case';
 import { FindAllRolsPaginationUseCase } from './use-case/findAllRolsPagination.use-case';
 import { FindAllRolsUseCase } from './use-case/findAllRols.use-case';
@@ -52,7 +52,7 @@ export class RolController {
 	@Post()
 	async register(@Body() data: RolRegisterDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.create}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.create}`);
 
 		return this.createRolUseCase.execute({ data, dataLog });
 	}
@@ -61,7 +61,7 @@ export class RolController {
 	@Get('/one/:uid')
 	async findOne(@Param() data: RolGetDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.findOne}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.findOne}`);
 
 		return this.findOneRolUseCase.execute({ uid: data.uid }, dataLog);
 	}
@@ -69,7 +69,7 @@ export class RolController {
 	@Get('/per')
 	async findPer(@Req() req: ReqUidDTO) {
 		const { dataLog, uidRol } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.findOne}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.findOne}`);
 
 		return this.findRolPermissionsUseCase.execute({ uid: uidRol, dataLog });
 	}
@@ -81,7 +81,7 @@ export class RolController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.findAll}`);
 
 		return this.findAllRolsPaginationUseCase.execute({ filter, dataLog });
 	}
@@ -89,7 +89,7 @@ export class RolController {
 	@Get('/all')
 	async findAll(@Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.findAll}`);
 
 		return this.findAllRolsUseCase.execute({ dataLog });
 	}
@@ -98,7 +98,7 @@ export class RolController {
 	@Patch()
 	async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.update}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.update}`);
 
 		return this.updateRolUseCase.execute({ data, dataLog });
 	}
@@ -107,7 +107,7 @@ export class RolController {
 	@Delete('/delete/:uid')
 	async delete(@Param() data: RolDeleteDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.remove}`);
+		this.logger.log(`${dataLog} - ${rolMessages.log.controller.remove}`);
 
 		return this.removeRolUseCase.execute({ uid: data.uid, dataLog });
 	}
