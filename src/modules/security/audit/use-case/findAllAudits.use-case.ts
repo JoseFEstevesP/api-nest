@@ -13,13 +13,13 @@ import {
 import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';
 import { OrderAuditProperty } from '../enum/orderProperty';
-import { msg } from '../msg';
+import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class FindAllAuditsUseCase {
 	private readonly logger = new Logger(FindAllAuditsUseCase.name);
-
+	// TODO: no esta usando el cache
 	constructor(
 		private readonly auditRepository: AuditRepository,
 		@Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -59,7 +59,7 @@ export class FindAllAuditsUseCase {
 
 		const pagination = this.calculatePagination(count, parsedLimit, parsedPage);
 
-		this.logger.log(`${dataLog} - ${msg.log.findAllSuccess}`);
+		this.logger.log(`${dataLog} - ${auditMessages.log.findAllSuccess}`);
 		return {
 			rows,
 			count,

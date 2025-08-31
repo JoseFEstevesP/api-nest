@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuditGetAllDTO } from './dto/auditGetAll.dto';
-import { msg } from './msg';
+import { auditMessages } from './audit.messages';
 import { FindAllAuditsUseCase } from './use-case/findAllAudits.use-case';
 import { RemoveAuditUseCase } from './use-case/removeAudit.use-case';
 
@@ -38,7 +38,7 @@ export class AuditController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.findAll}`);
+		this.logger.log(`${dataLog} - ${auditMessages.log.controller.findAll}`);
 
 		return this.findAllAuditsUseCase.execute({
 			filter,
@@ -51,7 +51,7 @@ export class AuditController {
 	@Delete('/delete/:uid')
 	async delete(@Param('uid') uid: string, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.controller.remove}`);
+		this.logger.log(`${dataLog} - ${auditMessages.log.controller.remove}`);
 
 		return this.removeAuditUseCase.execute({ uid }, dataLog);
 	}

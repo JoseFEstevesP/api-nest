@@ -1,4 +1,3 @@
-import { globalMsg } from '@/globalMsg';
 import {
 	IsArray,
 	IsDefined,
@@ -6,26 +5,26 @@ import {
 	IsString,
 	IsUUID,
 } from 'class-validator';
-import { msg } from '../msg';
+import { auditMessages } from '../audit.messages';
 
 export class AuditRegisterDTO {
-	@IsUUID('all', { message: msg.dto.uid })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: auditMessages.validation.dto.uid.valid })
+	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
+	@IsDefined({ message: auditMessages.validation.dto.defined })
 	readonly uid: string;
 
-	@IsUUID('all', { message: msg.dto.uidUser })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: auditMessages.validation.dto.uidUser })
+	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
+	@IsDefined({ message: auditMessages.validation.dto.defined })
 	readonly uidUser: string;
 
-	@IsString({ message: msg.dto.refreshToken })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsString({ message: auditMessages.validation.dto.refreshToken })
+	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
+	@IsDefined({ message: auditMessages.validation.dto.defined })
 	readonly refreshToken: string;
 
-	@IsArray({ message: msg.dto.dataToken })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsArray({ message: auditMessages.validation.dto.dataToken })
+	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
+	@IsDefined({ message: auditMessages.validation.dto.defined })
 	readonly dataToken: string[];
 }

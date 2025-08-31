@@ -2,7 +2,7 @@ import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { Transaction } from 'sequelize';
 import { AuditRegisterDTO } from '../dto/auditRegister.dto';
 import { Audit } from '../entities/audit.entity';
-import { msg } from '../msg';
+import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CreateAuditUseCase {
 	constructor(private readonly auditRepository: AuditRepository) {}
 
 	async execute({ data }: { data: AuditRegisterDTO }, t?: Transaction): Promise<Audit> {
-		this.logger.log(msg.log.create);
+		this.logger.log(auditMessages.log.create);
 
 		const audit = await this.auditRepository.findOne({
 			where: {
@@ -22,11 +22,11 @@ export class CreateAuditUseCase {
 		});
 
 		if (audit) {
-			this.logger.error(msg.error.service.create);
-			throw new ConflictException(msg.error.service.create);
+			this.logger.error(auditMessages.errorService.create);
+			throw new ConflictException(auditMessages.errorService.create);
 		}
 
-		this.logger.log(msg.log.createSuccess);
+		this.logger.log(auditMessages.log.createSuccess);
 		return await this.auditRepository.create(data, t);
 	}
 }

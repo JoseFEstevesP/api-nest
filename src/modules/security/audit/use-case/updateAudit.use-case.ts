@@ -1,7 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AuditUpdateDTO } from '../dto/auditUpdate.dto';
-import { msg } from '../msg';
+import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
+
 
 @Injectable()
 export class UpdateAuditUseCase {
@@ -16,14 +17,14 @@ export class UpdateAuditUseCase {
 		});
 
 		if (!audit) {
-			this.logger.error(msg.log.findOne);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(auditMessages.log.findOne);
+			throw new NotFoundException(auditMessages.findOne);
 		}
 
 		await this.auditRepository.update(uid, { refreshToken });
 
-		this.logger.log(msg.log.updateSuccess);
+		this.logger.log(auditMessages.log.updateSuccess);
 
-		return { msg: msg.msg.update };
+		return { msg: auditMessages.update };
 	}
 }

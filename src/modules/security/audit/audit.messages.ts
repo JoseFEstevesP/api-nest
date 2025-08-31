@@ -1,19 +1,34 @@
-export const msg = {
+export const auditMessages = {
+	// General messages
 	findOne: 'No se ha encontrado ningún registro de auditoría',
 	register: 'Registro de auditoría creado exitosamente',
+	update: 'Registro de auditoría actualizado exitosamente',
+	delete: 'Registro de auditoría eliminado',
+	relationError: 'El registro de auditoría esta relacionado con otros datos',
+
+	// Validation messages
 	validation: {
 		disabled: 'Este registro de auditoría existe pero está deshabilitado',
 		default: 'Este registro de auditoría ya existe',
+		dto: {
+			uidUser: 'El UID de usuario no es válido',
+			refreshToken: 'El token de refresco no es válido',
+			dataToken: 'Los datos del token no son válidos',
+			status: 'El estado debe ser un valor booleano',
+			// Add other common DTO validation messages if needed, e.g., from globalMsg
+			empty: 'Este campo no puede estar vacío',
+			defined: 'Este campo no está definido',
+			stringValue: 'Este campo debe ser de tipo cadena de texto',
+			enumValue: 'Valor no válido',
+			lengthValue: 'Este campo debe tener entre 3 y 255 caracteres',
+			uid: {
+				valid: 'El campo UID no es un UUID válido',
+				empty: 'El campo UID no puede estar vacío',
+			},
+		},
 	},
-	update: 'Registro de auditoría actualizado exitosamente',
-	delete: 'Registro de auditoría eliminado',
-	dto: {
-		uid: 'El UID de auditoría no es válido',
-		uidUser: 'El UID de usuario no es válido',
-		refreshToken: 'El token de refresco no es válido',
-		dataToken: 'Los datos del token no son válidos',
-		status: 'El estado debe ser un valor booleano',
-	},
+
+	// Log messages
 	log: {
 		relationError: 'El registro de auditoría esta relacionado con otros datos',
 		getTokenData: 'Obteniendo datos de token de auditoría',
@@ -44,20 +59,14 @@ export const msg = {
 			getOne: 'Obteniendo auditoría desde controlador',
 		},
 	},
-	error: {
-		service: {
-			create: 'Error al crear auditoría',
-			notFound: 'No se ha encontrado ningún registro de auditoría',
-			update: 'Error al actualizar auditoría',
-			remove: 'Error al eliminar auditoría',
-			findOne: 'Error al buscar auditoría',
-			findAll: 'Error al buscar auditorías',
-		},
-	},
-	msg: {
-		findOne: 'No se ha encontrado ningún registro de auditoría',
-		remove: 'Registro de auditoría eliminado',
-		update: 'Registro de auditoría actualizado exitosamente',
-		relationError: 'El registro de auditoría esta relacionado con otros datos',
+
+	// Error messages (from service)
+	errorService: {
+		create: 'Error al crear auditoría',
+		notFound: 'No se ha encontrado ningún registro de auditoría',
+		update: 'Error al actualizar auditoría',
+		remove: 'Error al eliminar auditoría',
+		findOne: 'Error al buscar auditoría',
+		findAll: 'Error al buscar auditorías',
 	},
 };
