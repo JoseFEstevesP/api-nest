@@ -8,7 +8,7 @@ import { FindOneRolUseCase } from '../../rol/use-case/findOneRol.use-case';
 import { UserDefaultRegisterDTO } from '../dto/userDefaultRegister.dto';
 import { User } from '../entities/user.entity';
 import { checkValidationErrorsUser } from '../functions/checkValidationErrorsUser';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -36,14 +36,14 @@ export class CreateUserUseCase {
 		validatePropertyData({
 			property: { uid, phone, email },
 			data: existingPatient,
-			msg: msg,
+			msg: userMessages,
 			checkErrors: checkValidationErrorsUser,
 		});
 
 		const code = `${this.generateCode()}`;
 
 		if (this.configService.get<string>('NODE_ENV') !== 'development') {
-			this.logger.log(`system - ${msg.log.emailActivated}`);
+			this.logger.log(`system - ${userMessages.log.emailActivated}`);
 			this.emailService.activatedAccount({ code, email });
 		}
 
@@ -62,9 +62,9 @@ export class CreateUserUseCase {
 		} as User;
 
 		await this.userRepository.create(user);
-		this.logger.log(`${msg.log.createSuccess}`);
+		this.logger.log(`${userMessages.log.createSuccess}`);
 
-		return { msg: msg.msg.registerDefault };
+		return { msg: userMessages.msg.registerDefault };
 	}
 
 	private generateCode() {

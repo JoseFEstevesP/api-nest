@@ -6,7 +6,7 @@ import { salt } from '../constants/sal';
 import { UserRegisterDTO } from '../dto/userRegister.dto';
 import { User } from '../entities/user.entity';
 import { checkValidationErrorsUser } from '../functions/checkValidationErrorsUser';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class CreateProtectUserUseCase {
 		validatePropertyData({
 			property: { uid, phone, email },
 			data: existingPatient,
-			msg: msg,
+			msg: userMessages,
 			checkErrors: checkValidationErrorsUser,
 		});
 
@@ -47,8 +47,8 @@ export class CreateProtectUserUseCase {
 		} as User;
 
 		await this.userRepository.create(user);
-		this.logger.log(`${dataLog} ${msg.log.createSuccess}`);
+		this.logger.log(`${dataLog} ${userMessages.log.createSuccess}`);
 
-		return { msg: msg.msg.registerAdmin };
+		return { msg: userMessages.msg.registerAdmin };
 	}
 }

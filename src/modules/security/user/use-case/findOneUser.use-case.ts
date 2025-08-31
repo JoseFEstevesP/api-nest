@@ -8,7 +8,7 @@ import { Includeable, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { TypeRol } from '../../rol/enum/rolData';
 import { User } from '../entities/user.entity';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -27,15 +27,15 @@ export class FindOneUserUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		if (user.rol.typeRol !== TypeRol.admin) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new ForbiddenException(msg.msg.userType);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new ForbiddenException(userMessages.msg.userType);
 		}
-		this.logger.log(`${dataLog} - ${msg.log.findOneSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.findOneSuccess}`);
 
 		return user;
 	}

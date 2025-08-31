@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UserActivateCountDTO } from '../dto/userActivateCount.dto';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -14,8 +14,8 @@ export class ActivateAccountUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`system - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`system - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		await this.userRepository.update(user.uid, {
@@ -24,9 +24,9 @@ export class ActivateAccountUseCase {
 		});
 
 		this.logger.log(
-			`${user.surnames} ${user.names} - ${msg.log.activatedAccountSuccess}`,
+			`${user.surnames} ${user.names} - ${userMessages.log.activatedAccountSuccess}`,
 		);
 
-		return { msg: msg.msg.activationAccount };
+		return { msg: userMessages.msg.activationAccount };
 	}
 }

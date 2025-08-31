@@ -2,8 +2,9 @@ import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@n
 import { ConfigService } from '@nestjs/config';
 import { compare, hash } from 'bcrypt';
 import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+
 
 @Injectable()
 export class UpdateUserProfilePasswordUseCase {
@@ -30,18 +31,23 @@ export class UpdateUserProfilePasswordUseCase {
 			throw new NotFoundException(msg.msg.findOne);
 		}
 
+		if (!user) {
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
+		}
+
 		const checkPassword = await compare(olPassword, user.password);
 		if (!checkPassword) {
-			this.logger.error(`${dataLog} - ${msg.log.passwordError}`);
-			throw new UnauthorizedException(msg.msg.passwordError);
+			this.logger.error(`${dataLog} - ${userMessages.log.passwordError}`);
+			throw new UnauthorizedException(userMessages.msg.passwordError);
 		}
 
 		const hashPass = await hash(newPassword, this.configService.get<number>('SALT_ROUNDS'));
 		await this.userRepository.update(uid, { password: hashPass });
 		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog); // This is an external dependency, needs to be injected
 
-		this.logger.log(`${dataLog} - ${msg.log.profileSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.profileSuccess}`);
 
-		return { msg: msg.msg.update };
+		return { msg: userMessages.msg.update };
 	}
 }

@@ -1,4 +1,3 @@
-import { globalMsg } from '@/globalMsg';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
@@ -8,15 +7,15 @@ import {
 	Length,
 	Matches,
 } from 'class-validator';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 
 @ApiExtraModels()
 export class UserActivateCountDTO {
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(13, 16, { message: msg.validation.dto.code.length })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@Matches(/^\d+$/, { message: msg.validation.dto.code.invalidCharacters })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@Length(13, 16, { message: userMessages.validation.dto.code.length })
+	@IsDefined({ message: userMessages.dto.defined })
+	@Matches(/^\d+$/, { message: userMessages.validation.dto.code.invalidCharacters })
 	@Transform(({ value }) => value.trim())
 	readonly code: string;
 }

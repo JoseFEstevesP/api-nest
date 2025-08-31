@@ -1,26 +1,26 @@
 import { objectError } from '@/functions/objectError';
 import { ConflictException } from '@nestjs/common';
 import { CheckValidationErrorsUserProps } from './types';
+import { userMessages } from '../user.messages';
 
 export const checkValidationErrorsUser = <
 	T extends { status: boolean; activatedAccount: boolean },
 >({
 	data,
-	msg,
 	name,
 }: CheckValidationErrorsUserProps<T>): void => {
 	const possibleErrors = {
 		status: objectError({
 			name,
-			msg: msg.validation.default,
+			msg: userMessages.validation.default,
 		}),
 		default: objectError({
 			name,
-			msg: msg.validation.disability,
+			msg: userMessages.validation.disability,
 		}),
 		activatedAccount: objectError({
 			name,
-			msg: msg.validation.activatedAccount,
+			msg: userMessages.validation.activatedAccount,
 		}),
 	};
 
@@ -39,13 +39,12 @@ export const checkValidationErrorsUser = <
 
 export const checkValidationErrorsUserLogin = <T extends { status: boolean }>({
 	data,
-	msg,
 	name,
 }: CheckValidationErrorsUserProps<T>) => {
 	const possibleErrors = {
 		status: objectError({
 			name,
-			msg: msg.login.status,
+			msg: userMessages.msg.login.status,
 		}),
 	};
 

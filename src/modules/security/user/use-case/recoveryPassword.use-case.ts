@@ -1,6 +1,6 @@
 import { EmailService } from '@/services/email.service';
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -23,13 +23,13 @@ export class RecoveryPasswordUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		if (!user.activatedAccount) {
-			this.logger.error(`${dataLog} - ${msg.log.userErrorActiveAccount}`);
-			throw new BadRequestException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userErrorActiveAccount}`);
+			throw new BadRequestException(userMessages.msg.findOne);
 		}
 
 		const generateCode = () => Math.floor(Math.random() * 9000000) + 1000000;
@@ -42,8 +42,8 @@ export class RecoveryPasswordUseCase {
 			email,
 		});
 
-		this.logger.log(`${dataLog} - ${msg.log.recoveryPasswordSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.recoveryPasswordSuccess}`);
 
-		return { msg: msg.msg.recoveryPassword };
+		return { msg: userMessages.msg.recoveryPassword };
 	}
 }

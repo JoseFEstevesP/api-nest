@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+
 
 @Injectable()
 export class RemoveUserUseCase {
@@ -19,22 +20,22 @@ export class RemoveUserUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		try {
 			await this.userRepository.delete(uid);
 
-			this.logger.log(`${dataLog} - ${msg.log.unregisterSuccess}`);
+			this.logger.log(`${dataLog} - ${userMessages.log.unregisterSuccess}`);
 
-			return { msg: msg.msg.unregister };
+			return { msg: userMessages.msg.unregister };
 		} catch (err) {
 			if (err) {
-				this.logger.error(`${dataLog} - ${msg.log.relationError}`);
-				throw new ConflictException(msg.log.relationError);
+				this.logger.error(`${dataLog} - ${userMessages.log.relationError}`);
+				throw new ConflictException(userMessages.log.relationError);
 			}
 		}
-		return { msg: msg.msg.unregister };
+		return { msg: userMessages.msg.unregister };
 	}
 }

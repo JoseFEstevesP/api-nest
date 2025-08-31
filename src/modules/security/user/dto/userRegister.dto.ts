@@ -1,5 +1,4 @@
 import { regexPhone } from '@/constants/dataConstants';
-import { globalMsg } from '@/globalMsg';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
@@ -15,7 +14,7 @@ import {
 	ValidationArguments,
 	registerDecorator,
 } from 'class-validator';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 
 export function Match(property: string, validationOptions?: ValidationOptions) {
 	return (object: object, propertyName: string) => {
@@ -44,37 +43,37 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 
 @ApiExtraModels()
 export class UserRegisterDTO {
-	@IsUUID('all', { message: globalMsg.dto.uid.valid })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: userMessages.dto.uid.valid })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly uid: string;
 
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(3, 255, { message: globalMsg.dto.lengthValue })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@Length(3, 255, { message: userMessages.dto.lengthValue })
+	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
 	readonly names: string;
 
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@Length(3, 255, { message: globalMsg.dto.lengthValue })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@Length(3, 255, { message: userMessages.dto.lengthValue })
+	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
 	readonly surnames: string;
 
-	@IsEmail({}, { message: msg.validation.dto.email })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsEmail({}, { message: userMessages.validation.dto.email })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
 	readonly email: string;
 
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
 	@Matches(regexPhone, {
-		message: msg.validation.dto.phone,
+		message: userMessages.validation.dto.phone,
 	})
 	readonly phone: string;
 
@@ -86,22 +85,22 @@ export class UserRegisterDTO {
 			minNumbers: 1,
 			minSymbols: 1,
 		},
-		{ message: msg.validation.dto.password },
+		{ message: userMessages.validation.dto.password },
 	)
-	@IsNotEmpty({ message: globalMsg.dto.empty })
+	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly password: string;
 
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
-	@Match('password', { message: msg.validation.dto.passwordMatch })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
+	@Match('password', { message: userMessages.validation.dto.passwordMatch })
 	readonly confirmPassword: string;
 
-	@IsUUID('all', { message: globalMsg.dto.uid.valid })
-	@IsString({ message: globalMsg.dto.stringValue })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: userMessages.dto.uid.valid })
+	@IsString({ message: userMessages.dto.stringValue })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly uidRol?: string;
 }

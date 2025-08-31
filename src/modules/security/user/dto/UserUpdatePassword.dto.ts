@@ -1,4 +1,3 @@
-import { globalMsg } from '@/globalMsg';
 import { Transform } from 'class-transformer';
 import {
 	IsDefined,
@@ -6,7 +5,7 @@ import {
 	IsStrongPassword,
 	IsUUID,
 } from 'class-validator';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 
 export class UserUpdatePasswordDTO {
 	@IsStrongPassword(
@@ -17,11 +16,11 @@ export class UserUpdatePasswordDTO {
 			minNumbers: 1,
 			minSymbols: 1,
 		},
-		{ message: msg.validation.dto.password },
+		{ message: userMessages.validation.dto.password },
 	)
-	@IsNotEmpty({ message: globalMsg.dto.empty })
+	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly newPassword: string;
 	@IsStrongPassword(
 		{
@@ -31,15 +30,15 @@ export class UserUpdatePasswordDTO {
 			minNumbers: 1,
 			minSymbols: 1,
 		},
-		{ message: msg.validation.dto.password },
+		{ message: userMessages.validation.dto.password },
 	)
-	@IsNotEmpty({ message: globalMsg.dto.empty })
+	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly confirmPassword: string;
 
-	@IsUUID('all', { message: globalMsg.dto.uid.valid })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: userMessages.dto.uid.valid })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsDefined({ message: userMessages.dto.defined })
 	readonly uidUser: string;
 }

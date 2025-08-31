@@ -29,7 +29,7 @@ import { UserUpdatePasswordDTO } from './dto/userUpdatePassword.dto';
 import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/userUpdateProfileEmail.dto';
 import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dto';
-import { msg } from './msg';
+import { userMessages } from './user.messages';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
 import { CreateUserUseCase } from './use-case/createUser.use-case';
@@ -69,7 +69,7 @@ export class UserController {
 	@Post()
 	create(@Body() data: UserDefaultRegisterDTO) {
 		this.logger.log(
-			`system - ${data.surnames} ${data.names} - ${msg.log.create}`,
+			`system - ${data.surnames} ${data.names} - ${userMessages.log.create}`,
 		);
 		return this.createUserUseCase.execute(data);
 	}
@@ -80,7 +80,7 @@ export class UserController {
 	@Post('/protect')
 	async createProtect(@Body() data: UserRegisterDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.create}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.create}`);
 
 		return this.createProtectUserUseCase.execute({ data, dataLog });
 	}
@@ -91,7 +91,7 @@ export class UserController {
 	@Get()
 	async findAll(@Query() filter: UserGetAllDTO, @Req() req: ReqUidDTO) {
 		const { uid, dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.findAll}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.findAll}`);
 
 		return this.findAllUsersUseCase.execute({
 			filter,
@@ -106,7 +106,7 @@ export class UserController {
 	@Patch()
 	async update(@Body() data: UserUpdateDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.update}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.update}`);
 
 		return this.updateUserUseCase.execute({ data, dataLog });
 	}
@@ -117,7 +117,7 @@ export class UserController {
 	@Get('/profile')
 	async profile(@Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.profile}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.profile}`);
 
 		return this.getUserProfileUseCase.execute({ uid, dataLog });
 	}
@@ -131,7 +131,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.updateProfile}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.updateProfile}`);
 
 		return this.updateUserProfileUseCase.execute({ data, uid, dataLog });
 	}
@@ -145,7 +145,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.updateProfileEmail}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.updateProfileEmail}`);
 
 		return this.updateUserProfileEmailUseCase.execute({
 			data,
@@ -163,7 +163,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { uid, dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.updateProfilePassword}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.updateProfilePassword}`);
 
 		return this.updateUserProfilePasswordUseCase.execute({
 			data,
@@ -178,7 +178,7 @@ export class UserController {
 	@Delete('/profile/unregister')
 	async unregister(@Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.unregister}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.unregister}`);
 
 		return this.unregisterUserUseCase.execute({ uid, dataLog });
 	}
@@ -189,7 +189,7 @@ export class UserController {
 	@Delete('/delete/:uid')
 	async remove(@Param() data: UserDeleteDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.remove}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.remove}`);
 
 		return this.removeUserUseCase.execute({
 			uid: data.uid,
@@ -200,7 +200,7 @@ export class UserController {
 	@Post('/recoveryPassword')
 	async recovery(@Body() data: UserRecoveryPasswordDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.recoveryPassword}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.recoveryPassword}`);
 
 		return this.recoveryPasswordUseCase.execute({ email: data.email, dataLog });
 	}
@@ -211,7 +211,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.recoveryVerifyPassword}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.recoveryVerifyPassword}`);
 
 		return this.recoveryVerifyPasswordUseCase.execute({
 			code: data.code,
@@ -225,7 +225,7 @@ export class UserController {
 	@Post('/newPassword')
 	async newPassword(@Body() data: UserNewPasswordDTO, @Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.newPassword}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.newPassword}`);
 
 		return this.setNewPasswordUseCase.execute({
 			newPassword: data.newPassword,
@@ -243,7 +243,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.updatePassword}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.updatePassword}`);
 
 		return this.setNewPasswordUseCase.execute({
 			newPassword: data.newPassword,
@@ -259,7 +259,7 @@ export class UserController {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${msg.log.activatedAccount}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.activatedAccount}`);
 
 		return this.activateAccountUseCase.execute(code);
 	}

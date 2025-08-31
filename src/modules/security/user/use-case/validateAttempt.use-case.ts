@@ -1,7 +1,8 @@
 import { Injectable, Logger, ForbiddenException } from '@nestjs/common';
 import { User } from '../entities/user.entity';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+
 
 @Injectable()
 export class ValidateAttemptUseCase {
@@ -25,12 +26,12 @@ export class ValidateAttemptUseCase {
 		}
 
 		if (user?.attemptCount >= maxAttempt) {
-			this.logger.error(msg.log.attempt);
+			this.logger.error(userMessages.log.attempt);
 			await this.userRepository.update(user.uid, {
 				attemptCount: maxAttempt,
 				status: false,
 			});
-			throw new ForbiddenException(msg.msg.attempt);
+			throw new ForbiddenException(userMessages.msg.attempt);
 		}
 	}
 }

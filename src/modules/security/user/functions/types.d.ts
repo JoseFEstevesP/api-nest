@@ -2,7 +2,6 @@ import { CheckValidationErrorsProps } from '@/functions/validationFunction/inter
 
 export interface CheckValidationErrorsUserProps<T>
 	extends CheckValidationErrorsProps<T> {
-	msg: MsgStructureUser;
 }
 
 export interface MsgStructureUser {

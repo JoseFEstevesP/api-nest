@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+
 
 @Injectable()
 export class UnregisterUserUseCase {
@@ -17,14 +18,14 @@ export class UnregisterUserUseCase {
 		const user = await this.userRepository.findOne({ where: { uid } });
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		await this.userRepository.update(uid, { status: false });
 
-		this.logger.log(`${dataLog} - ${msg.log.unregisterSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.unregisterSuccess}`);
 
-		return { msg: msg.msg.unregister };
+		return { msg: userMessages.msg.unregister };
 	}
 }

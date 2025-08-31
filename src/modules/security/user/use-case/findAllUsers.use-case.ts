@@ -9,7 +9,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -62,7 +62,7 @@ export class FindAllUsersUseCase {
 
 		const pagination = this.calculatePagination(count, parsedLimit, parsedPage);
 
-		this.logger.log(`${dataLog} - ${msg.log.findAllSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.findAllSuccess}`);
 		const result = {
 			...this.formateRows(rows),
 			...pagination,

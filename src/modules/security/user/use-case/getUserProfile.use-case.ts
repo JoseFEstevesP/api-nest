@@ -2,8 +2,9 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Includeable } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+
 
 @Injectable()
 export class GetUserProfileUseCase {
@@ -36,11 +37,11 @@ export class GetUserProfileUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
-		this.logger.log(`${dataLog} - ${msg.log.profileSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.profileSuccess}`);
 
 		return user;
 	}

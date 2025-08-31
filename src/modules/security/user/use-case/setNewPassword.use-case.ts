@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
-import { msg } from '../msg';
+import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
@@ -28,13 +28,13 @@ export class SetNewPasswordUseCase {
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		if (newPassword !== confirmPassword) {
-			this.logger.error(`${dataLog} - ${msg.log.userErrorNewPassword}`);
-			throw new BadRequestException(msg.msg.newPassword);
+			this.logger.error(`${dataLog} - ${userMessages.log.userErrorNewPassword}`);
+			throw new BadRequestException(userMessages.msg.newPassword);
 		}
 
 		const hashPass = await hash(newPassword, this.configService.get<number>('SALT_ROUNDS'));
@@ -43,8 +43,8 @@ export class SetNewPasswordUseCase {
 			password: hashPass,
 		});
 
-		this.logger.log(`${dataLog} - ${msg.log.recoveryVerifyPasswordSuccess}`);
+		this.logger.log(`${dataLog} - ${userMessages.log.recoveryVerifyPasswordSuccess}`);
 
-		return { msg: msg.msg.newPasswordChanged };
+		return { msg: userMessages.msg.newPasswordChanged };
 	}
 }
