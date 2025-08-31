@@ -10,16 +10,15 @@ import {
 	OrderItem,
 	WhereOptions,
 } from 'sequelize';
+import { auditMessages } from '../audit.messages';
 import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';
 import { OrderAuditProperty } from '../enum/orderProperty';
-import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class FindAllAuditsUseCase {
 	private readonly logger = new Logger(FindAllAuditsUseCase.name);
-	// TODO: no esta usando el cache
 	constructor(
 		private readonly auditRepository: AuditRepository,
 		@Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -34,6 +33,16 @@ export class FindAllAuditsUseCase {
 		uidUser: string;
 		dataLog: string;
 	}): Promise<PaginationResult<Audit>> {
+		const cacheKey = `Audit-findAll:${JSON.stringify(filter)}`;
+		const cachedData =
+			await this.cacheManager.get<PaginationResult<Audit>>(cacheKey);
+		if (cachedData) {
+			this.logger.log(
+				`${dataLog} - ${auditMessages.log.findAllSuccess} (from cache)`,
+			);
+			return cachedData;
+		}
+
 		const {
 			limit = 30,
 			page = 1,
@@ -59,12 +68,15 @@ export class FindAllAuditsUseCase {
 
 		const pagination = this.calculatePagination(count, parsedLimit, parsedPage);
 
-		this.logger.log(`${dataLog} - ${auditMessages.log.findAllSuccess}`);
-		return {
+		const result = {
 			rows,
 			count,
 			...pagination,
 		};
+
+		await this.cacheManager.set(cacheKey, result, 1000 * 60); // Cache for 60 seconds
+		this.logger.log(`${dataLog} - ${auditMessages.log.findAllSuccess}`);
+		return result;
 	}
 
 	private buildWhereClause(uidUser: string, search?: string): WhereOptions {
