@@ -1,46 +1,63 @@
 // Plantillas de archivos basadas en la estructura del módulo Rol
 export const TEMPLATES = {
-	// Archivo msg.ts
-	msg: (moduleName, capitalizedName) => `export const msg = {
-	findOne: 'No se ha encontrado ningún ${moduleName}',
-	findUserExit: 'No se puede eliminar ya que un usuario está asignado a este ${moduleName}',
-	register: '${capitalizedName} registrado exitosamente',
-	validation: {
-		disability: 'Este ${moduleName} ya está registrado, pero está deshabilitado',
-		default: 'Este ${moduleName} ya está registrado',
-	},
-	update: '${capitalizedName} actualizado exitosamente',
-	delete: '${capitalizedName} eliminado',
-	dto: {
-		permission: 'La propiedad de permiso no es válida',
-	},
-	log: {
-		create: 'Creando ${moduleName}',
-		createAut: 'Creando ${moduleName} automático',
-		createAutProcess: 'Proceso para crear ${moduleName} automático',
-		createAutVerify: 'Verificando existencia de ${moduleName} automático',
-		createAutSuccess: '${capitalizedName} automático creado exitosamente',
-		createSuccess: '${capitalizedName} creado exitosamente',
-		errorValidator: 'Falló la validación',
-		${moduleName}Error: '${capitalizedName} no encontrado',
-		findOne: 'Encontrar ${moduleName} con UID',
-		findOneSuccess: '${capitalizedName} encontrado exitosamente',
-		findAll: 'Encontrar o buscar ${moduleName}',
-		findAllSuccess: '${capitalizedName} encontrado o buscado exitosamente',
-		update: 'Actualizar ${moduleName}',
-		updateSuccess: '${capitalizedName} actualizado exitosamente',
-		remove: 'Eliminar ${moduleName}',
-		removeSuccess: '${capitalizedName} eliminado exitosamente',
-		controller: {
-			create: 'Registrando nuevo ${moduleName} en el controlador con datos',
-			login: 'Controlador de inicio de sesión de ${moduleName} con datos',
-			findOne: 'Encontrar controlador de ${moduleName} con UID',
-			findAll: 'Encontrar o buscar controlador de ${moduleName}',
-			valError: 'Error de validación del ${moduleName}',
-			update: 'Actualizar controlador de ${moduleName}',
-			remove: 'Eliminar controlador de ${moduleName}',
-		},
-	},
+	// Archivo [moduleName].messages.ts
+	messages: (moduleName, capitalizedName) => `export const ${moduleName}Messages = {
+  // General messages
+  findOne: 'No se ha encontrado ningún ${moduleName}',
+  findUserExit: 'No se puede eliminar ya que un usuario está asignado a este ${moduleName}',
+  register: '${capitalizedName} registrado exitosamente',
+  update: '${capitalizedName} actualizado exitosamente',
+  delete: '${capitalizedName} eliminado',
+  credential: 'Credenciales no válidos.',
+  userError: '${capitalizedName} no encontrado.',
+  relationError: 'El ${moduleName} esta relacionado con otros datos',
+
+  // Validation messages
+  validation: {
+    disability: 'Este ${moduleName} ya está registrado, pero está deshabilitado',
+    default: 'Este ${moduleName} ya está registrado',
+    dto: {
+      permission: 'La propiedad de permiso no es válida',
+      empty: 'Este campo no puede estar vacío',
+      defined: 'Este campo no está definido',
+      stringValue: 'Este campo debe ser de tipo cadena de texto',
+      enumValue: 'Valor no válido',
+      lengthValue: 'Este campo debe tener entre 3 y 255 caracteres',
+      uid: {
+        valid: 'El campo UID no es un UUID válido',
+        empty: 'El campo UID no puede estar vacío',
+      },
+    },
+  },
+
+  // Log messages
+  log: {
+    create: 'Creando ${moduleName}',
+    createAut: 'Creando ${moduleName} automático',
+    createAutProcess: 'Proceso para crear ${moduleName} automático',
+    createAutVerify: 'Verificando existencia de ${moduleName} automático',
+    createAutSuccess: '${capitalizedName} automático creado exitosamente',
+    createSuccess: '${capitalizedName} creado exitosamente',
+    errorValidator: 'Falló la validación',
+    ${moduleName}Error: '${capitalizedName} no encontrado',
+    findOne: 'Encontrar ${moduleName} con UID',
+    findOneSuccess: '${capitalizedName} encontrado exitosamente',
+    findAll: 'Encontrar o buscar ${moduleName}',
+    findAllSuccess: '${capitalizedName} encontrado o buscado exitosamente',
+    update: 'Actualizar ${moduleName}',
+    updateSuccess: '${capitalizedName} actualizado exitosamente',
+    remove: 'Eliminar ${moduleName}',
+    removeSuccess: '${capitalizedName} eliminado exitosamente',
+    controller: {
+      create: 'Registrando nuevo ${moduleName} en el controlador con datos',
+      login: 'Controlador de inicio de sesión de ${moduleName} con datos',
+      findOne: 'Encontrar controlador de ${moduleName} con UID',
+      findAll: 'Encontrar o buscar controlador de ${moduleName}',
+      valError: 'Error de validación del ${moduleName}',
+      update: 'Actualizar controlador de ${moduleName}',
+      remove: 'Eliminar controlador de ${moduleName}',
+    },
+  },
 };
 `,
 
@@ -70,7 +87,7 @@ import { ${capitalizedName}GetAllDTO } from './dto/${moduleName}GetAll.dto';
 import { ${capitalizedName}RegisterDTO } from './dto/${moduleName}Register.dto';
 import { ${capitalizedName}UpdateDTO } from './dto/${moduleName}Update.dto';
 import { Permission } from '@/modules/security/rol/enum/permissions';
-import { msg } from './msg';
+import { ${moduleName}Messages } from './${moduleName}.messages';
 import { Create${capitalizedName}UseCase } from './use-case/create${capitalizedName}.use-case';
 import { FindAll${capitalizedName}sPaginationUseCase } from './use-case/findAll${capitalizedName}sPagination.use-case';
 import { FindOne${capitalizedName}UseCase } from './use-case/findOne${capitalizedName}.use-case';
@@ -96,7 +113,7 @@ export class ${capitalizedName}Controller {
 	@Post()
 	async register(@Body() data: ${capitalizedName}RegisterDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(\`\${dataLog} - \${msg.log.controller.create}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.create}\`);
 
 		return this.create${capitalizedName}UseCase.execute({ data, dataLog });
 	}
@@ -105,7 +122,7 @@ export class ${capitalizedName}Controller {
 	@Get('/one/:uid')
 	async findOne(@Param() data: ${capitalizedName}GetDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(\`\${dataLog} - \${msg.log.controller.findOne}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findOne}\`);
 
 		return this.findOne${capitalizedName}UseCase.execute({ uid: data.uid }, dataLog);
 	}
@@ -117,7 +134,7 @@ export class ${capitalizedName}Controller {
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
-		this.logger.log(\`\${dataLog} - \${msg.log.controller.findAll}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findAll}\`);
 
 		return this.findAll${capitalizedName}sPaginationUseCase.execute({ filter, dataLog });
 	}
@@ -126,7 +143,7 @@ export class ${capitalizedName}Controller {
 	@Patch()
 	async update(@Body() data: ${capitalizedName}UpdateDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(\`\${dataLog} - \${msg.log.controller.update}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.update}\`);
 
 		return this.update${capitalizedName}UseCase.execute({ data, dataLog });
 	}
@@ -135,7 +152,7 @@ export class ${capitalizedName}Controller {
 	@Delete('/delete/:uid')
 	async delete(@Param() data: ${capitalizedName}DeleteDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
-		this.logger.log(\`\${dataLog} - \${msg.log.controller.remove}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.remove}\`);
 
 		return this.remove${capitalizedName}UseCase.execute({ uid: data.uid, dataLog });
 	}
@@ -190,32 +207,32 @@ export class ${capitalizedName}GetDTO extends PickType(${capitalizedName}Registe
 
 		getAll: (moduleName, capitalizedName) =>
 			`import { queryDTO } from '@/dto/query.dto';
-import { globalMsg } from '@/globalMsg';
 import { PartialType } from '@nestjs/mapped-types';
 import { IsEnum, IsOptional } from 'class-validator';
 import { Order${capitalizedName}Property } from '../enum/orderProperty';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 
 export class ${capitalizedName}GetAllDTO extends PartialType(queryDTO) {
 	@IsOptional()
 	@IsEnum(Order${capitalizedName}Property, {
-		message: globalMsg.dto.enumValue,
+		message: ${moduleName}Messages.validation.dto.enumValue,
 	})
 	readonly orderProperty?: Order${capitalizedName}Property;
 }
 `,
 
 		register: (moduleName, capitalizedName) =>
-			`import { globalMsg } from '@/globalMsg';
-import {
+			`import {
 	IsDefined,
 	IsNotEmpty,
 	IsUUID,
 } from 'class-validator';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 
 export class ${capitalizedName}RegisterDTO {
-	@IsUUID('all', { message: globalMsg.dto.uid.valid })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
-	@IsDefined({ message: globalMsg.dto.defined })
+	@IsUUID('all', { message: ${moduleName}Messages.validation.dto.uid.valid })
+	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
+	@IsDefined({ message: ${moduleName}Messages.validation.dto.defined })
 	readonly uid: string;
 
 
@@ -223,13 +240,13 @@ export class ${capitalizedName}RegisterDTO {
 `,
 
 		update: (moduleName, capitalizedName) =>
-			`import { globalMsg } from '@/globalMsg';
-import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
+			`import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 import { ${capitalizedName}RegisterDTO } from './${moduleName}Register.dto';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 
 export class ${capitalizedName}UpdateDTO extends ${capitalizedName}RegisterDTO {
-	@IsBoolean({ message: globalMsg.dto.status })
-	@IsNotEmpty({ message: globalMsg.dto.empty })
+	@IsBoolean({ message: ${moduleName}Messages.validation.dto.status })
+	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
 	@IsOptional()
 	readonly status: boolean;
 }
@@ -320,7 +337,7 @@ import { validatePropertyData } from '@/functions/validationFunction/validatePro
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
-import { msg } from '../msg';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
@@ -337,19 +354,19 @@ export class Create${capitalizedName}UseCase {
 		const errors = validatePropertyData({
 			property: { uid },
 			data: existingPatient,
-			msg: msg,
+			msg: ${moduleName}Messages,
 		});
 
 		if (errors) {
-			this.logger.error(\`\${dataLog} - \${msg.log.errorValidator}\`);
+			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.errorValidator}\`);
 			throwHttpExceptionProperties(errors, HttpStatus.CONFLICT);
 		}
 
 		await this.${moduleName}Repository.create(data);
 
-		this.logger.log(\`\${dataLog} - \${msg.log.createSuccess}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.createSuccess}\`);
 
-		return { msg: msg.register };
+		return { msg: ${moduleName}Messages.register };
 	}
 }
 `,
@@ -366,7 +383,7 @@ import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { ${capitalizedName}GetAllDTO } from '../dto/${moduleName}GetAll.dto';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 import { Order${capitalizedName}Property } from '../enum/orderProperty';
-import { msg } from '../msg';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
@@ -425,7 +442,7 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 		};
 
 		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-		this.logger.log(\`\${dataLog} - \${msg.log.findAllSuccess}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`);
 
 		return result;
 	}
@@ -488,7 +505,7 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 import { Injectable, Logger } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
-import { msg } from '../msg';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
@@ -507,7 +524,7 @@ export class FindOne${capitalizedName}UseCase {
 			this.logger.error(
 				\`\${dataLog ? dataLog : 'system'} - No se encontro el ${moduleName}\`,
 			);
-			throwHttpExceptionUnique(msg.findOne);
+			throwHttpExceptionUnique(${moduleName}Messages.findOne);
 		}
 
 		this.logger.log(\`\${dataLog ? dataLog : 'system'} - Exito al buscar el ${moduleName}\`);
@@ -522,7 +539,7 @@ export class FindOne${capitalizedName}UseCase {
 			capitalizedName,
 		) => `import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
-import { msg } from '../msg';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
@@ -537,15 +554,15 @@ export class Remove${capitalizedName}UseCase {
 		const ${moduleName} = await this.${moduleName}Repository.findOne({ uid, status: true });
 	
 		if (!${moduleName}) {
-			this.logger.error(\`\${dataLog} - \${msg.log.${moduleName}Error}\`);
-			throwHttpExceptionUnique(msg.findOne);
+			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
+			throwHttpExceptionUnique(${moduleName}Messages.findOne);
 		}
 
 		await this.${moduleName}Repository.remove(uid);
 
-		this.logger.log(\`\${dataLog} - \${msg.log.removeSuccess}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.removeSuccess}\`);
 
-		return { msg: msg.delete };
+		return { msg: ${moduleName}Messages.delete };
 	}
 }
 `,
@@ -556,7 +573,7 @@ export class Remove${capitalizedName}UseCase {
 		) => `import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
 import { Injectable, Logger } from '@nestjs/common';
 import { ${capitalizedName}UpdateDTO } from '../dto/${moduleName}Update.dto';
-import { msg } from '../msg';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
@@ -569,8 +586,8 @@ export class Update${capitalizedName}UseCase {
 		const { uid, ...updatedData } = data;
 		const ${moduleName} = await this.${moduleName}Repository.findOne({ uid });
 		if (!${moduleName}) {
-			this.logger.error(\`\${dataLog} - \${msg.log.${moduleName}Error}\`);
-			throwHttpExceptionUnique(msg.findOne);
+			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
+			throwHttpExceptionUnique(${moduleName}Messages.findOne);
 		}
 
 		await ${moduleName}.update({
@@ -578,9 +595,9 @@ export class Update${capitalizedName}UseCase {
 			...(updatedData.status !== undefined && { status: !updatedData.status }),
 		});
 
-		this.logger.log(\`\${dataLog} - \${msg.log.updateSuccess}\`);
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.updateSuccess}\`);
 
-		return { msg: msg.update };
+		return { msg: ${moduleName}Messages.update };
 	}
 }
 `,
