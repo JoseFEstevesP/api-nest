@@ -1,21 +1,23 @@
-import { throwHttpExceptionProperties } from '@/functions/throwHttpException';
 import {
 	BadRequestException,
 	Body,
 	Controller,
 	Delete,
-	HttpStatus,
+	Logger,
 	Post,
 	Query,
 	UploadedFile,
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { SaveFileUseCase } from './use-case/saveFile.use-case';
+import { filesMessages } from './files.messages';
 import { DeleteFileUseCase } from './use-case/deleteFile.use-case';
+import { SaveFileUseCase } from './use-case/saveFile.use-case';
 
 @Controller('files')
 export class FilesController {
+	private readonly logger = new Logger(FilesController.name);
+
 	constructor(
 		private readonly saveFileUseCase: SaveFileUseCase,
 		private readonly deleteFileUseCase: DeleteFileUseCase,
@@ -27,14 +29,16 @@ export class FilesController {
 		@UploadedFile() file: Express.Multer.File,
 		@Body('type') type: 'image' | 'document',
 	) {
-		if (!file || !type) {
-			throwHttpExceptionProperties(
-				{ file: { message: 'El archivo y el tipo son obligatorios' } },
-				HttpStatus.BAD_REQUEST,
-			);
+		this.logger.log(filesMessages.log.uploadingFile);
+		if (!file) {
+			throw new BadRequestException(filesMessages.fileRequired);
+		}
+		if (!type) {
+			throw new BadRequestException(filesMessages.typeRequired);
 		}
 		const filename = await this.saveFileUseCase.execute(file, type);
-		return { filename };
+		this.logger.log(filesMessages.log.fileUploadSuccess);
+		return { filename, message: filesMessages.fileUploaded };
 	}
 
 	@Delete('delete')
@@ -42,10 +46,15 @@ export class FilesController {
 		@Query('filename') filename: string,
 		@Query('type') type: 'image' | 'document',
 	) {
-		if (!filename || !type) {
-			throw new BadRequestException('Filename and type are required');
+		this.logger.log(filesMessages.log.deletingFile);
+		if (!filename) {
+			throw new BadRequestException(filesMessages.filenameRequired);
+		}
+		if (!type) {
+			throw new BadRequestException(filesMessages.typeRequired);
 		}
 		await this.deleteFileUseCase.execute(filename, type);
-		return { deleted: true };
+		this.logger.log(filesMessages.log.fileDeleteSuccess);
+		return { deleted: true, message: filesMessages.fileDeleted };
 	}
 }
