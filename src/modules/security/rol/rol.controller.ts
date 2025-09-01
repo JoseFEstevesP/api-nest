@@ -100,7 +100,7 @@ export class RolController {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${rolMessages.log.controller.update}`);
 
-		return this.updateRolUseCase.execute({ data, dataLog });
+		return this.updateRolUseCase.execute({ uid: data.uid, data, dataLog });
 	}
 
 	@ValidPermission(Permission.rolDelete)

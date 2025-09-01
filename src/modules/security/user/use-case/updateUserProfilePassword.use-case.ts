@@ -1,10 +1,14 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { compare, hash } from 'bcrypt';
 import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
-
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class UpdateUserProfilePasswordUseCase {
@@ -27,8 +31,8 @@ export class UpdateUserProfilePasswordUseCase {
 		const { olPassword, newPassword } = data;
 		const user = await this.userRepository.findOne({ where: { uid } });
 		if (!user) {
-			this.logger.error(`${dataLog} - ${msg.log.userError}`);
-			throw new NotFoundException(msg.msg.findOne);
+			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		if (!user) {
@@ -42,7 +46,10 @@ export class UpdateUserProfilePasswordUseCase {
 			throw new UnauthorizedException(userMessages.msg.passwordError);
 		}
 
-		const hashPass = await hash(newPassword, this.configService.get<number>('SALT_ROUNDS'));
+		const hashPass = await hash(
+			newPassword,
+			this.configService.get<number>('SALT_ROUNDS'),
+		);
 		await this.userRepository.update(uid, { password: hashPass });
 		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog); // This is an external dependency, needs to be injected
 

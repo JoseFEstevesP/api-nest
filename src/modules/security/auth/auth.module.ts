@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LoginUseCase } from './use-case/login.use-case';
@@ -16,6 +17,7 @@ import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
 		UserModule,
 		PassportModule,
 		AuditModule,
+		SequelizeModule.forFeature([]),
 		JwtModule.registerAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],

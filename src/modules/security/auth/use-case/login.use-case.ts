@@ -2,6 +2,7 @@ import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
+import { UserRepository } from '@/modules/security/user/repository/user.repository';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
 import {
@@ -15,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
-import { Sequelize, Transaction } from 'sequelize';
+import { Transaction } from 'sequelize';
 import { authMessages } from '../auth.messages';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
@@ -28,7 +29,7 @@ export class LoginUseCase {
 		private readonly jwtService: JwtService,
 		private readonly createAuditUseCase: CreateAuditUseCase,
 		private configService: ConfigService<EnvironmentVariables>,
-		private sequelize: Sequelize,
+		private readonly userRepository: UserRepository,
 	) {}
 
 	async execute({
@@ -58,7 +59,7 @@ export class LoginUseCase {
 		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
 
 		try {
-			await this.sequelize.transaction(async (t: Transaction) => {
+			await this.userRepository.transaction(async (t: Transaction) => {
 				await user.update({ attemptCount: 0 }, { transaction: t });
 
 				await this.createAuditUseCase.execute(

@@ -79,4 +79,8 @@ export class UserRepository {
 			handleDatabaseError(error, this.logger, 'la eliminación del usuario');
 		}
 	}
+
+	async transaction<T>(callback: (t: Transaction) => Promise<T>): Promise<T> {
+		return await this.userModel.sequelize.transaction(callback);
+	}
 }

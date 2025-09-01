@@ -1,18 +1,21 @@
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { Op } from 'sequelize';
-import { salt } from '../constants/sal';
 import { UserRegisterDTO } from '../dto/userRegister.dto';
 import { User } from '../entities/user.entity';
 import { checkValidationErrorsUser } from '../functions/checkValidationErrorsUser';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class CreateProtectUserUseCase {
 	private readonly logger = new Logger(CreateProtectUserUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly configService: ConfigService,
+	) {}
 
 	async execute({
 		data,
@@ -37,7 +40,10 @@ export class CreateProtectUserUseCase {
 			checkErrors: checkValidationErrorsUser,
 		});
 
-		const hashPass = await hash(password, salt);
+		const hashPass = await hash(
+			password,
+			this.configService.get<number>('SALT_ROUNDS'),
+		);
 
 		const user = {
 			...userData,
