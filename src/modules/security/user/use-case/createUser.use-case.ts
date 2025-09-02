@@ -8,8 +8,8 @@ import { FindOneRolUseCase } from '../../rol/use-case/findOneRol.use-case';
 import { UserDefaultRegisterDTO } from '../dto/userDefaultRegister.dto';
 import { User } from '../entities/user.entity';
 import { checkValidationErrorsUser } from '../functions/checkValidationErrorsUser';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -42,12 +42,15 @@ export class CreateUserUseCase {
 
 		const code = `${this.generateCode()}`;
 
-		if (this.configService.get<string>('NODE_ENV') !== 'development') {
+		if (this.configService.get<string>('NODE_ENV') === 'production') {
 			this.logger.log(`system - ${userMessages.log.emailActivated}`);
 			this.emailService.activatedAccount({ code, email });
 		}
 
-		const hashPass = await hash(password, this.configService.get<number>('SALT_ROUNDS'));
+		const hashPass = await hash(
+			password,
+			this.configService.get<number>('SALT_ROUNDS'),
+		);
 
 		const { uid: uidRol } = await this.findOneRolUseCase.execute({
 			typeRol: this.configService.get<string>('DEFAULT_ROL_FROM_USER'),
