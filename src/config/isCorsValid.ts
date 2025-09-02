@@ -11,6 +11,6 @@ export class IsCorsValidConstraint implements ValidatorConstraintInterface {
 	}
 
 	defaultMessage() {
-		return 'Each CORS URL must be valid (e.g., http://localhost:3000 or https://example.com)';
+		return 'Cada URL CORS debe ser válida (e.g., http://localhost:3000 or https://example.com)';
 	}
 }
