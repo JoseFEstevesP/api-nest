@@ -1,7 +1,9 @@
-// Plantillas de archivos basadas en la estructura del módulo Rol
 export const TEMPLATES = {
 	// Archivo [moduleName].messages.ts
-	messages: (moduleName, capitalizedName) => `export const ${moduleName}Messages = {
+	messages: (
+		moduleName,
+		capitalizedName,
+	) => `export const ${moduleName}Messages = {
   // General messages
   findOne: 'No se ha encontrado ningún ${moduleName}',
   findUserExit: 'No se puede eliminar ya que un usuario está asignado a este ${moduleName}',
