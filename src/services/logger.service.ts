@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { createLogger, format, Logger, transports } from 'winston';
 import 'winston-daily-rotate-file';
+import * as path from 'path';
 
 @Injectable()
 export class LoggerService {
@@ -26,7 +27,8 @@ export class LoggerService {
 			format: format.combine(dateFormat, textFormat),
 			transports: [
 				new transports.DailyRotateFile({
-					filename: 'logs/info/info-%DATE%.log',
+					filename: path.join(process.cwd(), 'logs', 'info', 'info-%DATE%.log'),
+					auditFile: path.join(process.cwd(), 'logs', 'info', 'info-audit.json'),
 					datePattern: 'YYYY-MM-DD',
 					maxFiles: '14d',
 					level: 'info',
@@ -39,7 +41,8 @@ export class LoggerService {
 			format: format.combine(dateFormat, textFormat),
 			transports: [
 				new transports.DailyRotateFile({
-					filename: 'logs/error/error-%DATE%.log',
+					filename: path.join(process.cwd(), 'logs', 'error', 'error-%DATE%.log'),
+					auditFile: path.join(process.cwd(), 'logs', 'error', 'error-audit.json'),
 					datePattern: 'YYYY-MM-DD',
 					maxFiles: '14d',
 					level: 'error',
@@ -51,7 +54,8 @@ export class LoggerService {
 			format: format.combine(dateFormat, textFormat),
 			transports: [
 				new transports.DailyRotateFile({
-					filename: 'logs/all/all-%DATE%.log',
+					filename: path.join(process.cwd(), 'logs', 'all', 'all-%DATE%.log'),
+					auditFile: path.join(process.cwd(), 'logs', 'all', 'all-audit.json'),
 					datePattern: 'YYYY-MM-DD',
 					maxFiles: '14d',
 				}),
