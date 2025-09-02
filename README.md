@@ -224,26 +224,6 @@ La documentación Swagger está disponible en `/doc` cuando la aplicación está
 - `POST /files/upload`: Sube un archivo (imagen o documento).
 - `DELETE /files/delete`: Elimina un archivo por nombre y tipo.
 
-## Pruebas
-
-Para ejecutar todas las pruebas (unitarias y e2e):
-
-```bash
-pnpm run test:unit && pnpm run test:e2e
-```
-
-Para ejecutar solo pruebas unitarias:
-
-```bash
-pnpm run test:unit
-```
-
-Para ejecutar solo pruebas end-to-end:
-
-```bash
-pnpm run test:e2e
-```
-
 ## Estructura del Proyecto
 
 La lógica principal reside en el directorio `src`, organizado en módulos:
