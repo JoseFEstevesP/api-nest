@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { EnvironmentVariables } from './config/env.config';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
@@ -15,6 +16,8 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
 		logger,
 	});
+
+	app.use(helmet());
 
 	const httpAdapterHost = app.get(HttpAdapterHost);
 	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
