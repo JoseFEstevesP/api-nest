@@ -2,7 +2,6 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
-
 @Injectable()
 export class FindRolPermissionsUseCase {
 	private readonly logger = new Logger(FindRolPermissionsUseCase.name);

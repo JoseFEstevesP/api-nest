@@ -3,7 +3,6 @@ import { AuditUpdateDTO } from '../dto/auditUpdate.dto';
 import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
 
-
 @Injectable()
 export class UpdateAuditUseCase {
 	private readonly logger = new Logger(UpdateAuditUseCase.name);

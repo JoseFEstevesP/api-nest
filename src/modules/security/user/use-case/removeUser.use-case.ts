@@ -1,7 +1,11 @@
-import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	ConflictException,
+} from '@nestjs/common';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
-
 
 @Injectable()
 export class RemoveUserUseCase {

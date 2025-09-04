@@ -26,8 +26,17 @@ export class SaveFileUseCase {
 			throw new BadRequestException(filesMessages.fileRequired);
 		}
 
-		const allowedImageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-		const allowedDocumentMimeTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+		const allowedImageMimeTypes = [
+			'image/jpeg',
+			'image/png',
+			'image/gif',
+			'image/webp',
+		];
+		const allowedDocumentMimeTypes = [
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		];
 
 		let dir: string;
 		if (type === 'image') {

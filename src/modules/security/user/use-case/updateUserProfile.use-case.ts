@@ -3,7 +3,6 @@ import { UserUpdateProfileDataDTO } from '../dto/userUpdateProfileData.dto';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
-
 @Injectable()
 export class UpdateUserProfileUseCase {
 	private readonly logger = new Logger(UpdateUserProfileUseCase.name);

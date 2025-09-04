@@ -1,5 +1,10 @@
 import { EmailService } from '@/services/email.service';
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	BadRequestException,
+} from '@nestjs/common';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
@@ -28,7 +33,9 @@ export class RecoveryPasswordUseCase {
 		}
 
 		if (!user.activatedAccount) {
-			this.logger.error(`${dataLog} - ${userMessages.log.userErrorActiveAccount}`);
+			this.logger.error(
+				`${dataLog} - ${userMessages.log.userErrorActiveAccount}`,
+			);
 			throw new BadRequestException(userMessages.msg.findOne);
 		}
 

@@ -82,7 +82,9 @@ export class LoginUseCase {
 			throw new ConflictException(authMessages.log.sessionExisting);
 		}
 
-		this.logger.log(`${user.surnames} ${user.names} - ${authMessages.log.loginSuccess}`);
+		this.logger.log(
+			`${user.surnames} ${user.names} - ${authMessages.log.loginSuccess}`,
+		);
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

@@ -1,7 +1,8 @@
 import { checkValidationErrors } from './checkValidationErrors';
 import { ValidatePropertyDataProps } from './interface';
 
-export const validatePropertyData = <T extends { status: boolean }>({ // eslint-disable-line
+export const validatePropertyData = <T extends { status: boolean }>({
+	// eslint-disable-line
 	property,
 	data,
 	msg,

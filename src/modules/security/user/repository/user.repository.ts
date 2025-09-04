@@ -54,7 +54,11 @@ export class UserRepository {
 		return result;
 	}
 
-	async update(uid: string, user: Partial<User>, transaction?: Transaction): Promise<User | null> {
+	async update(
+		uid: string,
+		user: Partial<User>,
+		transaction?: Transaction,
+	): Promise<User | null> {
 		try {
 			const [affectedCount] = await this.userModel.update(user, {
 				where: { uid },

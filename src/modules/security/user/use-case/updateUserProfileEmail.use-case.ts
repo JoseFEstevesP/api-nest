@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserUpdateProfileEmailDTO } from '../dto/userUpdateProfileEmail.dto';
 import { userMessages } from '../user.messages';

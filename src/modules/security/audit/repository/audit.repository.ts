@@ -21,9 +21,14 @@ export class AuditRepository {
 		private readonly auditModel: typeof Audit,
 	) {}
 
-	async create(data: AuditRegisterDTO, transaction?: Transaction): Promise<Audit> {
+	async create(
+		data: AuditRegisterDTO,
+		transaction?: Transaction,
+	): Promise<Audit> {
 		try {
-			return await this.auditModel.create(data, { ...(transaction && { transaction }) });
+			return await this.auditModel.create(data, {
+				...(transaction && { transaction }),
+			});
 		} catch (error) {
 			handleDatabaseError(
 				error,
@@ -86,7 +91,7 @@ export class AuditRepository {
 			return await this.auditModel.destroy({
 				where: {
 					createdAt: {
-					[Op.lt]: thresholdDate,
+						[Op.lt]: thresholdDate,
 					},
 				},
 			});

@@ -3,7 +3,6 @@ import { User } from '../entities/user.entity';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
-
 @Injectable()
 export class ValidateAttemptUseCase {
 	private readonly logger = new Logger(ValidateAttemptUseCase.name);

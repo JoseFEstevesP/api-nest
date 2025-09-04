@@ -20,7 +20,8 @@ export class UserGetAllDTO extends PartialType(queryDTO) {
 
 	@ApiProperty({
 		example: 'John',
-		description: 'Texto para buscar usuarios por nombres, apellidos o correo electrónico',
+		description:
+			'Texto para buscar usuarios por nombres, apellidos o correo electrónico',
 		required: false,
 	})
 	@IsString({ message: userMessages.dto.stringValue })

@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+	Injectable,
+	Logger,
+	NotFoundException,
+	BadRequestException,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { filesMessages } from '../files.messages';

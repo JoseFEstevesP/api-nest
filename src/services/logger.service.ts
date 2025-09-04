@@ -28,7 +28,12 @@ export class LoggerService {
 			transports: [
 				new transports.DailyRotateFile({
 					filename: path.join(process.cwd(), 'logs', 'info', 'info-%DATE%.log'),
-					auditFile: path.join(process.cwd(), 'logs', 'info', 'info-audit.json'),
+					auditFile: path.join(
+						process.cwd(),
+						'logs',
+						'info',
+						'info-audit.json',
+					),
 					datePattern: 'YYYY-MM-DD',
 					maxFiles: '14d',
 					level: 'info',
@@ -41,8 +46,18 @@ export class LoggerService {
 			format: format.combine(dateFormat, textFormat),
 			transports: [
 				new transports.DailyRotateFile({
-					filename: path.join(process.cwd(), 'logs', 'error', 'error-%DATE%.log'),
-					auditFile: path.join(process.cwd(), 'logs', 'error', 'error-audit.json'),
+					filename: path.join(
+						process.cwd(),
+						'logs',
+						'error',
+						'error-%DATE%.log',
+					),
+					auditFile: path.join(
+						process.cwd(),
+						'logs',
+						'error',
+						'error-audit.json',
+					),
 					datePattern: 'YYYY-MM-DD',
 					maxFiles: '14d',
 					level: 'error',

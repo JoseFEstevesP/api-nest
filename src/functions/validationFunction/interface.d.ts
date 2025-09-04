@@ -1,5 +1,3 @@
-
-
 export interface ValidatePropertyDataProps<T extends { status: boolean }> {
 	property: object;
 	data: T;

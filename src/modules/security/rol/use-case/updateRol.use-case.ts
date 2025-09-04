@@ -3,14 +3,21 @@ import { RolUpdateDTO } from '../dto/rolUpdate.dto';
 import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
-
 @Injectable()
 export class UpdateRolUseCase {
 	private readonly logger = new Logger(UpdateRolUseCase.name);
 
 	constructor(private readonly rolRepository: RolRepository) {}
 
-	async execute({ uid, data, dataLog }: { uid: string; data: RolUpdateDTO; dataLog: string }) {
+	async execute({
+		uid,
+		data,
+		dataLog,
+	}: {
+		uid: string;
+		data: RolUpdateDTO;
+		dataLog: string;
+	}) {
 		const rol = await this.rolRepository.findOne({ uid });
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);

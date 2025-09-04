@@ -4,7 +4,6 @@ import { Role } from '../entities/rol.entity';
 import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
-
 @Injectable()
 export class FindOneRolUseCase {
 	private readonly logger = new Logger(FindOneRolUseCase.name);

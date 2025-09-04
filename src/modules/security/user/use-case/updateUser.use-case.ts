@@ -3,7 +3,6 @@ import { UserUpdateDTO } from '../dto/userUpdate.dto';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
-
 @Injectable()
 export class UpdateUserUseCase {
 	private readonly logger = new Logger(UpdateUserUseCase.name);

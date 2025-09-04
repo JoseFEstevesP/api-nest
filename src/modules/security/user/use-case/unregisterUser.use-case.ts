@@ -2,7 +2,6 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
-
 @Injectable()
 export class UnregisterUserUseCase {
 	private readonly logger = new Logger(UnregisterUserUseCase.name);

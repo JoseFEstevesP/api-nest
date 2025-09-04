@@ -11,7 +11,10 @@ export class CreateAuditUseCase {
 
 	constructor(private readonly auditRepository: AuditRepository) {}
 
-	async execute({ data }: { data: AuditRegisterDTO }, t?: Transaction): Promise<Audit> {
+	async execute(
+		{ data }: { data: AuditRegisterDTO },
+		t?: Transaction,
+	): Promise<Audit> {
 		this.logger.log(auditMessages.log.create);
 
 		const audit = await this.auditRepository.findOne({

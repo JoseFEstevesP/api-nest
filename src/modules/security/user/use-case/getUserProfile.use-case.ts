@@ -5,7 +5,6 @@ import { User } from '../entities/user.entity';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
-
 @Injectable()
 export class GetUserProfileUseCase {
 	private readonly logger = new Logger(GetUserProfileUseCase.name);
