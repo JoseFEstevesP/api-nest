@@ -1,3 +1,5 @@
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 import {
 	BadRequestException,
 	INestApplication,
@@ -85,6 +87,8 @@ async function bootstrap() {
 	const httpAdapterHost = app.get(HttpAdapterHost);
 	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
 
+	app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor());
+
 	const expressApp = app.getHttpAdapter().getInstance();
 	expressApp.set('trust proxy', true);
 
@@ -98,6 +102,9 @@ async function bootstrap() {
 
 	app.useGlobalPipes(
 		new ValidationPipe({
+			transform: true,
+			whitelist: true,
+			forbidNonWhitelisted: true,
 			exceptionFactory: errors => {
 				const result = errors.map(error => {
 					return objectError({

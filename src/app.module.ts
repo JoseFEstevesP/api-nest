@@ -10,6 +10,7 @@ import { Dialect } from 'sequelize';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
 import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
 import { FilesModule } from './modules/files/files.module';
+import { HealthModule } from './modules/health/health.module';
 import { AuditModule } from './modules/security/audit/audit.module';
 import { AuthModule } from './modules/security/auth/auth.module';
 import { RolModule } from './modules/security/rol/rol.module';
@@ -61,6 +62,7 @@ import { AppConfigService } from './services/config.service';
 		RolModule,
 		AuditModule,
 		AuthModule,
+		HealthModule,
 	],
 	providers: [
 		{
