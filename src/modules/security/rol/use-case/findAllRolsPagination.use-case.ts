@@ -1,8 +1,7 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
 import { PaginationResult } from '@/types';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { RolGetAllDTO } from '../dto/rolGetAll.dto';
 import { Role } from '../entities/rol.entity';
@@ -16,7 +15,6 @@ export class FindAllRolsPaginationUseCase {
 
 	constructor(
 		private readonly rolRepository: RolRepository,
-		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
 	async execute({
@@ -26,14 +24,6 @@ export class FindAllRolsPaginationUseCase {
 		filter: RolGetAllDTO;
 		dataLog: string;
 	}): Promise<PaginationResult<Role>> {
-		const cacheKey = `Rol-findAllPagination:${JSON.stringify(filter)}`;
-		const cachedData =
-			await this.cacheManager.get<PaginationResult<Role>>(cacheKey);
-
-		if (cachedData) {
-			return cachedData;
-		}
-
 		const {
 			limit = 30,
 			page = 1,
@@ -66,7 +56,6 @@ export class FindAllRolsPaginationUseCase {
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
 
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
 		this.logger.log(`${dataLog} - ${rolMessages.log.findAllSuccess}`);
 
 		return result;

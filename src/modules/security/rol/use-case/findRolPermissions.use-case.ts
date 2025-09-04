@@ -1,17 +1,19 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class FindRolPermissionsUseCase {
 	private readonly logger = new Logger(FindRolPermissionsUseCase.name);
 
 	constructor(private readonly rolRepository: RolRepository) {}
-	// TODO: agregar que en el findOne se puede poner u array de atributos a obtener
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
 		const rol = await this.rolRepository.findOne({
-			uid,
-			status: true,
+			where: {
+				uid,
+				status: true,
+			},
+			attributes: ['uid', 'name', 'permissions'],
 		});
 
 		if (!rol) {

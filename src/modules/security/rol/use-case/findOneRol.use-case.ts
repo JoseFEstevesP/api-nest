@@ -1,8 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { Role } from '../entities/rol.entity';
-import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class FindOneRolUseCase {
@@ -12,8 +12,7 @@ export class FindOneRolUseCase {
 
 	async execute(where: WhereOptions<Role>, dataLog?: string) {
 		const rol = await this.rolRepository.findOne({
-			...where,
-			status: true,
+			where: { ...where, status: true },
 		});
 
 		if (!rol) {

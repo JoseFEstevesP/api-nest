@@ -2,8 +2,8 @@ import { validatePropertyData } from '@/functions/validationFunction/validatePro
 import { Injectable, Logger } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
-import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class CreateRolUseCase {
@@ -14,7 +14,9 @@ export class CreateRolUseCase {
 	async execute({ data, dataLog }: { data: RolRegisterDTO; dataLog: string }) {
 		const { uid, name } = data;
 		const whereClause = { [Op.or]: [{ uid }, { name }] };
-		const existingPatient = await this.rolRepository.findOne(whereClause);
+		const existingPatient = await this.rolRepository.findOne({
+			where: whereClause,
+		});
 
 		validatePropertyData({
 			property: { uid, name },

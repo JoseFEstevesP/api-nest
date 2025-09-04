@@ -1,9 +1,11 @@
 import { handleDatabaseError } from '@/functions/handleDatabaseError';
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
 	FindAttributeOptions,
+	Includeable,
 	WhereOptions,
 } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
@@ -13,7 +15,10 @@ import { Role } from '../entities/rol.entity';
 export class RolRepository {
 	private readonly logger = new Logger(RolRepository.name);
 
-	constructor(@InjectModel(Role) private readonly rolModel: typeof Role) {}
+	constructor(
+		@InjectModel(Role) private readonly rolModel: typeof Role,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+	) {}
 
 	async create(data: RolRegisterDTO): Promise<Role> {
 		try {
@@ -23,14 +28,50 @@ export class RolRepository {
 		}
 	}
 
-	async findOne(where: WhereOptions<Role>): Promise<Role | null> {
-		return await this.rolModel.findOne({ where });
+	async findOne({
+		where,
+		attributes,
+		include,
+	}: {
+		where: WhereOptions<Role>;
+		attributes?: FindAttributeOptions;
+		include?: Includeable[];
+	}): Promise<Role | null> {
+		const cacheKey = `Rol-findOne:${JSON.stringify({ where, attributes })}`;
+		const cachedData = await this.cacheManager.get<Role | null>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const rol = await this.rolModel.findOne({
+			where,
+			...(attributes && { attributes }),
+			...(include && { include }),
+		});
+
+		if (rol) {
+			await this.cacheManager.set(cacheKey, rol, 1000 * 60);
+		}
+
+		return rol;
 	}
 
 	async findAndCountAll(
 		options: FindAndCountOptions<Role>,
 	): Promise<{ rows: Role[]; count: number }> {
-		return await this.rolModel.findAndCountAll(options);
+		const cacheKey = `Rol-findAndCountAll:${JSON.stringify(options)}`;
+		const cachedData = await this.cacheManager.get<{
+			rows: Role[];
+			count: number;
+		}>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const result = await this.rolModel.findAndCountAll(options);
+		await this.cacheManager.set(cacheKey, result, 1000 * 60);
+
+		return result;
 	}
 
 	async findAll({
@@ -40,10 +81,19 @@ export class RolRepository {
 		where: WhereOptions<Role>;
 		attributes?: FindAttributeOptions;
 	}): Promise<Role[]> {
-		return await this.rolModel.findAll({
+		const cacheKey = `Rol-findAll:${JSON.stringify({ where, attributes })}`;
+		const cachedData = await this.cacheManager.get<Role[]>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const rols = await this.rolModel.findAll({
 			where,
 			...(attributes && { attributes }),
 		});
+		await this.cacheManager.set(cacheKey, rols, 1000 * 60);
+
+		return rols;
 	}
 
 	async update(uid: string, data: Partial<Role>): Promise<void> {

@@ -21,7 +21,9 @@ export class RemoveRolUseCase {
 	) {}
 
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
-		const rol = await this.rolRepository.findOne({ uid, status: true });
+		const rol = await this.rolRepository.findOne({
+			where: { uid, status: true },
+		});
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
 			throw new NotFoundException(rolMessages.findOne);

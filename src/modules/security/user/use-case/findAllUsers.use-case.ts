@@ -4,8 +4,7 @@ import { Permission } from '@/modules/security/rol/enum/permissions';
 import { UserGetAllDTO } from '@/modules/security/user/dto/userGetAll.dto';
 import { OrderUserProperty } from '@/modules/security/user/enum/data';
 import { PaginationResult } from '@/types';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
@@ -17,7 +16,6 @@ export class FindAllUsersUseCase {
 	private readonly logger = new Logger(FindAllUsersUseCase.name);
 	constructor(
 		private readonly userRepository: UserRepository,
-		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
 	async execute({
@@ -29,12 +27,6 @@ export class FindAllUsersUseCase {
 		uidUser: string;
 		dataLog: string;
 	}): Promise<PaginationResult<User>> {
-		const cacheKey = `User-findAll:${JSON.stringify(filter)}`;
-		const dataCache =
-			await this.cacheManager.get<PaginationResult<User>>(cacheKey);
-		if (dataCache) {
-			return dataCache;
-		}
 		const {
 			limit = 30,
 			page = 1,
@@ -67,7 +59,6 @@ export class FindAllUsersUseCase {
 			...this.formateRows(rows),
 			...pagination,
 		};
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
 		return result;
 	}
 

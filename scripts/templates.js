@@ -278,7 +278,8 @@ export class ${capitalizedName} extends Model<${capitalizedName}> {
 	repository: (
 		moduleName,
 		capitalizedName,
-	) => `import { Injectable } from '@nestjs/common';
+	) => `import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
@@ -290,20 +291,57 @@ import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 
 @Injectable()
 export class ${capitalizedName}Repository {
-	constructor(@InjectModel(${capitalizedName}) private readonly ${moduleName}Model: typeof ${capitalizedName}) {}
+	constructor(
+		@InjectModel(${capitalizedName}) private readonly ${moduleName}Model: typeof ${capitalizedName},
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+	) {}
 
 	async create(data: ${capitalizedName}RegisterDTO): Promise<${capitalizedName}> {
 		return await this.${moduleName}Model.create(data);
 	}
 
-	async findOne(where: WhereOptions<${capitalizedName}>): Promise<${capitalizedName} | null> {
-		return await this.${moduleName}Model.findOne({ where });
+	async findOne(	
+	{
+		where,
+		attributes,
+		include,
+	}: {
+		where: WhereOptions<${capitalizedName}>;
+		attributes?: FindAttributeOptions;
+		include?: Includeable[];
+	}
+	): Promise<${capitalizedName} | null> {
+		const cacheKey = \`${capitalizedName}-findOne:\${JSON.stringify(where)}\`;
+		const cachedData = await this.cacheManager.get<${capitalizedName} | null>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const result = await this.${moduleName}Model.findOne({ where,
+		...(attributes && { attributes }),
+		...(include && { include }),
+		});
+		
+		if (result) {
+			await this.cacheManager.set(cacheKey, result, 1000 * 60);
+		}
+
+		return result;
 	}
 
 	async findAndCountAll(
 		options: FindAndCountOptions<${capitalizedName}>,
 	): Promise<{ rows: ${capitalizedName}[]; count: number }> {
-		return await this.${moduleName}Model.findAndCountAll(options);
+		const cacheKey = \`${capitalizedName}-findAndCountAll:\${JSON.stringify(options)}\`;
+		const cachedData = await this.cacheManager.get<{ rows: ${capitalizedName}[]; count: number }>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const result = await this.${moduleName}Model.findAndCountAll(options);
+		await this.cacheManager.set(cacheKey, result, 1000 * 60); 
+
+		return result;
 	}
 
 	async findAll({
@@ -313,10 +351,19 @@ export class ${capitalizedName}Repository {
 		where: WhereOptions<${capitalizedName}>;
 		attributes?: FindAttributeOptions;
 	}): Promise<${capitalizedName}[]> {
-		return await this.${moduleName}Model.findAll({
+		const cacheKey = \`${capitalizedName}-findAll:\${JSON.stringify({ where, attributes })}\`;
+		const cachedData = await this.cacheManager.get<${capitalizedName}[]>(cacheKey);
+		if (cachedData) {
+			return cachedData;
+		}
+
+		const result = await this.${moduleName}Model.findAll({
 			where,
 			...(attributes && { attributes }),
 		});
+		await this.cacheManager.set(cacheKey, result, 1000 * 60); 
+
+		return result;
 	}
 
 	async update(uid: string, data: Partial<${capitalizedName}>): Promise<void> {
@@ -351,7 +398,7 @@ export class Create${capitalizedName}UseCase {
 	async execute({ data, dataLog }: { data: ${capitalizedName}RegisterDTO; dataLog: string }) {
 		const { uid } = data;
 		const whereClause = { [Op.or]: [{ uid }] };
-		const existingPatient = await this.${moduleName}Repository.findOne(whereClause);
+		const existingPatient = await this.${moduleName}Repository.findOne({where: whereClause});
 
 		const errors = validatePropertyData({
 			property: { uid },
@@ -379,8 +426,7 @@ export class Create${capitalizedName}UseCase {
 		) => `import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
 import { PaginationResult } from '@/types';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { ${capitalizedName}GetAllDTO } from '../dto/${moduleName}GetAll.dto';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
@@ -394,7 +440,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 
 	constructor(
 		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
-		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
 	async execute({
@@ -404,14 +449,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 		filter: ${capitalizedName}GetAllDTO;
 		dataLog: string;
 	}): Promise<PaginationResult<${capitalizedName}>> {
-		const cacheKey = \`${capitalizedName}-findAllPagination:\${JSON.stringify(filter)}\`;
-		const cachedData =
-			await this.cacheManager.get<PaginationResult<${capitalizedName}>>(cacheKey);
-
-		if (cachedData) {
-			return cachedData;
-		}
-
 		const {
 			limit = 30,
 			page = 1,
@@ -443,7 +480,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
 
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`);
 
 		return result;
@@ -518,8 +554,9 @@ export class FindOne${capitalizedName}UseCase {
 
 	async execute(where: WhereOptions<${capitalizedName}>, dataLog?: string) {
 		const ${moduleName} = await this.${moduleName}Repository.findOne({
+			where: {
 			...where,
-			status: true,
+			status: true,}
 		});
 
 		if (!${moduleName}) {
@@ -553,7 +590,7 @@ export class Remove${capitalizedName}UseCase {
 	) {}
 
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
-		const ${moduleName} = await this.${moduleName}Repository.findOne({ uid, status: true });
+		const ${moduleName} = await this.${moduleName}Repository.findOne({ where: { uid, status: true } });
 	
 		if (!${moduleName}) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
@@ -586,7 +623,7 @@ export class Update${capitalizedName}UseCase {
 
 	async execute({ data, dataLog }: { data: ${capitalizedName}UpdateDTO; dataLog: string }) {
 		const { uid, ...updatedData } = data;
-		const ${moduleName} = await this.${moduleName}Repository.findOne({ uid });
+		const ${moduleName} = await this.${moduleName}Repository.findOne({ where: { uid } });
 		if (!${moduleName}) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
 			throwHttpExceptionUnique(${moduleName}Messages.findOne);

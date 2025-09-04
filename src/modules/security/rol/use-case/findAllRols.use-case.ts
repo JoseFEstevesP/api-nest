@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RolRepository } from '../repository/rol.repository';
-// TODO: esto deberia de esta cahceado
+
 @Injectable()
 export class FindAllRolsUseCase {
 	private readonly logger = new Logger(FindAllRolsUseCase.name);
