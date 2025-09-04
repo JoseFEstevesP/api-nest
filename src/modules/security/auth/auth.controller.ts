@@ -3,13 +3,15 @@ import { dataInfoJWT } from '@/functions/dataInfoJWT';
 import {
 	Body,
 	Controller,
+	HttpCode,
+	HttpStatus,
 	Logger,
 	Post,
 	Req,
 	Res,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
@@ -29,6 +31,10 @@ export class AuthController {
 		private readonly refreshTokenUseCase: RefreshTokenUseCase,
 	) {}
 
+	@ApiResponse({ status: 201, description: 'Usuario logueado' })
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@HttpCode(HttpStatus.CREATED)
 	@Post('/login')
 	async login(
 		@Body() data: AuthLoginDTO,
@@ -39,6 +45,9 @@ export class AuthController {
 		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
 	}
 
+	@ApiResponse({ status: 200, description: 'Usuario deslogueado' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)
 	@Post('/logout')
 	logout(@Res() res: Response, @Req() req: ReqUidDTO) {
@@ -47,6 +56,9 @@ export class AuthController {
 		return this.logoutUseCase.execute({ uid, res, dataLog });
 	}
 
+	@ApiResponse({ status: 201, description: 'Token refrescado' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@HttpCode(HttpStatus.CREATED)
 	@Post('/refresh-token')
 	async refreshToken(@Req() req: Request & ReqUidDTO, @Res() res: Response) {
 		return this.refreshTokenUseCase.execute({

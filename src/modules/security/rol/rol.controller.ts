@@ -15,7 +15,7 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolDeleteDTO } from './dto/rolDelete.dto';
 import { RolGetDTO } from './dto/rolGet.dto';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
@@ -30,6 +30,7 @@ import { FindOneRolUseCase } from './use-case/findOneRol.use-case';
 import { FindRolPermissionsUseCase } from './use-case/findRolPermissions.use-case';
 import { RemoveRolUseCase } from './use-case/removeRol.use-case';
 import { UpdateRolUseCase } from './use-case/updateRol.use-case';
+import { Role } from './entities/rol.entity';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -48,6 +49,14 @@ export class RolController {
 		private readonly removeRolUseCase: RemoveRolUseCase,
 	) {}
 
+	@ApiResponse({
+		status: 201,
+		description: 'Rol creado correctamente',
+		type: Role,
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ValidPermission(Permission.rolAdd)
 	@Post()
 	async register(@Body() data: RolRegisterDTO, @Req() req: ReqUidDTO) {
@@ -57,6 +66,15 @@ export class RolController {
 		return this.createRolUseCase.execute({ data, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Rol encontrado',
+		type: Role,
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
 	@ValidPermission(Permission.rolReadOne)
 	@Get('/one/:uid')
 	async findOne(@Param() data: RolGetDTO, @Req() req: ReqUidDTO) {
@@ -66,6 +84,12 @@ export class RolController {
 		return this.findOneRolUseCase.execute({ uid: data.uid }, dataLog);
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Permisos del rol',
+		type: [String],
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Get('/per')
 	async findPer(@Req() req: ReqUidDTO) {
 		const { dataLog, uidRol } = req.user;
@@ -74,6 +98,14 @@ export class RolController {
 		return this.findRolPermissionsUseCase.execute({ uid: uidRol, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Roles encontrados',
+		type: [Role],
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ValidPermission(Permission.rolRead)
 	@Get()
 	async findAllPagination(
@@ -86,6 +118,12 @@ export class RolController {
 		return this.findAllRolsPaginationUseCase.execute({ filter, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Roles encontrados',
+		type: [Role],
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Get('/all')
 	async findAll(@Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -94,6 +132,15 @@ export class RolController {
 		return this.findAllRolsUseCase.execute({ dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Rol actualizado correctamente',
+		type: Role,
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
 	@ValidPermission(Permission.rolUpdate)
 	@Patch()
 	async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
@@ -103,6 +150,14 @@ export class RolController {
 		return this.updateRolUseCase.execute({ uid: data.uid, data, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Rol eliminado correctamente',
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
 	@ValidPermission(Permission.rolDelete)
 	@Delete('/delete/:uid')
 	async delete(@Param() data: RolDeleteDTO, @Req() req: ReqUidDTO) {

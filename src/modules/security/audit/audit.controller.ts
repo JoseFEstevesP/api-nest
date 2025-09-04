@@ -13,11 +13,12 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuditGetAllDTO } from './dto/auditGetAll.dto';
 import { auditMessages } from './audit.messages';
 import { FindAllAuditsUseCase } from './use-case/findAllAudits.use-case';
 import { RemoveAuditUseCase } from './use-case/removeAudit.use-case';
+import { Audit } from './entities/audit.entity';
 
 @ApiBearerAuth()
 @ApiTags('Audit')
@@ -31,6 +32,14 @@ export class AuditController {
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
 	) {}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Auditorias encontradas',
+		type: [Audit],
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ValidPermission(Permission.auditRead)
 	@Get()
 	async findAllPagination(
@@ -47,6 +56,14 @@ export class AuditController {
 		});
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Auditoria eliminada correctamente',
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Not Found' })
 	@ValidPermission(Permission.auditDelete)
 	@Delete('/delete/:uid')
 	async delete(@Param('uid') uid: string, @Req() req: ReqUidDTO) {

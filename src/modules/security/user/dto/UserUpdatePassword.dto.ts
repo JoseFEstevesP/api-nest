@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
 	IsDefined,
@@ -8,6 +9,10 @@ import {
 import { userMessages } from '../user.messages';
 
 export class UserUpdatePasswordDTO {
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Nueva contraseña del usuario',
+	})
 	@IsStrongPassword(
 		{
 			minLength: 8,
@@ -22,6 +27,11 @@ export class UserUpdatePasswordDTO {
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
 	readonly newPassword: string;
+
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Confirmación de la nueva contraseña del usuario',
+	})
 	@IsStrongPassword(
 		{
 			minLength: 8,
@@ -37,6 +47,10 @@ export class UserUpdatePasswordDTO {
 	@IsDefined({ message: userMessages.dto.defined })
 	readonly confirmPassword: string;
 
+	@ApiProperty({
+		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
+		description: 'Identificador único del usuario',
+	})
 	@IsUUID('all', { message: userMessages.dto.uid.valid })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })

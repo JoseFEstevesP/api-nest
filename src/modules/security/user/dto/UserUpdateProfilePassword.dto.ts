@@ -1,8 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsStrongPassword } from 'class-validator';
 import { userMessages } from '../user.messages';
 
 export class UserUpdateProfilePasswordDTO {
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Contraseña actual del usuario',
+	})
 	@IsStrongPassword(
 		{
 			minLength: 8,
@@ -19,6 +24,10 @@ export class UserUpdateProfilePasswordDTO {
 	@Transform(({ value }) => value.trim())
 	readonly olPassword: string;
 
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Nueva contraseña del usuario',
+	})
 	@IsStrongPassword(
 		{
 			minLength: 8,

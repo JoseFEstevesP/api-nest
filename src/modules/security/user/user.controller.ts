@@ -15,7 +15,7 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReqUidDTO } from '../../../dto/ReqUid.dto';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
 import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
@@ -23,13 +23,14 @@ import { UserDeleteDTO } from './dto/userDelete.dto';
 import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserNewPasswordDTO } from './dto/userNewPassword.dto';
 import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
+import { RecoveryVerifyPasswordDTO } from './dto/userRecoveryVerifyPassword.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';
 import { UserUpdateDTO } from './dto/userUpdate.dto';
 import { UserUpdatePasswordDTO } from './dto/userUpdatePassword.dto';
 import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/userUpdateProfileEmail.dto';
 import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dto';
-import { userMessages } from './user.messages';
+import { User } from './entities/user.entity';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
 import { CreateUserUseCase } from './use-case/createUser.use-case';
@@ -44,6 +45,7 @@ import { UpdateUserUseCase } from './use-case/updateUser.use-case';
 import { UpdateUserProfileUseCase } from './use-case/updateUserProfile.use-case';
 import { UpdateUserProfileEmailUseCase } from './use-case/updateUserProfileEmail.use-case';
 import { UpdateUserProfilePasswordUseCase } from './use-case/updateUserProfilePassword.use-case';
+import { userMessages } from './user.messages';
 
 @ApiTags('User')
 @Controller('user')
@@ -66,6 +68,8 @@ export class UserController {
 		private readonly activateAccountUseCase: ActivateAccountUseCase,
 	) {}
 
+	@ApiResponse({ status: 201, description: 'Usuario creado', type: User })
+	@ApiResponse({ status: 400, description: 'Bad request' })
 	@Post()
 	create(@Body() data: UserDefaultRegisterDTO) {
 		this.logger.log(
@@ -77,6 +81,10 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userAdd)
+	@ApiResponse({ status: 201, description: 'Usuario creado', type: User })
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@Post('/protect')
 	async createProtect(@Body() data: UserRegisterDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -88,6 +96,13 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userRead)
+	@ApiResponse({
+		status: 200,
+		description: 'Usuarios encontrados',
+		type: [User],
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@Get()
 	async findAll(@Query() filter: UserGetAllDTO, @Req() req: ReqUidDTO) {
 		const { uid, dataLog } = req.user;
@@ -103,6 +118,11 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userUpdate)
+	@ApiResponse({ status: 200, description: 'Usuario actualizado', type: User })
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Patch()
 	async update(@Body() data: UserUpdateDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -114,6 +134,10 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userProfile)
+	@ApiResponse({ status: 200, description: 'Perfil de usuario', type: User })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Get('/profile')
 	async profile(@Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
@@ -125,6 +149,15 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userProfile)
+	@ApiResponse({
+		status: 200,
+		description: 'Perfil de usuario actualizado',
+		type: User,
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Patch('/profile/data')
 	async updateProfile(
 		@Body() data: UserUpdateProfileDataDTO,
@@ -139,6 +172,15 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userProfile)
+	@ApiResponse({
+		status: 200,
+		description: 'Correo de perfil de usuario actualizado',
+		type: User,
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Patch('/profile/email')
 	async updateProfileEmail(
 		@Body() data: UserUpdateProfileEmailDTO,
@@ -157,6 +199,14 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userProfile)
+	@ApiResponse({
+		status: 200,
+		description: 'Contraseña de perfil de usuario actualizada',
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Patch('/profile/password')
 	async updateProfilePassword(
 		@Body() data: UserUpdateProfilePasswordDTO,
@@ -175,6 +225,10 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userProfile)
+	@ApiResponse({ status: 200, description: 'Usuario dado de baja' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Delete('/profile/unregister')
 	async unregister(@Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
@@ -186,6 +240,10 @@ export class UserController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ValidPermission(Permission.userDelete)
+	@ApiResponse({ status: 200, description: 'Usuario eliminado' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Delete('/delete/:uid')
 	async remove(@Param() data: UserDeleteDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -197,6 +255,8 @@ export class UserController {
 		});
 	}
 
+	@ApiResponse({ status: 200, description: 'Correo de recuperación enviado' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Post('/recoveryPassword')
 	async recovery(@Body() data: UserRecoveryPasswordDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -205,9 +265,14 @@ export class UserController {
 		return this.recoveryPasswordUseCase.execute({ email: data.email, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Código de recuperación verificado',
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
 	@Post('/recoveryPassCode')
 	async recoveryVerifyPassword(
-		@Body() data: { code: string; email: string },
+		@Body() data: RecoveryVerifyPasswordDTO,
 		@Req() req: ReqUidDTO,
 	) {
 		const { dataLog } = req.user;
@@ -222,6 +287,9 @@ export class UserController {
 
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
+	@ApiResponse({ status: 200, description: 'Contraseña actualizada' })
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Post('/newPassword')
 	async newPassword(@Body() data: UserNewPasswordDTO, @Req() req: ReqUidDTO) {
 		const { dataLog, uid } = req.user;
@@ -237,6 +305,11 @@ export class UserController {
 
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
+	@ApiResponse({ status: 200, description: 'Contraseña actualizada' })
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Patch('/updatePassword')
 	async newPasswordUpdate(
 		@Body() data: UserUpdatePasswordDTO,
@@ -253,6 +326,8 @@ export class UserController {
 		});
 	}
 
+	@ApiResponse({ status: 200, description: 'Cuenta activada' })
+	@ApiResponse({ status: 400, description: 'Bad request' })
 	@Post('/activated')
 	async activatedAccount(
 		@Body() code: UserActivateCountDTO,

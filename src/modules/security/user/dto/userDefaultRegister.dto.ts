@@ -1,5 +1,5 @@
 import { regexPhone } from '@/constants/dataConstants';
-import { ApiExtraModels } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
 	IsDefined,
@@ -27,9 +27,7 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 			validator: {
 				validate(value: unknown, args: ValidationArguments) {
 					const [relatedPropertyName] = args.constraints;
-					const relatedValue = (args.object as Record<string, unknown>)[
-						relatedPropertyName
-					];
+					const relatedValue = (args.object as Record<string, unknown>)[relatedPropertyName];
 					return value === relatedValue;
 				},
 				defaultMessage(args: ValidationArguments) {
@@ -41,13 +39,20 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 	};
 }
 
-@ApiExtraModels()
 export class UserDefaultRegisterDTO {
+	@ApiProperty({
+		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
+		description: 'Identificador único del usuario',
+	})
 	@IsUUID('all', { message: userMessages.dto.uid.valid })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
 	readonly uid: string;
 
+	@ApiProperty({
+		example: 'John',
+		description: 'Nombres del usuario',
+	})
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Length(3, 255, { message: userMessages.dto.lengthValue })
@@ -55,6 +60,10 @@ export class UserDefaultRegisterDTO {
 	@Transform(({ value }) => value.trim())
 	readonly names: string;
 
+	@ApiProperty({
+		example: 'Doe',
+		description: 'Apellidos del usuario',
+	})
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Length(3, 255, { message: userMessages.dto.lengthValue })
@@ -62,12 +71,20 @@ export class UserDefaultRegisterDTO {
 	@Transform(({ value }) => value.trim())
 	readonly surnames: string;
 
+	@ApiProperty({
+		example: 'jhon.doe@example.com',
+		description: 'Correo electrónico del usuario',
+	})
 	@IsEmail({}, { message: userMessages.validation.dto.email })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
 	readonly email: string;
 
+	@ApiProperty({
+		example: '1234567890',
+		description: 'Teléfono del usuario',
+	})
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
@@ -77,6 +94,10 @@ export class UserDefaultRegisterDTO {
 	})
 	readonly phone: string;
 
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Contraseña del usuario',
+	})
 	@IsStrongPassword(
 		{
 			minLength: 8,
@@ -92,6 +113,10 @@ export class UserDefaultRegisterDTO {
 	@IsDefined({ message: userMessages.dto.defined })
 	readonly password: string;
 
+	@ApiProperty({
+		example: 'P@ssw0rd123',
+		description: 'Confirmación de la contraseña del usuario',
+	})
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })

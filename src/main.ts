@@ -1,4 +1,8 @@
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import {
+	BadRequestException,
+	INestApplication,
+	ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -10,6 +14,65 @@ import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 import { objectError } from './functions/objectError';
 import { globalMsg } from './globalMsg';
 import { LoggerService } from './services/logger.service';
+
+function setupSwagger(app: INestApplication) {
+	const config = new DocumentBuilder()
+		.setTitle(globalMsg.swagger.title)
+		.setDescription(globalMsg.swagger.description)
+		.setVersion(globalMsg.swagger.version)
+		.addServer('http://localhost:3000/api', 'Servidor Local')
+		.addServer('https://tu-dominio.com/api', 'Servidor de Producción')
+		.addCookieAuth('refreshToken', {
+			type: 'apiKey',
+			in: 'cookie',
+			name: 'refreshToken',
+		})
+		.addBearerAuth()
+		.addTag(
+			globalMsg.swagger.tags.user.name,
+			globalMsg.swagger.tags.user.description,
+		)
+		.addTag(
+			globalMsg.swagger.tags.rol.name,
+			globalMsg.swagger.tags.rol.description,
+		)
+		.addTag(
+			globalMsg.swagger.tags.audit.name,
+			globalMsg.swagger.tags.audit.description,
+		)
+		.addTag(
+			globalMsg.swagger.tags.auth.name,
+			globalMsg.swagger.tags.auth.description,
+		)
+		.build();
+
+	const document = SwaggerModule.createDocument(app, config);
+
+	// Generación de documentación si se especifica el flag
+	if (process.argv.includes('--generate-docs')) {
+		const fs = require('fs');
+		const path = require('path');
+
+		const docsDir = path.join(process.cwd(), 'docs', 'swagger');
+		if (!fs.existsSync(docsDir)) {
+			fs.mkdirSync(docsDir, { recursive: true });
+		}
+
+		fs.writeFileSync(
+			path.join(docsDir, 'swagger-spec.json'),
+			JSON.stringify(document, null, 2),
+			'utf8',
+		);
+
+		process.exit(0);
+	}
+
+	SwaggerModule.setup('doc', app, document, {
+		swaggerOptions: {
+			persistAuthorization: true,
+		},
+	});
+}
 
 async function bootstrap() {
 	const logger = new LoggerService();
@@ -53,52 +116,7 @@ async function bootstrap() {
 
 	app.use(cookieParser());
 
-	// Configuración de Swagger
-	const config = new DocumentBuilder()
-		.setTitle(globalMsg.swagger.title)
-		.setDescription(globalMsg.swagger.description)
-		.setVersion(globalMsg.swagger.version)
-		.addBearerAuth()
-		.addTag(
-			globalMsg.swagger.tags.user.name,
-			globalMsg.swagger.tags.user.description,
-		)
-		.addTag(
-			globalMsg.swagger.tags.rol.name,
-			globalMsg.swagger.tags.rol.description,
-		)
-		.addTag(
-			globalMsg.swagger.tags.audit.name,
-			globalMsg.swagger.tags.audit.description,
-		)
-		.addTag(
-			globalMsg.swagger.tags.auth.name,
-			globalMsg.swagger.tags.auth.description,
-		)
-		.build();
-
-	const document = SwaggerModule.createDocument(app, config);
-
-	// Generación de documentación si se especifica el flag
-	if (process.argv.includes('--generate-docs')) {
-		const fs = require('fs');
-		const path = require('path');
-
-		const docsDir = path.join(process.cwd(), 'docs', 'swagger');
-		if (!fs.existsSync(docsDir)) {
-			fs.mkdirSync(docsDir, { recursive: true });
-		}
-
-		fs.writeFileSync(
-			path.join(docsDir, 'swagger-spec.json'),
-			JSON.stringify(document, null, 2),
-			'utf8',
-		);
-
-		process.exit(0);
-	}
-
-	SwaggerModule.setup('doc', app, document);
+	setupSwagger(app);
 
 	const port = configService.get<number>('PORT');
 	await app.listen(port, '0.0.0.0');
