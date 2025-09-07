@@ -1,0 +1,25 @@
+dist
+node_modules
+.git
+.gitignore
+.env
+.env.example
+
+# Docker files
+docker-compose.yml
+docker-compose.dev.yml
+dockerfile
+dockerfile.dev
+
+# Log files
+logs
+npm-debug.log
+
+# Editor and OS files
+.vscode
+.idea
+.DS_Store
+
+# Markdown files
+README.md
+MANEJO_DE_ERRORES.md

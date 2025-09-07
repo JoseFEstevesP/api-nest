@@ -1,0 +1,118 @@
+{
+	"name": "api-nest",
+	"version": "0.0.1",
+	"description": "",
+	"author": "",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=24.6.0",
+		"pnpm": ">=10.14.0"
+	},
+	"packageManager": "pnpm@10.15.1",
+	"scripts": {
+		"build": "swc src -d dist --config-file=.swcrc --no-swcrc",
+		"dev": "nest start --watch",
+		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+		"lint": "oxlint src/ --quiet",
+		"lint:fix": "oxlint src/ --fix --quiet",
+		"lint:check": "oxlint src/",
+		"lintStaged": "lint-staged",
+		"migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+		"migrate:undo": "sequelize-cli db:migrate:undo",
+		"migrate": "sequelize-cli db:migrate",
+		"migrate:create": "node scripts/generateESMMigration.js",
+		"module:generate": "node scripts/moduleGenerator.js",
+		"prepare": "husky",
+		"start:debug": "node --inspect -r @swc/register -r tsconfig-paths/register src/main.ts",
+		"start:prod": "node dis/src/main",
+		"start": "nest start"
+	},
+	"dependencies": {
+		"@formkit/tempo": "0.1.2",
+		"@keyv/redis": "5.1.1",
+		"@nestjs/cache-manager": "3.0.1",
+		"@nestjs/common": "11.1.6",
+		"@nestjs/config": "4.0.2",
+		"@nestjs/core": "11.1.6",
+		"@nestjs/jwt": "11.0.0",
+		"@nestjs/mapped-types": "2.1.0",
+		"@nestjs/passport": "11.0.5",
+		"@nestjs/platform-express": "11.1.6",
+		"@nestjs/schedule": "6.0.0",
+		"@nestjs/serve-static": "5.0.3",
+		"@nestjs/swagger": "11.2.0",
+		"@nestjs/terminus": "^11.0.0",
+		"@nestjs/throttler": "6.4.0",
+		"bcrypt": "6.0.0",
+		"cache-manager": "^7.2.0",
+		"class-transformer": "0.5.1",
+		"class-validator": "0.14.2",
+		"cookie-parser": "1.4.7",
+		"dotenv": "17.2.2",
+		"express": "5.1.0",
+		"helmet": "8.1.0",
+		"keyv": "5.5.0",
+		"multer": "2.0.2",
+		"nodemailer": "7.0.6",
+		"passport-jwt": "4.0.1",
+		"pg": "8.16.3",
+		"pg-hstore": "2.3.4",
+		"reflect-metadata": "0.2.2",
+		"rxjs": "7.8.2",
+		"sequelize": "6.37.7",
+		"sequelize-typescript": "2.1.6",
+		"winston": "3.17.0",
+		"winston-daily-rotate-file": "5.0.0"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "19.8.1",
+		"@commitlint/config-conventional": "19.8.1",
+		"@nestjs/cli": "11.0.10",
+		"@nestjs/schematics": "11.0.7",
+		"@nestjs/sequelize": "11.0.0",
+		"@nestjs/testing": "11.1.6",
+		"@swc/cli": "0.7.8",
+		"@swc/core": "1.13.5",
+		"@types/bcrypt": "6.0.0",
+		"@types/cookie-parser": "1.4.9",
+		"@types/express": "5.0.3",
+		"@types/multer": "2.0.0",
+		"@types/node": "24.3.1",
+		"@types/nodemailer": "7.0.1",
+		"@types/passport-jwt": "4.0.1",
+		"@types/supertest": "6.0.3",
+		"husky": "9.1.7",
+		"lint-staged": "16.1.6",
+		"oxlint": "1.14.0",
+		"prettier": "3.6.2",
+		"sequelize-cli": "6.6.3",
+		"tsconfig-paths": "4.2.0",
+		"typescript": "5.9.2"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"**/*.{ts,js}": [
+			"pnpm format",
+			"pnpm lint:check"
+		]
+	},
+	"pnpm": {
+		"overrides": {
+			"@nestjs/core": "11.1.6"
+		},
+		"onlyBuiltDependencies": [
+			"@nestjs/core",
+			"@scarf/scarf",
+			"@swc/core",
+			"bcrypt",
+			"esbuild",
+			"sharp",
+			"unrs-resolver"
+		]
+	}
+}
