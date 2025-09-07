@@ -1,3 +1,4 @@
+import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
@@ -16,7 +17,6 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ReqUidDTO } from '../../../dto/ReqUid.dto';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
 import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
 import { UserDeleteDTO } from './dto/userDelete.dto';
