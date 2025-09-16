@@ -9,6 +9,7 @@ import { compare, hash } from 'bcrypt';
 import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
 import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
+import { EnvironmentVariables } from '@/config/env.config';
 
 @Injectable()
 export class UpdateUserProfilePasswordUseCase {
@@ -16,7 +17,7 @@ export class UpdateUserProfilePasswordUseCase {
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
-		private readonly configService: ConfigService,
+		private readonly configService: ConfigService<EnvironmentVariables>,
 	) {}
 
 	async execute({
@@ -48,7 +49,7 @@ export class UpdateUserProfilePasswordUseCase {
 
 		const hashPass = await hash(
 			newPassword,
-			this.configService.get<number>('SALT_ROUNDS'),
+			this.configService.get('SALT_ROUNDS'),
 		);
 		await this.userRepository.update(uid, { password: hashPass });
 		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog); // This is an external dependency, needs to be injected

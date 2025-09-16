@@ -43,15 +43,6 @@ export function Match(property: string, validationOptions?: ValidationOptions) {
 
 export class UserRegisterDTO {
 	@ApiProperty({
-		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
-		description: 'Identificador único del usuario',
-	})
-	@IsUUID('all', { message: userMessages.dto.uid.valid })
-	@IsNotEmpty({ message: userMessages.dto.empty })
-	@IsDefined({ message: userMessages.dto.defined })
-	readonly uid: string;
-
-	@ApiProperty({
 		example: 'John',
 		description: 'Nombres del usuario',
 	})

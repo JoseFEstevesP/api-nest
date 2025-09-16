@@ -8,14 +8,18 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Headers,
 	Logger,
 	Param,
 	Patch,
 	Post,
 	Query,
 	Req,
+	UnauthorizedException,
 	UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
 import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
@@ -26,7 +30,6 @@ import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
 import { RecoveryVerifyPasswordDTO } from './dto/userRecoveryVerifyPassword.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';
 import { UserUpdateDTO } from './dto/userUpdate.dto';
-import { UserUpdatePasswordDTO } from './dto/userUpdatePassword.dto';
 import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
 import { UserUpdateProfileEmailDTO } from './dto/userUpdateProfileEmail.dto';
 import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dto';
@@ -66,6 +69,8 @@ export class UserController {
 		private readonly recoveryVerifyPasswordUseCase: RecoveryVerifyPasswordUseCase,
 		private readonly setNewPasswordUseCase: SetNewPasswordUseCase,
 		private readonly activateAccountUseCase: ActivateAccountUseCase,
+		private readonly jwtService: JwtService,
+		private readonly configService: ConfigService,
 	) {}
 
 	@ApiResponse({ status: 201, description: 'Usuario creado', type: User })
@@ -258,11 +263,12 @@ export class UserController {
 	@ApiResponse({ status: 200, description: 'Correo de recuperación enviado' })
 	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Post('/recoveryPassword')
-	async recovery(@Body() data: UserRecoveryPasswordDTO, @Req() req: ReqUidDTO) {
-		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${userMessages.log.recoveryPassword}`);
+	async recovery(@Body() data: UserRecoveryPasswordDTO) {
+		this.logger.log(
+			`system - ${data.email} - ${userMessages.log.recoveryPassword}`,
+		);
 
-		return this.recoveryPasswordUseCase.execute({ email: data.email, dataLog });
+		return this.recoveryPasswordUseCase.execute({ email: data.email });
 	}
 
 	@ApiResponse({
@@ -271,71 +277,65 @@ export class UserController {
 	})
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@Post('/recoveryPassCode')
-	async recoveryVerifyPassword(
-		@Body() data: RecoveryVerifyPasswordDTO,
-		@Req() req: ReqUidDTO,
-	) {
-		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${userMessages.log.recoveryVerifyPassword}`);
+	async recoveryVerifyPassword(@Body() data: RecoveryVerifyPasswordDTO) {
+		this.logger.log(
+			`system - ${data.email} - ${userMessages.log.recoveryVerifyPassword}`,
+		);
 
 		return this.recoveryVerifyPasswordUseCase.execute({
 			code: data.code,
 			email: data.email,
-			dataLog,
 		});
 	}
 
 	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
 	@ApiResponse({ status: 200, description: 'Contraseña actualizada' })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Post('/newPassword')
-	async newPassword(@Body() data: UserNewPasswordDTO, @Req() req: ReqUidDTO) {
-		const { dataLog, uid } = req.user;
-		this.logger.log(`${dataLog} - ${userMessages.log.newPassword}`);
-
-		return this.setNewPasswordUseCase.execute({
-			newPassword: data.newPassword,
-			confirmPassword: data.confirmPassword,
-			uidUser: uid,
-			dataLog,
-		});
-	}
-
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ApiResponse({ status: 200, description: 'Contraseña actualizada' })
-	@ApiResponse({ status: 400, description: 'Bad request' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-	@Patch('/updatePassword')
-	async newPasswordUpdate(
-		@Body() data: UserUpdatePasswordDTO,
-		@Req() req: ReqUidDTO,
+	async newPassword(
+		@Body() data: UserNewPasswordDTO,
+		@Headers('Authorization') authHeader: string,
 	) {
-		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${userMessages.log.updatePassword}`);
+		if (!authHeader) {
+			throw new UnauthorizedException('Token no proporcionado');
+		}
 
-		return this.setNewPasswordUseCase.execute({
-			newPassword: data.newPassword,
-			confirmPassword: data.confirmPassword,
-			uidUser: data.uidUser,
-			dataLog,
-		});
+		const token = authHeader.split(' ')[1];
+		if (!token) {
+			throw new UnauthorizedException('Token en formato inválido');
+		}
+
+		try {
+			const payload = await this.jwtService.verifyAsync(token, {
+				secret: this.configService.get('JWT_SECRET'),
+			});
+
+			const { uid, dataLog } = payload;
+			this.logger.log(`${dataLog} - ${userMessages.log.newPassword}`);
+
+			return this.setNewPasswordUseCase.execute({
+				newPassword: data.newPassword,
+				confirmPassword: data.confirmPassword,
+				uidUser: uid,
+				dataLog,
+			});
+		} catch (error) {
+			throw new UnauthorizedException(
+				'Token inválido o expirado',
+				error.message,
+			);
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'Cuenta activada' })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@Post('/activated')
-	async activatedAccount(
-		@Body() code: UserActivateCountDTO,
-		@Req() req: ReqUidDTO,
-	) {
-		const { dataLog } = req.user;
-		this.logger.log(`${dataLog} - ${userMessages.log.activatedAccount}`);
+	async activatedAccount(@Body() body: UserActivateCountDTO) {
+		this.logger.log(
+			`system - ${userMessages.log.activatedAccount} - ${body.code}`,
+		);
 
-		return this.activateAccountUseCase.execute(code);
+		return this.activateAccountUseCase.execute(body);
 	}
 }

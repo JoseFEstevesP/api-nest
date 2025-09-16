@@ -8,13 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { EnvironmentVariables } from '@/config/env.config';
 
 @Injectable()
 export class SetNewPasswordUseCase {
 	private readonly logger = new Logger(SetNewPasswordUseCase.name);
 	constructor(
 		private readonly userRepository: UserRepository,
-		private readonly configService: ConfigService,
+		private readonly configService: ConfigService<EnvironmentVariables>,
 	) {}
 
 	async execute({
@@ -46,7 +47,7 @@ export class SetNewPasswordUseCase {
 
 		const hashPass = await hash(
 			newPassword,
-			this.configService.get<number>('SALT_ROUNDS'),
+			this.configService.get('SALT_ROUNDS'),
 		);
 
 		await this.userRepository.update(uidUser, {

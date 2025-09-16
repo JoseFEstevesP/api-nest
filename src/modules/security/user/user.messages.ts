@@ -82,6 +82,7 @@ export const userMessages = {
 		default: 'Este usuario ya está registrado.',
 		activatedAccount: 'La cuenta de usuario no está activada.',
 		dto: {
+			token: 'El campo token no es válido.',
 			email: 'El campo email no es válido.',
 			phone: `El número de teléfono ingresado no es válido.
 Asegúrate de que el número tenga el formato correcto:

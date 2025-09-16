@@ -16,26 +16,18 @@ export class RecoveryPasswordUseCase {
 		private readonly emailService: EmailService,
 	) {}
 
-	async execute({
-		email,
-		dataLog,
-	}: {
-		email: string;
-		dataLog: string;
-	}): Promise<{ msg: string }> {
+	async execute({ email }: { email: string }): Promise<{ msg: string }> {
 		const user = await this.userRepository.findOne({
 			where: { email, status: true },
 		});
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			this.logger.error(`system - ${userMessages.log.userError}`);
 			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
 		if (!user.activatedAccount) {
-			this.logger.error(
-				`${dataLog} - ${userMessages.log.userErrorActiveAccount}`,
-			);
+			this.logger.error(`system - ${userMessages.log.userErrorActiveAccount}`);
 			throw new BadRequestException(userMessages.msg.findOne);
 		}
 
@@ -49,7 +41,7 @@ export class RecoveryPasswordUseCase {
 			email,
 		});
 
-		this.logger.log(`${dataLog} - ${userMessages.log.recoveryPasswordSuccess}`);
+		this.logger.log(`system - ${userMessages.log.recoveryPasswordSuccess}`);
 
 		return { msg: userMessages.msg.recoveryPassword };
 	}

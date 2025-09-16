@@ -10,7 +10,7 @@ export class UserActivateCountDTO {
 	})
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
-	@Length(13, 16, { message: userMessages.validation.dto.code.length })
+	@Length(1, 7, { message: userMessages.validation.dto.code.length })
 	@Matches(/^\d+$/, {
 		message: userMessages.validation.dto.code.invalidCharacters,
 	})

@@ -1,9 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Includeable } from 'sequelize';
+import { FindAttributeOptions, Includeable } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class GetUserProfileUseCase {
@@ -19,7 +19,12 @@ export class GetUserProfileUseCase {
 		status?: boolean;
 		dataLog: string;
 	}): Promise<User> {
-		const attributes = ['names', 'surnames', 'sex', 'phone', 'email'];
+		const attributes: FindAttributeOptions = [
+			'names',
+			'surnames',
+			'phone',
+			'email',
+		];
 
 		const includeOptions: Includeable[] = [
 			{

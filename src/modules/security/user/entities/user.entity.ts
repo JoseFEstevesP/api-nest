@@ -15,7 +15,12 @@ export class User extends Model<User> {
 		example: crypto.randomUUID(),
 		description: 'Identificador único del usuario',
 	})
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
+	@Column({
+		primaryKey: true,
+		unique: true,
+		type: DataType.UUID,
+		defaultValue: DataType.UUIDV4,
+	})
 	declare uid: string;
 
 	@ApiProperty({ example: 'John', description: 'Nombre completo del usuario' })
@@ -44,8 +49,15 @@ export class User extends Model<User> {
 		example: 'P@ssw0rd123',
 		description: 'Contraseña del usuario',
 	})
-	@Column({ allowNull: false, type: DataType.STRING })
+	@Column({ allowNull: true, type: DataType.STRING })
 	declare password: string;
+
+	@ApiProperty({
+		example: 'local',
+		description: 'Proveedor de autenticación',
+	})
+	@Column({ defaultValue: 'local', allowNull: false, type: DataType.STRING })
+	declare provider: string;
 
 	@ApiProperty({
 		example: true,
