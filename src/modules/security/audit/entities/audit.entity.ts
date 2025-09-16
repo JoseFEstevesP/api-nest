@@ -15,7 +15,12 @@ export class Audit extends Model<Audit> {
 		example: crypto.randomUUID(),
 		description: 'Identificador único de la auditoria',
 	})
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
+	@Column({
+		primaryKey: true,
+		unique: true,
+		type: DataType.UUID,
+		defaultValue: DataType.UUIDV4,
+	})
 	declare uid: string;
 
 	@ApiProperty({
