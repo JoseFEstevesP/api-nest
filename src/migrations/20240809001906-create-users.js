@@ -7,6 +7,7 @@ export default {
 				primaryKey: true,
 				unique: true,
 				allowNull: false,
+				defaultValue: Sequelize.UUIDV4,
 			},
 			names: {
 				type: Sequelize.STRING,
@@ -26,6 +27,11 @@ export default {
 			},
 			password: {
 				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			provider: {
+				type: Sequelize.STRING,
+				defaultValue: 'local',
 				allowNull: false,
 			},
 			status: {

@@ -7,6 +7,7 @@ export default {
 				primaryKey: true,
 				unique: true,
 				allowNull: false,
+				defaultValue: Sequelize.UUIDV4,
 			},
 			name: {
 				type: Sequelize.STRING,
