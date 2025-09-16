@@ -260,7 +260,7 @@ export class ${capitalizedName}UpdateDTO extends ${capitalizedName}RegisterDTO {
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 @Table({ tableName: '${capitalizedName}s' })
 export class ${capitalizedName} extends Model<${capitalizedName}> {
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
+	@Column({ primaryKey: true, unique: true, type: DataType.UUID, defaultValue: DataType.UUIDV4 })
 	declare uid: string;
 
 @Column({ defaultValue: true, allowNull: false, type: DataType.BOOLEAN })
