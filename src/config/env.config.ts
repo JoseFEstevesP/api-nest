@@ -81,6 +81,18 @@ export class EnvironmentVariables {
 
 	@IsNumber()
 	SALT_ROUNDS: number;
+
+	@IsString()
+	GOOGLE_CLIENT_ID: string;
+
+	@IsString()
+	GOOGLE_SECRET: string;
+
+	@IsString()
+	GOOGLE_CALLBACK_URL: string;
+
+	@IsString()
+	FRONT_END_URL: string;
 }
 
 export const validateEnv = (config: Record<string, unknown>) => {
