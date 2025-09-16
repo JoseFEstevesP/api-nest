@@ -1,3 +1,4 @@
+import { EnvironmentVariables } from '@/config/env.config';
 import {
 	Injectable,
 	InternalServerErrorException,
@@ -11,14 +12,16 @@ export class EmailService {
 	private readonly transporter: nodemailer.Transporter;
 	private readonly logger = new Logger(EmailService.name);
 
-	constructor(private readonly configService: ConfigService) {
+	constructor(
+		private readonly configService: ConfigService<EnvironmentVariables>,
+	) {
 		this.transporter = nodemailer.createTransport({
-			host: this.configService.get<string>('EMAIL_HOST'),
+			host: this.configService.get('EMAIL_HOST'),
 			port: 465,
 			secure: true,
 			auth: {
-				user: this.configService.get<string>('EMAIL_USER'),
-				pass: this.configService.get<string>('EMAIL_PASS'),
+				user: this.configService.get('EMAIL_USER'),
+				pass: this.configService.get('EMAIL_PASS'),
 			},
 		});
 	}
@@ -40,7 +43,7 @@ export class EmailService {
                   padding: 20px;
               }
               .header {
-                  background-color: #4CAF50;
+                  background-color: #5b1f00;
                   color: white;
                   padding: 20px;
                   text-align: center;
@@ -56,7 +59,7 @@ export class EmailService {
               .code {
                   display: inline-block;
                   padding: 10px 20px;
-                  background-color: #4CAF50;
+                  background-color: #5b1f00;
                   color: white;
                   font-size: 24px;
                   font-weight: bold;
@@ -80,7 +83,7 @@ export class EmailService {
               <p>Hola,</p>
               <p>Para ${action}, por favor utiliza el siguiente código de verificación:</p>
               <div class="code">${code}</div>
-              <p>Este código expirará en 15 minutos. Si no solicitaste esto, por favor ignora este correo.</p>
+              <p>Si no solicitaste esto, por favor ignora este correo.</p>
               <p>Gracias,<br>El equipo de soporte</p>
           </div>
           <div class="footer">
@@ -99,7 +102,7 @@ export class EmailService {
 	) {
 		try {
 			await this.transporter.sendMail({
-				from: this.configService.get<string>('EMAIL_USER'),
+				from: this.configService.get('EMAIL_USER'),
 				to,
 				subject,
 				html,
