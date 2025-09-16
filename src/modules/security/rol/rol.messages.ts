@@ -9,6 +9,7 @@ export const rolMessages = {
 	credential: 'Credenciales no válidos.',
 	rolError: 'Rol no encontrado.',
 	relationError: 'El rol esta relacionado con otros datos',
+	typeRol: 'Tipo de rol no válido',
 
 	// Validation messages
 	validation: {
@@ -40,6 +41,7 @@ export const rolMessages = {
 		createSuccess: 'Rol creado exitosamente',
 		errorValidator: 'Falló la validación',
 		rolError: 'Rol no encontrado',
+		typeRol: 'Tipo de rol no válido',
 		findOne: 'Encontrar rol con UID',
 		findOneSuccess: 'Rol encontrado exitosamente',
 		findAll: 'Encontrar o buscar rol',

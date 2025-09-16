@@ -8,7 +8,6 @@ import {
 	Includeable,
 	WhereOptions,
 } from 'sequelize';
-import { RolRegisterDTO } from '../dto/rolRegister.dto';
 import { Role } from '../entities/rol.entity';
 
 @Injectable()
@@ -20,7 +19,7 @@ export class RolRepository {
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
-	async create(data: RolRegisterDTO): Promise<Role> {
+	async create(data: Role): Promise<Role> {
 		try {
 			return await this.rolModel.create(data);
 		} catch (error) {

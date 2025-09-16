@@ -13,6 +13,9 @@ export class FindOneRolUseCase {
 	async execute(where: WhereOptions<Role>, dataLog?: string) {
 		const rol = await this.rolRepository.findOne({
 			where: { ...where, status: true },
+			attributes: {
+				exclude: ['createdAt', 'updatedAt', 'status'],
+			},
 		});
 
 		if (!rol) {

@@ -21,16 +21,16 @@ import { RolGetDTO } from './dto/rolGet.dto';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
+import { Role } from './entities/rol.entity';
 import { Permission } from './enum/permissions';
 import { rolMessages } from './rol.messages';
 import { CreateRolUseCase } from './use-case/createRol.use-case';
-import { FindAllRolsPaginationUseCase } from './use-case/findAllRolsPagination.use-case';
 import { FindAllRolsUseCase } from './use-case/findAllRols.use-case';
+import { FindAllRolsPaginationUseCase } from './use-case/findAllRolsPagination.use-case';
 import { FindOneRolUseCase } from './use-case/findOneRol.use-case';
 import { FindRolPermissionsUseCase } from './use-case/findRolPermissions.use-case';
 import { RemoveRolUseCase } from './use-case/removeRol.use-case';
 import { UpdateRolUseCase } from './use-case/updateRol.use-case';
-import { Role } from './entities/rol.entity';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -144,10 +144,10 @@ export class RolController {
 	@ValidPermission(Permission.rolUpdate)
 	@Patch()
 	async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
-		const { dataLog } = req.user;
+		const { dataLog, uidRol } = req.user;
 		this.logger.log(`${dataLog} - ${rolMessages.log.controller.update}`);
 
-		return this.updateRolUseCase.execute({ uid: data.uid, data, dataLog });
+		return this.updateRolUseCase.execute({ data, dataLog });
 	}
 
 	@ApiResponse({

@@ -6,7 +6,6 @@ import {
 	IsEnum,
 	IsNotEmpty,
 	IsString,
-	IsUUID,
 	Length,
 } from 'class-validator';
 import { Permission } from '../enum/permissions';
@@ -14,15 +13,6 @@ import { TypeRol } from '../enum/rolData';
 import { rolMessages } from '../rol.messages';
 
 export class RolRegisterDTO {
-	@ApiProperty({
-		example: crypto.randomUUID(),
-		description: 'Identificador único del rol',
-	})
-	@IsUUID('all', { message: rolMessages.validation.dto.uid.valid })
-	@IsNotEmpty({ message: rolMessages.validation.dto.empty })
-	@IsDefined({ message: rolMessages.validation.dto.defined })
-	readonly uid: string;
-
 	@ApiProperty({
 		example: 'rol1',
 		description: 'Nombre del rol',

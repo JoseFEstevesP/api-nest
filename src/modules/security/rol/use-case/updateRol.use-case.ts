@@ -9,22 +9,14 @@ export class UpdateRolUseCase {
 
 	constructor(private readonly rolRepository: RolRepository) {}
 
-	async execute({
-		uid,
-		data,
-		dataLog,
-	}: {
-		uid: string;
-		data: RolUpdateDTO;
-		dataLog: string;
-	}) {
-		const rol = await this.rolRepository.findOne({ where: { uid } });
+	async execute({ data, dataLog }: { data: RolUpdateDTO; dataLog: string }) {
+		const rol = await this.rolRepository.findOne({ where: { uid: data.uid } });
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
 			throw new NotFoundException(rolMessages.findOne);
 		}
 
-		await rol.update({
+		await this.rolRepository.update(rol.uid, {
 			...data,
 			...(data.status !== undefined && { status: !data.status }),
 		});

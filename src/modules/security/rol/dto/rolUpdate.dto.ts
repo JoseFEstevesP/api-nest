@@ -1,9 +1,25 @@
-import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { RolRegisterDTO } from './rolRegister.dto';
-import { rolMessages } from '../rol.messages';
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
+import {
+	IsBoolean,
+	IsDefined,
+	IsNotEmpty,
+	IsOptional,
+	IsUUID,
+} from 'class-validator';
+import { rolMessages } from '../rol.messages';
+import { RolRegisterDTO } from './rolRegister.dto';
 
-export class RolUpdateDTO extends RolRegisterDTO {
+export class RolUpdateDTO extends OmitType(RolRegisterDTO, ['typeRol']) {
+	@ApiProperty({
+		example: crypto.randomUUID(),
+		description: 'Identificador único del rol',
+	})
+	@IsUUID('all', { message: rolMessages.validation.dto.uid.valid })
+	@IsNotEmpty({ message: rolMessages.validation.dto.empty })
+	@IsDefined({ message: rolMessages.validation.dto.defined })
+	readonly uid: string;
+
 	@ApiProperty({
 		example: true,
 		description: 'Estado del rol',

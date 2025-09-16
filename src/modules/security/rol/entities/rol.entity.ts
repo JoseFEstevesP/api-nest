@@ -8,7 +8,12 @@ export class Role extends Model<Role> {
 		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
 		description: 'Identificador único del rol',
 	})
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID })
+	@Column({
+		primaryKey: true,
+		unique: true,
+		type: DataType.UUID,
+		defaultValue: DataType.UUIDV4,
+	})
 	declare uid: string;
 
 	@ApiProperty({
