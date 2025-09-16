@@ -1,5 +1,3 @@
-import { LoggingInterceptor } from './interceptors/logging.interceptor';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
 import {
 	BadRequestException,
 	INestApplication,
@@ -15,6 +13,8 @@ import { EnvironmentVariables } from './config/env.config';
 import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 import { objectError } from './functions/objectError';
 import { globalMsg } from './globalMsg';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggerService } from './services/logger.service';
 
 function setupSwagger(app: INestApplication) {
@@ -87,7 +87,10 @@ async function bootstrap() {
 	const httpAdapterHost = app.get(HttpAdapterHost);
 	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
 
-	app.useGlobalInterceptors(new LoggingInterceptor(), new TransformInterceptor());
+	app.useGlobalInterceptors(
+		new LoggingInterceptor(),
+		new TransformInterceptor(),
+	);
 
 	const expressApp = app.getHttpAdapter().getInstance();
 	expressApp.set('trust proxy', true);
@@ -95,7 +98,7 @@ async function bootstrap() {
 	const configService = app.get(ConfigService<EnvironmentVariables>);
 
 	app.enableCors({
-		origin: configService.get<string[]>('CORS'),
+		origin: configService.get('CORS'),
 		credentials: true,
 		methods: 'GET,PATCH,POST,DELETE',
 	});
@@ -125,7 +128,7 @@ async function bootstrap() {
 
 	setupSwagger(app);
 
-	const port = configService.get<number>('PORT');
+	const port = configService.get('PORT');
 	await app.listen(port, '0.0.0.0');
 }
 
