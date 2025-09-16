@@ -11,4 +11,5 @@ RUN pnpm install --frozen-lockfile
 # ---- Dev ----
 FROM dependencies AS dev
 COPY . .
+RUN rm -rf dist 
 CMD ["pnpm", "dev"]
