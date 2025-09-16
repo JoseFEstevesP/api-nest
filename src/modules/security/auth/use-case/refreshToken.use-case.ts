@@ -33,6 +33,7 @@ export class RefreshTokenUseCase {
 		loginInfo: DataInfoJWT;
 	}) {
 		const refreshToken = req.cookies?.refreshToken;
+
 		if (!refreshToken) {
 			this.logger.error(`system - ${authMessages.log.refreshToken}`);
 			throw new UnauthorizedException(authMessages.msg.refreshToken);
@@ -78,8 +79,7 @@ export class RefreshTokenUseCase {
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {
-		const isProduction =
-			this.configService.get<string>('NODE_ENV') === 'production';
+		const isProduction = this.configService.get('NODE_ENV') === 'production';
 		const sameSite = isProduction ? 'none' : 'lax';
 
 		res
@@ -119,7 +119,7 @@ export class RefreshTokenUseCase {
 
 		return this.jwtService.signAsync(dataToken, {
 			expiresIn: '7d',
-			secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+			secret: this.configService.get('JWT_REFRESH_SECRET'),
 		});
 	}
 }
