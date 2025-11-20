@@ -235,7 +235,7 @@ function createMigration(moduleName) {
 			// Contenido de la migración basado en el ejemplo
 			const migrationContent = `
 /** @type {import('sequelize-cli').Migration} */
-export default = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.createTable('${tableName}', {
 			uid: {
@@ -285,7 +285,7 @@ export default = {
 		console.log('Y luego actualiza el contenido del archivo de migración con:');
 		console.log(`
 /** @type {import('sequelize-cli').Migration} */
-export default = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.createTable('${capitalizeFirstLetter(moduleName)}s', {
 			uid: {
@@ -345,10 +345,14 @@ function generateModule() {
 
 	createDirectories(modulePath, directories);
 
-	// Crear archivos principales (3 archivos en la raíz)
+	// Crear archivos principales (4 archivos en la raíz)
 	createFile(
-		path.join(modulePath, 'msg.ts'),
-		TEMPLATES.msg(moduleName, capitalizedName),
+		path.join(modulePath, `${moduleName}.d.ts`),
+		TEMPLATES.types(moduleName),
+	);
+	createFile(
+		path.join(modulePath, `${moduleName}.messages.ts`),
+		TEMPLATES.messages(moduleName, capitalizedName),
 	);
 	createFile(
 		path.join(modulePath, `${moduleName}.controller.ts`),

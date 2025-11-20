@@ -19,7 +19,7 @@ export const TEMPLATES = {
     disability: 'Este ${moduleName} ya está registrado, pero está deshabilitado',
     default: 'Este ${moduleName} ya está registrado',
     dto: {
-      permission: 'La propiedad de permiso no es válida',
+			status: 'Este campo debe ser un booleano',
       empty: 'Este campo no puede estar vacío',
       defined: 'Este campo no está definido',
       stringValue: 'Este campo debe ser de tipo cadena de texto',
@@ -285,6 +285,7 @@ import {
 	FindAndCountOptions,
 	FindAttributeOptions,
 	WhereOptions,
+	Includeable,
 } from 'sequelize';
 import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
@@ -396,20 +397,15 @@ export class Create${capitalizedName}UseCase {
 	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
 
 	async execute({ data, dataLog }: { data: ${capitalizedName}RegisterDTO; dataLog: string }) {
-		const { uid } = data;
-		const whereClause = { [Op.or]: [{ uid }] };
+		const { } = data;
+		const whereClause = { [Op.or]: [{ }] };
 		const existingPatient = await this.${moduleName}Repository.findOne({where: whereClause});
 
-		const errors = validatePropertyData({
+	validatePropertyData({
 			property: { uid },
 			data: existingPatient,
 			msg: ${moduleName}Messages,
 		});
-
-		if (errors) {
-			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.errorValidator}\`);
-			throwHttpExceptionProperties(errors, HttpStatus.CONFLICT);
-		}
 
 		await this.${moduleName}Repository.create(data);
 
@@ -536,11 +532,8 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 }
 `,
 
-		findOne: (
-			moduleName,
-			capitalizedName,
-		) => `import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+		findOne: (moduleName, capitalizedName) => `;
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
@@ -563,7 +556,7 @@ export class FindOne${capitalizedName}UseCase {
 			this.logger.error(
 				\`\${dataLog ? dataLog : 'system'} - No se encontro el ${moduleName}\`,
 			);
-			throwHttpExceptionUnique(${moduleName}Messages.findOne);
+			throw new NotFoundException(${moduleName}Messages.findOne);
 		}
 
 		this.logger.log(\`\${dataLog ? dataLog : 'system'} - Exito al buscar el ${moduleName}\`);
@@ -573,11 +566,8 @@ export class FindOne${capitalizedName}UseCase {
 }
 `,
 
-		remove: (
-			moduleName,
-			capitalizedName,
-		) => `import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
-import { Injectable, Logger } from '@nestjs/common';
+		remove: (moduleName, capitalizedName) => `;
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
@@ -594,7 +584,7 @@ export class Remove${capitalizedName}UseCase {
 	
 		if (!${moduleName}) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
-			throwHttpExceptionUnique(${moduleName}Messages.findOne);
+			throw new NotFoundException(${moduleName}Messages.findOne);
 		}
 
 		await this.${moduleName}Repository.remove(uid);
@@ -606,10 +596,7 @@ export class Remove${capitalizedName}UseCase {
 }
 `,
 
-		update: (
-			moduleName,
-			capitalizedName,
-		) => `import { throwHttpExceptionUnique } from '@/functions/throwHttpException';
+		update: (moduleName, capitalizedName) => `;
 import { Injectable, Logger } from '@nestjs/common';
 import { ${capitalizedName}UpdateDTO } from '../dto/${moduleName}Update.dto';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
@@ -626,7 +613,7 @@ export class Update${capitalizedName}UseCase {
 		const ${moduleName} = await this.${moduleName}Repository.findOne({ where: { uid } });
 		if (!${moduleName}) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
-			throwHttpExceptionUnique(${moduleName}Messages.findOne);
+			throw new NotFoundException(${moduleName}Messages.findOne);
 		}
 
 		await ${moduleName}.update({
@@ -641,4 +628,9 @@ export class Update${capitalizedName}UseCase {
 }
 `,
 	},
+
+	// Types definition file
+	types: (moduleName) => `// Types for ${moduleName} module
+
+`,
 };
