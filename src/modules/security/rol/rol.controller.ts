@@ -144,7 +144,7 @@ export class RolController {
 	@ValidPermission(Permission.rolUpdate)
 	@Patch()
 	async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
-		const { dataLog, uidRol } = req.user;
+		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${rolMessages.log.controller.update}`);
 
 		return this.updateRolUseCase.execute({ data, dataLog });

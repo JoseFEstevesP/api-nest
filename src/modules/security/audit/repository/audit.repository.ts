@@ -98,15 +98,11 @@ export class AuditRepository {
 		}
 	}
 
-	async delete(where: WhereOptions<Audit>): Promise<number> {
+	async remove(uid: string): Promise<void> {
 		try {
-			return await this.auditModel.destroy({ where });
+			await this.auditModel.destroy({ where: { uid } });
 		} catch (error) {
-			handleDatabaseError(
-				error,
-				this.logger,
-				'la eliminación del registro de auditoría',
-			);
+			handleDatabaseError(error, this.logger, 'la eliminación del rol');
 		}
 	}
 

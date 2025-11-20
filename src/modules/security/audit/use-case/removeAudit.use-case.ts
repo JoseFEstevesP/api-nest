@@ -24,9 +24,9 @@ export class RemoveAuditUseCase {
 		}
 
 		try {
-			await this.auditRepository.delete(where);
+			await this.auditRepository.remove(audit.uid);
 			this.logger.log(`${dataLog} - ${auditMessages.log.remove}`);
-			return { msg: auditMessages.errorService.remove };
+			return { msg: auditMessages.remove };
 		} catch (err) {
 			if (err) {
 				this.logger.error(`${dataLog} - ${auditMessages.log.relationError}`);

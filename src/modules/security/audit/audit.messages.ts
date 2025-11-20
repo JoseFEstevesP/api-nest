@@ -3,7 +3,7 @@ export const auditMessages = {
 	findOne: 'No se ha encontrado ningún registro de auditoría',
 	register: 'Registro de auditoría creado exitosamente',
 	update: 'Registro de auditoría actualizado exitosamente',
-	delete: 'Registro de auditoría eliminado',
+	remove: 'Registro de auditoría eliminado',
 	relationError: 'El registro de auditoría esta relacionado con otros datos',
 
 	// Validation messages
