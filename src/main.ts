@@ -48,7 +48,11 @@ function setupSwagger(app: INestApplication) {
 		)
 		.build();
 
-	const document = SwaggerModule.createDocument(app, config);
+	const document = SwaggerModule.createDocument(app, config, {
+		ignoreGlobalPrefix: false,
+		deepScanRoutes: false,
+		extraModels: [],
+	});
 
 	// Generación de documentación si se especifica el flag
 	if (process.argv.includes('--generate-docs')) {
@@ -106,6 +110,9 @@ async function bootstrap() {
 	app.useGlobalPipes(
 		new ValidationPipe({
 			transform: true,
+			transformOptions: {
+				enableImplicitConversion: true,
+			},
 			whitelist: true,
 			forbidNonWhitelisted: true,
 			exceptionFactory: errors => {
