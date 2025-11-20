@@ -1,5 +1,6 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { dataInfoJWT } from '@/functions/dataInfoJWT';
+import { User } from '@/modules/security/user/entities/user.entity';
 import {
 	Body,
 	Controller,
@@ -22,7 +23,6 @@ import { GoogleLoginUseCase } from './use-case/google-login.use-case';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
 import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
-import { User } from '@/modules/security/user/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -48,6 +48,7 @@ export class AuthController {
 	) {
 		this.logger.log(`system - ${authMessages.log.login}`);
 		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
+		return { msg: authMessages.msg.loginSuccess }; // Return response instead of manually sending it
 	}
 
 	@ApiResponse({ status: 200, description: 'Usuario deslogueado' })
@@ -55,22 +56,30 @@ export class AuthController {
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)
 	@Post('/logout')
-	logout(@Res() res: Response, @Req() req: ReqUidDTO) {
+	async logout(
+		@Res({ passthrough: true }) res: Response,
+		@Req() req: ReqUidDTO,
+	) {
 		const { uid, dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${authMessages.log.logout}`);
-		return this.logoutUseCase.execute({ uid, res, dataLog });
+		await this.logoutUseCase.execute({ uid, res, dataLog });
+		return { msg: 'Sesión cerrada exitosamente' };
 	}
 
 	@ApiResponse({ status: 201, description: 'Token refrescado' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@HttpCode(HttpStatus.CREATED)
 	@Post('/refresh-token')
-	async refreshToken(@Req() req: Request & ReqUidDTO, @Res() res: Response) {
-		return this.refreshTokenUseCase.execute({
+	async refreshToken(
+		@Req() req: Request & ReqUidDTO,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		await this.refreshTokenUseCase.execute({
 			req,
 			res,
 			loginInfo: dataInfoJWT(req),
 		});
+		return { msg: 'Token actualizado' }; // Return response instead of manually sending it
 	}
 
 	@Get('google')
@@ -81,7 +90,9 @@ export class AuthController {
 	@Get('google/callback')
 	@UseGuards(AuthGuard('google'))
 	googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-		return this.googleLoginUseCase.execute({
+		// The GoogleLoginUseCase handles the response with res.redirect()
+		// so no return value is needed here
+		this.googleLoginUseCase.execute({
 			user: req.user as User,
 			res,
 			loginInfo: dataInfoJWT(req),

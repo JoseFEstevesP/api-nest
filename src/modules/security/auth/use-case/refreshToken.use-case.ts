@@ -48,7 +48,7 @@ export class RefreshTokenUseCase {
 		if (!auditRef) {
 			this.logger.error(authMessages.log.userError);
 			return this.logoutUseCase.execute({
-				uid: auditRef.uid,
+				refreshToken,
 				res,
 				dataLog: 'system',
 			});
@@ -75,7 +75,7 @@ export class RefreshTokenUseCase {
 		});
 
 		this.setCookies(res, newAccessToken, newRefreshToken);
-		res.json({ msg: 'Token actualizado' });
+		// Response will be handled by the controller
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

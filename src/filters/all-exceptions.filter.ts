@@ -1,7 +1,7 @@
 import {
-	ExceptionFilter,
-	Catch,
 	ArgumentsHost,
+	Catch,
+	ExceptionFilter,
 	HttpException,
 	HttpStatus,
 } from '@nestjs/common';
@@ -43,6 +43,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			exception instanceof Error ? exception.stack : JSON.stringify(exception),
 		);
 
-		httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+		if (!ctx.getResponse().headersSent) {
+			httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+		}
 	}
 }

@@ -62,20 +62,21 @@ export class LoginUseCase {
 			await this.userRepository.transaction(async (t: Transaction) => {
 				await user.update({ attemptCount: 0 }, { transaction: t });
 
+				const data = {
+					uidUser: user.uid,
+					refreshToken,
+					dataToken: loginInfoArray,
+				};
+
 				await this.createAuditUseCase.execute(
 					{
-						data: {
-							uidUser: user.uid,
-							refreshToken,
-							dataToken: loginInfoArray,
-						},
+						data,
 					},
 					t,
 				);
 			});
 
 			this.setCookies(res, accessToken, refreshToken);
-			res.json({ msg: authMessages.msg.loginSuccess });
 		} catch (error) {
 			this.logger.error(authMessages.log.sessionExisting, error);
 			throw new ConflictException(authMessages.log.sessionExisting);

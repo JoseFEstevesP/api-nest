@@ -1,6 +1,6 @@
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { authMessages } from '../auth.messages';
 
@@ -13,26 +13,27 @@ export class LogoutUseCase {
 	) {}
 
 	async execute({
-		uid,
 		res,
+		uid,
+		refreshToken,
 		dataLog,
 	}: {
-		uid: string;
+		refreshToken?: string;
+		uid?: string;
 		res: Response;
 		dataLog: string;
 	}) {
-		const user = await this.findOneUserUseCase.execute({ uid });
-
-		if (!user) {
-			this.logger.error(authMessages.log.userError);
-			throw new NotFoundException(authMessages.msg.findOne);
+		if (!refreshToken) {
+			this.logger.error(authMessages.log.refreshToken);
+			throw new UnauthorizedException(authMessages.msg.refreshToken);
 		}
 
-		await this.removeAuditUseCase.execute({ uidUser: user.uid }, dataLog);
+		await this.removeAuditUseCase.execute(
+			{ ...(uid && { uid }), ...(refreshToken && { refreshToken }) },
+			dataLog,
+		);
 
-		res
-			.clearCookie('accessToken')
-			.clearCookie('refreshToken')
-			.json({ msg: authMessages.msg.logout });
+		res.clearCookie('accessToken').clearCookie('refreshToken');
+		// Response will be handled by the controller
 	}
 }
