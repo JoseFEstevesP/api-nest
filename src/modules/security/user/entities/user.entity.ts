@@ -91,7 +91,7 @@ export class User extends Model<User> {
 		example: '2021-01-01T00:00:00.000Z',
 		description: 'Fecha de la última vez que el usuario intentó iniciar sesión',
 	})
-	@Column({ defaultValue: null, type: DataType.STRING })
+	@Column({ defaultValue: null, type: DataType.DATE })
 	declare dataOfAttempt: string;
 
 	@ApiProperty({

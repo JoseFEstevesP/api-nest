@@ -53,7 +53,7 @@ export default {
 				allowNull: false,
 			},
 			dataOfAttempt: {
-				type: Sequelize.STRING,
+				type: Sequelize.DATE,
 				defaultValue: null,
 			},
 			uidRol: {
