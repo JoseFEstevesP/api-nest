@@ -26,7 +26,11 @@
 		"migrate": "sequelize-cli db:migrate",
 		"migrate:create": "node scripts/generateESMMigration.js",
 		"module:generate": "node scripts/moduleGenerator.js",
-		"prepare": "husky"
+		"prepare": "husky",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:cov": "jest --coverage",
+		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --no-cache"
 	},
 	"dependencies": {
 		"@formkit/tempo": "0.1.2",
@@ -76,9 +80,11 @@
 		"@nestjs/testing": "11.1.6",
 		"@swc/cli": "0.7.8",
 		"@swc/core": "1.13.5",
+		"@testcontainers/postgresql": "^11.8.1",
 		"@types/bcrypt": "6.0.0",
 		"@types/cookie-parser": "1.4.9",
 		"@types/express": "5.0.3",
+		"@types/jest": "^30.0.0",
 		"@types/multer": "2.0.0",
 		"@types/node": "24.3.1",
 		"@types/nodemailer": "7.0.1",
@@ -89,6 +95,8 @@
 		"oxlint": "1.14.0",
 		"prettier": "3.6.2",
 		"sequelize-cli": "6.6.3",
+		"testcontainers": "^11.8.1",
+		"ts-jest": "^29.4.5",
 		"tsconfig-paths": "4.2.0",
 		"typescript": "5.9.2"
 	},
