@@ -1,14 +1,15 @@
 import { LoggerService } from '@/services/logger.service';
 import { createLogger, transports, format } from 'winston';
 import * as fs from 'fs';
+import { vi } from 'vitest';
 
 // Mock winston transports and functions
-jest.mock('winston', () => {
-  const actualWinston = jest.requireActual('winston');
-  
+vi.mock('winston', () => {
+  const actualWinston = vi.importActual('winston');
+
   return {
     ...actualWinston,
-    createLogger: jest.fn(),
+    createLogger: vi.fn(),
     format: {
       ...actualWinston.format,
       combine: actualWinston.format.combine,
@@ -35,7 +36,7 @@ jest.mock('winston', () => {
 });
 
 // Mock winston-daily-rotate-file
-jest.mock('winston-daily-rotate-file', () => jest.fn());
+vi.mock('winston-daily-rotate-file', () => vi.fn());
 
 describe('LoggerService', () => {
   let service: LoggerService;
@@ -49,13 +50,13 @@ describe('LoggerService', () => {
 
   beforeEach(() => {
     // Mock createLogger to return our mock logger
-    (createLogger as jest.MockedFunction<typeof createLogger>).mockImplementation(() => mockLogger as any);
+    (createLogger as any).mockImplementation(() => mockLogger as any);
 
     service = new LoggerService();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('debería estar definido', () => {

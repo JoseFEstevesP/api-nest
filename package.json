@@ -27,10 +27,11 @@
 		"migrate:create": "node scripts/generateESMMigration.js",
 		"module:generate": "node scripts/moduleGenerator.js",
 		"prepare": "husky",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:cov": "jest --coverage",
-		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --no-cache"
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ui": "vitest --ui",
+		"test:cov": "vitest run --coverage",
+		"test:debug": "vitest --inspect-brk --no-threads"
 	},
 	"dependencies": {
 		"@formkit/tempo": "0.1.2",
@@ -90,7 +91,10 @@
 		"@types/nodemailer": "7.0.1",
 		"@types/passport-jwt": "4.0.1",
 		"@types/supertest": "6.0.3",
+		"@vitest/coverage-v8": "^4.0.13",
+		"@vitest/ui": "4.0.13",
 		"husky": "9.1.7",
+		"jsdom": "^27.2.0",
 		"lint-staged": "16.1.6",
 		"oxlint": "1.14.0",
 		"prettier": "3.6.2",
@@ -98,7 +102,8 @@
 		"testcontainers": "^11.8.1",
 		"ts-jest": "^29.4.5",
 		"tsconfig-paths": "4.2.0",
-		"typescript": "5.9.2"
+		"typescript": "5.9.2",
+		"vitest": "^4.0.13"
 	},
 	"husky": {
 		"hooks": {

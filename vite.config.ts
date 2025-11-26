@@ -1,0 +1,57 @@
+import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['test/**/*.spec.ts', 'test/**/*.test.ts'],
+    setupFiles: [],
+    globalSetup: ['./test/globalSetup.ts'],
+    globalTeardown: ['./test/globalTeardown.ts'],
+    coverage: {
+      reporter: ['text', 'lcov', 'html'],
+      exclude: [
+        'node_modules',
+        'test',
+        'dist',
+        '*.config.*',
+        '*.setup.*',
+        '**/node_modules/**',
+        '**/test/**',
+        '**/dist/**',
+        '**/coverage/**',
+        '**/scripts/**',
+        '**/types/**',
+        '**/dto/**',
+        '**/constants/**',
+        '**/enums/**',
+        '**/messages/**',
+        '**/exceptions/**',
+        '**/utils/**',
+        '**/types/**',
+        '**/config/**',
+        '**/main.ts',
+        '**/app.module.ts',
+      ],
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+      '@/dto': resolve(__dirname, './src/dto'),
+      '@/constants': resolve(__dirname, './src/constants'),
+      '@/types': resolve(__dirname, './src/types'),
+      '@/functions': resolve(__dirname, './src/functions'),
+      '@/config': resolve(__dirname, './src/config'),
+      '@/services': resolve(__dirname, './src/services'),
+      '@/middleware': resolve(__dirname, './src/middleware'),
+      '@/decorators': resolve(__dirname, './src/decorators'),
+      '@/filters': resolve(__dirname, './src/filters'),
+      '@/guards': resolve(__dirname, './src/guards'),
+      '@/interceptors': resolve(__dirname, './src/interceptors'),
+      '@/pipes': resolve(__dirname, './src/pipes'),
+      '@/modules': resolve(__dirname, './src/modules'),
+    },
+  },
+});

@@ -4,14 +4,14 @@ import { EmailService } from '@/services/email.service';
 import { EnvironmentVariables } from '@/config/env.config';
 import * as nodemailer from 'nodemailer';
 import { InternalServerErrorException } from '@nestjs/common';
+import { vi } from 'vitest';
 
 // Mock nodemailer
-jest.mock('nodemailer');
-const mockSendMail = jest.fn();
-const mockCreateTransport = jest.fn(() => ({
+vi.mock('nodemailer');
+const mockSendMail = vi.fn();
+const mockCreateTransport = vi.fn(() => ({
   sendMail: mockSendMail,
 }));
-(nodemailer.createTransport as jest.Mock) = mockCreateTransport;
 
 describe('EmailService', () => {
   let service: EmailService;
@@ -20,7 +20,7 @@ describe('EmailService', () => {
   beforeEach(async () => {
     // Mock config service with environment values
     mockConfigService = {
-      get: jest.fn((key: keyof EnvironmentVariables) => {
+      get: vi.fn((key: keyof EnvironmentVariables) => {
         const configValues: Partial<EnvironmentVariables> = {
           EMAIL_HOST: 'smtp.gmail.com',
           EMAIL_USER: 'test@example.com',
@@ -47,7 +47,7 @@ describe('EmailService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('debería estar definido', () => {

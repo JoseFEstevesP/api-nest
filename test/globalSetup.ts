@@ -7,8 +7,8 @@ export default async function globalSetup() {
   const container = await startPostgreSqlTestContainer();
 
   // Store container info for use in tests
-  global.__TEST_POSTGRES_CONTAINER__ = container;
-  global.__TEST_DATABASE_CONFIG__ = getTestDatabaseConfig();
+  (global as any).__TEST_POSTGRES_CONTAINER__ = container;
+  (global as any).__TEST_DATABASE_CONFIG__ = getTestDatabaseConfig();
 
   // Set environment variables for the test database
   process.env.DATABASE_DIALECT = 'postgres';

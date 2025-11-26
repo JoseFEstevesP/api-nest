@@ -1,8 +1,6 @@
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import { StartedTestContainer } from 'testcontainers';
 
-export { StartedTestContainer };
-
 // Global variables that will be set in globalSetup
 declare global {
   var __TEST_POSTGRES_CONTAINER__: StartedTestContainer | undefined;

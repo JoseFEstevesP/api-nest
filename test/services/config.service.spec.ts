@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { AppConfigService } from '@/services/config.service';
 import { EnvironmentVariables } from '@/config/env.config';
+import { vi } from 'vitest';
 
 describe('AppConfigService', () => {
   let service: AppConfigService;
@@ -10,7 +11,7 @@ describe('AppConfigService', () => {
   beforeEach(async () => {
     // Mock config service with environment values
     mockConfigService = {
-      get: jest.fn((key: keyof EnvironmentVariables) => {
+      get: vi.fn((key: keyof EnvironmentVariables) => {
         const configValues: Partial<EnvironmentVariables> = {
           PORT: 3000,
           JWT_SECRET: 'test-jwt-secret',
