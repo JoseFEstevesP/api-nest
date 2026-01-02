@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-// Extraer las variables de entorno para evitar llamadas repetidas a process.env
 const {
+	NODE_ENV,
 	DATABASE_DIALECT = 'postgres',
 	DATABASE_HOST,
 	DATABASE_PORT,
@@ -10,11 +10,13 @@ const {
 	POSTGRES_DB,
 } = process.env;
 
+const isDevelopment = NODE_ENV === 'development';
+
 // Configuración base para todos los entornos
 const baseConfig = {
 	dialect: DATABASE_DIALECT,
-	host: DATABASE_HOST,
-	port: DATABASE_PORT,
+	host: isDevelopment ? 'db' : DATABASE_HOST,
+	port: isDevelopment ? 5432 : parseInt(DATABASE_PORT, 10),
 	username: POSTGRES_USER,
 	password: POSTGRES_PASSWORD,
 	database: POSTGRES_DB,

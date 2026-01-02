@@ -36,17 +36,21 @@ import { AppConfigService } from './services/config.service';
 		ScheduleModule.forRoot(),
 		SequelizeModule.forRootAsync({
 			inject: [ConfigService],
-			useFactory: (config: ConfigService<EnvironmentVariables>) => ({
-				dialect: config.get<string>('DATABASE_DIALECT') as Dialect,
-				host: config.get<string>('DATABASE_HOST'),
-				port: config.get<number>('DATABASE_PORT'),
-				username: config.get<string>('POSTGRES_USER'),
-				password: config.get<string>('POSTGRES_PASSWORD'),
-				database: config.get<string>('POSTGRES_DB'),
-				autoLoadModels: true,
-				synchronize: false,
-				logging: false,
-			}),
+			useFactory: (config: ConfigService<EnvironmentVariables>) => {
+				const isDevelopment = config.get('NODE_ENV') === 'development';
+
+				return {
+					dialect: config.get<string>('DATABASE_DIALECT') as Dialect,
+					host: isDevelopment ? 'db' : config.get<string>('DATABASE_HOST'),
+					port: isDevelopment ? 5432 : config.get<number>('DATABASE_PORT'),
+					username: config.get<string>('POSTGRES_USER'),
+					password: config.get<string>('POSTGRES_PASSWORD'),
+					database: config.get<string>('POSTGRES_DB'),
+					autoLoadModels: true,
+					synchronize: false,
+					logging: false,
+				};
+			},
 		}),
 		CacheModule.registerAsync({
 			inject: [ConfigService],
