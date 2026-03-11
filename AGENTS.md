@@ -41,6 +41,25 @@ pnpm run lint:check
 pnpm run format
 ```
 
+### Testing
+
+```bash
+# Run all tests (Vitest)
+pnpm run test
+
+# Run single test file
+pnpm vitest run test/unit/user.usecases.spec.ts
+
+# Run tests in watch mode
+pnpm run test:watch
+
+# Run tests with coverage
+pnpm run test:cov
+
+# Run all tests including integration
+pnpm run test:all
+```
+
 ### Database Migrations
 
 ```bash
@@ -57,11 +76,20 @@ pnpm run migrate:undo
 pnpm run migrate:undo:all
 ```
 
-### Module Generation
+### Docker
 
 ```bash
-# Generate new module with all files
-pnpm run module:generate nombre-del-modulo
+# Start containers
+pnpm run docker:up
+
+# Stop containers
+pnpm run docker:down
+
+# View logs
+pnpm run docker:logs
+
+# Run migrations in Docker
+pnpm run docker:migrate
 ```
 
 ## Project Structure
@@ -71,20 +99,22 @@ src/
 ├── modules/
 │   ├── security/
 │   │   ├── auth/          # Authentication (login, JWT, Google OAuth)
-│   │   ├── user/          # User management
-│   │   ├── rol/           # Role/Permissions management
-│   │   ├── audit/         # Audit logging
+│   │   ├── user/         # User management
+│   │   ├── rol/          # Role/Permissions management
+│   │   ├── audit/        # Audit logging
 │   │   └── valid-permission/  # Permission guards
-│   ├── files/             # File upload/delete
-│   └── health/            # Health checks
-├── config/                # Environment configuration
+│   ├── files/            # File upload/delete
+│   └── health/           # Health checks
+├── config/               # Environment configuration
 ├── services/              # Global services (logger, email, config)
-├── middlewares/           # Global middlewares
-├── interceptors/          # Request/response interceptors
-├── filters/               # Exception filters
-├── functions/             # Utility functions
-├── dto/                   # Global DTOs
-└── app.module.ts          # Root module
+├── middlewares/          # Global middlewares
+├── interceptors/         # Request/response interceptors
+├── filters/              # Exception filters
+├── functions/            # Utility functions
+├── dto/                 # Global DTOs
+├── decorators/           # Custom decorators
+├── pipes/               # Custom pipes
+└── app.module.ts        # Root module
 ```
 
 ## Code Style Guidelines
@@ -95,7 +125,7 @@ src/
 - **Classes**: `PascalCase` (e.g., `UserController`)
 - **Variables/Functions**: `camelCase` (e.g., `findAllUsers`)
 - **Constants**: `UPPER_SNAKE_CASE`
-- **Interfaces**: `PascalCase` with optional `I` prefix (e.g., `UserDTO`)
+- **Interfaces**: `PascalCase` (e.g., `UserDTO`)
 - **Enums**: `PascalCase` starting with `E` (e.g., `EPermission`)
 - **DTOs**: `NameDTO` (e.g., `UserRegisterDTO`)
 - **Use Cases**: `NameUseCase` (e.g., `CreateUserUseCase`)
@@ -104,14 +134,17 @@ src/
 
 - Use path aliases with `@/` prefix (configured in tsconfig.json)
 - Order imports: external libraries → internal modules → relative paths
-- Group imports logically in controllers
 
 ```typescript
-// Example import order in controllers
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+	ApiTags,
+	ApiBearerAuth,
+	ApiResponse,
+	ApiOperation,
+} from '@nestjs/swagger';
+import { LoggerService } from '@/services/logger.service';
 import { UserRegisterDTO } from './dto/userRegister.dto';
-import { User } from './entities/user.entity';
 import { CreateUserUseCase } from './use-case/createUser.use-case';
 import { userMessages } from './user.messages';
 ```
@@ -130,7 +163,6 @@ import { userMessages } from './user.messages';
 - Use `@nestjs/swagger` `@ApiProperty` for OpenAPI documentation
 - Always include `example` and `description` in `@ApiProperty`
 - Use `readonly` for all properties
-- Group validation decorators logically
 
 ```typescript
 export class UserRegisterDTO {
@@ -150,7 +182,6 @@ export class UserRegisterDTO {
 - Extend `Model<Entity>`
 - Use `@Table` decorator
 - Use `@Column` with explicit types
-- Use `@ForeignKey` and `@BelongsTo` for relations
 - Use `declare` for all properties
 
 ```typescript
@@ -171,40 +202,48 @@ export class User extends Model<User> {
 ### Use Case Pattern
 
 - Create use case classes in `use-case/` directories
-- Each use case should have a single responsibility
+- Each use case should have single responsibility
 - Use `execute()` method as entry point
+- Inject `LoggerService` for structured logging
 - Inject repository through constructor
-- Return typed responses
 
 ```typescript
 @Injectable()
 export class CreateUserUseCase {
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute(data: UserRegisterDTO): Promise<User> {
-		// Business logic here
-		return this.userRepository.create(user);
+		this.logger.debug(`Creating user: ${data.email}`, { type: 'create_user' });
+		// Business logic
+		this.logger.info('User created successfully', {
+			type: 'create_user',
+			userId: user.uid,
+		});
+		return user;
 	}
 }
 ```
 
 ### Controller Guidelines
 
-- Use `@ApiTags`, `@ApiBearerAuth`, `@ApiResponse` for Swagger
+- Use `@ApiTags`, `@ApiBearerAuth`, `@ApiResponse`, `@ApiOperation` for Swagger
 - Use proper HTTP status decorators (`@Get`, `@Post`, `@Patch`, `@Delete`)
-- Always use Logger with class name
-- Extract user data from `@Req()` for auth context
+- Use `@ThrottleAuth()` for sensitive endpoints
 - Return meaningful HTTP responses
 
 ```typescript
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-	private readonly logger = new Logger(UserController.name);
+	constructor(private readonly createUserUseCase: CreateUserUseCase) {}
 
+	@ApiOperation({ summary: 'Create new user' })
+	@ApiResponse({ status: 201, description: 'User created' })
 	@Post()
 	create(@Body() data: UserRegisterDTO) {
-		this.logger.log(`Creating user: ${data.email}`);
 		return this.createUserUseCase.execute(data);
 	}
 }
@@ -212,86 +251,121 @@ export class UserController {
 
 ### Error Handling
 
-- Use NestJS built-in exceptions (`BadRequestException`, `NotFoundException`, `UnauthorizedException`)
-- Use global exception filter for unhandled errors (see `src/filters/all-exceptions.filter.ts`)
+- Use NestJS built-in exceptions
+- Use global exception filter for unhandled errors
 - Validate input with class-validator
-- Use custom validation functions for complex validations
 
 ```typescript
-// Throwing errors
 throw new BadRequestException('Invalid input');
-throw new UnauthorizedException('Invalid credentialsFoundException('User');
-throw new Not not found');
+throw new UnauthorizedException('Invalid credentials');
+throw new NotFoundException('User not found');
 ```
 
-### Logging
+### Logging Guidelines (IMPORTANT)
 
-- Use `Logger` from `@nestjs/common` in services and controllers
-- Use custom `LoggerService` for structured logging with Winston
-- Include correlation IDs for request tracing
+- Use **LoggerService** from `@/services/logger.service` for structured logging
+- All messages must be in **Spanish**
+- Include `type` in all log context
+- Use metrics for important events
 
 ```typescript
-private readonly logger = new Logger(ClassName.name);
-// or
 constructor(private readonly logger: LoggerService) {}
+
+// Debug - para desarrollo
+this.logger.debug(`Creando usuario: ${email}`, { type: 'create_user' });
+
+// Info - operaciones exitosas
+this.logger.info('Usuario creado exitosamente', { type: 'create_user', userId: uid });
+
+// Warn - advertencias
+this.logger.warn('Login fallido - contraseña inválida', { type: 'auth_login', status: 'failed' });
+
+// Error - errores
+this.logger.error('Error al crear usuario', 'CreateUserUseCase', { type: 'create_user', error: err.message });
+
+// Métricas
+this.logger.logMetric('usuario.creado', 1, { email });
 ```
 
-### Authentication & Authorization
+### Metrics Naming
 
-- Use JWT strategy with Passport
-- Protect routes with `@UseGuards(JwtAuthGuard, PermissionsGuard)`
-- Define permissions with `@ValidPermission(Permission.name)`
-- Use `@ReqUidDTO` to extract user data from JWT
+Use Spanish metric names:
 
-```typescript
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
-@ValidPermission(Permission.userRead)
-@Get()
-findAll(@Req() req: ReqUidDTO) {
-  const { uid } = req.user;
-  // ...
-}
-```
+- `usuario.creado`, `usuario.actualizado`, `usuario.eliminado`
+- `auth.login.exitoso`, `auth.login.fallido`, `auth.logout.exitoso`
+- `rol.buscar_todos`, `auditoria.buscar_todos`
 
-### Configuration
-
-- All config goes through `ConfigService`
-- Use typed environment variables (see `src/config/env.config.ts`)
-- Validate env on startup with `validateEnv`
-
-### Testing
+## Testing
 
 - Place tests in `test/` directory
+- Use Vitest (NOT Jest)
 - Follow naming: `*.spec.ts` for unit tests
-- Use `@nestjs/testing` utilities
-- Mock repositories and services
+- Mock all dependencies in use case tests
+
+```typescript
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+describe('CreateUserUseCase', () => {
+	let useCase: CreateUserUseCase;
+	let mockUserRepository: any;
+	let mockLoggerService: any;
+
+	beforeEach(() => {
+		mockUserRepository = { create: vi.fn() };
+		mockLoggerService = {
+			debug: vi.fn(),
+			info: vi.fn(),
+			error: vi.fn(),
+			logMetric: vi.fn(),
+		};
+		useCase = new CreateUserUseCase(mockUserRepository, mockLoggerService);
+	});
+
+	it('should create user', async () => {
+		// test implementation
+	});
+});
+```
 
 ## Important Notes
 
-1. **No Jest**: This project uses NestJS testing utilities but no explicit test runner is configured in package.json
-2. **SWC Compiler**: Uses SWC for fast builds (configured in `.swcrc`)
+1. **Vitest**: Uses Vitest for testing (NOT Jest)
+2. **SWC Compiler**: Uses SWC for fast builds
 3. **Oxlint**: Ultra-fast linter (not ESLint)
-4. **Husky**: Pre-commit hooks run lint-staged
-5. **Sequelize**: ORM with TypeScript support, not TypeORM
+4. **Sequelize**: ORM with TypeScript support, not TypeORM
+5. **Redis**: Used for caching with @keyv/redis
 
 ## Environment Variables
 
 Required variables (see `.env.example`):
 
-- `PORT`, `NODE_ENV`, `CORS`
-- `JWT_SECRET`, `JWT_REFRESH_SECRET`
-- `DATABASE_*`, `POSTGRES_*`
-- `REDIS_URL`
-- `EMAIL_HOST`, `EMAIL_USER`, `EMAIL_PASS`
-- `RATE_LIMIT_TTL`, `RATE_LIMIT_LIMIT`
+```bash
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=<64+ characters>
+JWT_REFRESH_SECRET=<64+ characters>
+DATABASE_DIALECT=postgres
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<password>
+POSTGRES_DB=api_nest
+REDIS_URL=redis://localhost:6379
+RATE_LIMIT_TTL=60000
+RATE_LIMIT_LIMIT=100
+SALT_ROUNDS=10
+CORS=http://localhost:5173
+```
 
 ## Best Practices
 
 1. Always validate input with DTOs
 2. Use use cases for business logic (not controllers)
-3. Log important actions with context
-4. Use correlation IDs for request tracing
+3. Use LoggerService with structured logging and Spanish messages
+4. Include metrics for important operations
 5. Handle errors consistently with exception filters
 6. Follow single responsibility principle
 7. Keep controllers thin, business logic in use cases
+8. Use caching for frequently accessed data (roles, configs)
+9. Apply rate limiting to sensitive endpoints
+10. Use compression and Helmet for security

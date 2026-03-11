@@ -177,7 +177,7 @@ cp .env.example .env
 # Editar .env con tus configuraciones
 
 # 4. Levantar servicios con Docker
-docker-compose up -d
+docker compose up -d
 
 # 5. Ejecutar migraciones
 pnpm run migrate
@@ -235,10 +235,10 @@ DEFAULT_ROL_FROM_USER=user
 
 ```bash
 # Iniciar PostgreSQL y Redis
-docker-compose up -d db redis
+docker compose up -d db redis
 
 # Verificar que los servicios estén corriendo
-docker-compose ps
+docker compose ps
 ```
 
 #### Opción 2: Instalación Local
@@ -297,15 +297,45 @@ pnpm run start:prod
 
 ### Docker
 
-```bash
-# Desarrollo con Docker
-docker-compose -f docker-compose.dev.yml up
+Usa la variable `NODE_ENV` para seleccionar el modo:
 
-# Producción con Docker
-docker-compose up
+```bash
+# Desarrollo (sin Nginx)
+docker compose up -d
+
+# Producción (con Nginx)
+NODE_ENV=production docker compose --profile prod up -d
+
+# O usa el script helper (automático)
+./docker-compose.sh up -d              # Desarrollo
+NODE_ENV=production ./docker-compose.sh up -d  # Producción
 ```
 
+**Scripts disponibles:**
+
+- `./docker-compose.sh up -d` - Inicia servicios
+- `./docker-compose.sh down` - Detiene servicios
+- `./docker-compose.sh logs -f` - Ver logs
+- `docker compose --profile migrate up -d` - Ejecutar migraciones
+
 ## 📚 Documentación de la API
+
+### Documentación Detallada por Módulo
+
+Consulta la documentación específica de cada módulo en la carpeta `docs/`:
+
+| Módulo        | Descripción                | Archivo                            |
+| ------------- | -------------------------- | ---------------------------------- |
+| Autenticación | JWT, OAuth, Refresh Tokens | [`docs/auth.md`](docs/auth.md)     |
+| Usuarios      | CRUD, roles, perfiles      | [`docs/user.md`](docs/user.md)     |
+| Roles         | Permisos, RBAC             | [`docs/rol.md`](docs/rol.md)       |
+| Auditoría     | Logs, tracking             | [`docs/audit.md`](docs/audit.md)   |
+| Archivos      | Upload, validación         | [`docs/files.md`](docs/files.md)   |
+| Health        | Health checks              | [`docs/health.md`](docs/health.md) |
+
+### Guía de Uso
+
+Consulta [`docs/README.md`](docs/README.md) para una visión general de toda la documentación.
 
 ### Swagger/OpenAPI
 
@@ -572,20 +602,20 @@ Endpoint de salud disponible en `/health`:
 
 ```bash
 # Levantar solo servicios de infraestructura
-docker-compose up -d db redis
+docker compose up -d db redis
 
 # Desarrollo completo con Docker
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml up
 ```
 
 ### Producción
 
 ```bash
 # Construir y ejecutar
-docker-compose up --build
+docker compose up --build
 
 # En background
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Configuración Docker

@@ -18,6 +18,7 @@ COPY package.json pnpm-lock.yaml ./
 FROM base AS deps
 
 ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
 # Install dependencies
 RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
@@ -29,7 +30,7 @@ RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
 FROM base AS builder
 
 ARG NODE_ENV=production
-ENV NODE_ENV=$NODE_ENV
+ENV NODE_ENV=${NODE_ENV}
 
 # Copy dependencies from deps stage
 COPY --from=deps /usr/src/app/node_modules ./node_modules
@@ -43,7 +44,12 @@ RUN pnpm run build
 # =============================================================================
 # Stage 4: Production - Minimal runtime image
 # =============================================================================
-FROM node:24.6.0-alpine3.20 AS production
+FROM base AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV} \
+    PORT=3000 \
+    NODE_OPTIONS="--max-old-space-size=256"
 
 # Security: Create non-root user and group
 RUN addgroup -g 1001 -S appgroup && \
@@ -56,14 +62,6 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/package.json ./package.json
-
-# Copy only necessary files for production
-COPY --from=builder /usr/src/app/package.json ./package.json
-
-# Environment variables
-ENV NODE_ENV=production \
-    PORT=3000 \
-    NODE_OPTIONS="--max-old-space-size=256"
 
 # Create necessary directories with proper ownership
 RUN mkdir -p uploads logs && \
@@ -85,10 +83,14 @@ CMD ["node", "dist/main.js"]
 # =============================================================================
 # Stage 5: Development - Local development environment
 # =============================================================================
-FROM deps AS development
+FROM base AS development
 
 ARG NODE_ENV=development
-ENV NODE_ENV=$NODE_ENV
+ENV NODE_ENV=${NODE_ENV}
+
+# Install development dependencies
+RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
+    pnpm install --frozen-lockfile
 
 # Install development tools
 RUN apk add --no-cache dumb-init curl
