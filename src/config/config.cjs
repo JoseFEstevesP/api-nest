@@ -15,8 +15,8 @@ const isDevelopment = NODE_ENV === 'development';
 // Configuración base para todos los entornos
 const baseConfig = {
 	dialect: DATABASE_DIALECT,
-	host: isDevelopment ? 'db' : DATABASE_HOST,
-	port: isDevelopment ? 5432 : parseInt(DATABASE_PORT, 10),
+	host: DATABASE_HOST || (isDevelopment ? 'localhost' : 'localhost'),
+	port: DATABASE_PORT ? parseInt(DATABASE_PORT, 10) : 5432,
 	username: POSTGRES_USER,
 	password: POSTGRES_PASSWORD,
 	database: POSTGRES_DB,

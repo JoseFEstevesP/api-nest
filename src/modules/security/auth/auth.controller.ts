@@ -1,4 +1,5 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { dataInfoJWT } from '@/functions/dataInfoJWT';
 import { User } from '@/modules/security/user/entities/user.entity';
 import {
@@ -41,6 +42,7 @@ export class AuthController {
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@HttpCode(HttpStatus.CREATED)
+	@ThrottleAuth()
 	@Post('/login')
 	async login(
 		@Body() data: AuthLoginDTO,
@@ -70,6 +72,7 @@ export class AuthController {
 	@ApiResponse({ status: 201, description: 'Token refrescado' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@HttpCode(HttpStatus.CREATED)
+	@ThrottleAuth()
 	@Post('/refresh-token')
 	async refreshToken(
 		@Req() req: Request & ReqUidDTO,

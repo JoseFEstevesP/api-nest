@@ -1,4 +1,5 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
@@ -262,6 +263,7 @@ export class UserController {
 
 	@ApiResponse({ status: 200, description: 'Correo de recuperación enviado' })
 	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+	@ThrottleAuth()
 	@Post('/recoveryPassword')
 	async recovery(@Body() data: UserRecoveryPasswordDTO) {
 		this.logger.log(
@@ -276,6 +278,7 @@ export class UserController {
 		description: 'Código de recuperación verificado',
 	})
 	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ThrottleAuth()
 	@Post('/recoveryPassCode')
 	async recoveryVerifyPassword(@Body() data: RecoveryVerifyPasswordDTO) {
 		this.logger.log(
@@ -328,6 +331,7 @@ export class UserController {
 
 	@ApiResponse({ status: 200, description: 'Cuenta activada' })
 	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ThrottleAuth()
 	@Post('/activated')
 	async activatedAccount(@Body() body: UserActivateCountDTO) {
 		this.logger.log(

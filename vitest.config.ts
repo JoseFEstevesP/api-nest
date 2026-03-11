@@ -6,9 +6,6 @@ export default defineConfig({
 		globals: true,
 		environment: 'node',
 		setupFiles: ['./test/setup-vitest.ts', 'tsconfig-paths/register'],
-		sequence: {
-			sequential: true,
-		},
 	},
 	resolve: {
 		alias: {
