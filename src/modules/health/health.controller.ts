@@ -1,39 +1,75 @@
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Controller, Get, Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import {
 	HealthCheck,
 	HealthCheckService,
+	HealthCheckResult,
+	HealthIndicator,
+	HealthIndicatorResult,
+	MemoryHealthIndicator,
 	SequelizeHealthIndicator,
 } from '@nestjs/terminus';
+import * as os from 'os';
+
+export class RedisHealthIndicator extends HealthIndicator {
+	constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {
+		super();
+	}
+
+	async ping(key: string): Promise<HealthIndicatorResult> {
+		const start = Date.now();
+		try {
+			const testValue = 'ok';
+			await this.cacheManager.set(key, testValue, 1000);
+			const retrievedValue = await this.cacheManager.get(key);
+			const responseTime = Date.now() - start;
+
+			if (retrievedValue === testValue) {
+				return this.getStatus('redis', true, { responseTime });
+			}
+			throw new Error('Value mismatch');
+		} catch (e) {
+			const err = e as Error;
+			throw new Error(`Redis check failed: ${err.message}`);
+		}
+	}
+}
+
+export class SystemHealthIndicator extends HealthIndicator {
+	check(): HealthIndicatorResult {
+		const cpuLoad = os.loadavg()[0] / os.cpus().length;
+		const totalMemory = os.totalmem();
+		const freeMemory = os.freemem();
+		const memoryUsage = ((totalMemory - freeMemory) / totalMemory) * 100;
+
+		const isHealthy = cpuLoad < 0.8 && memoryUsage < 90;
+
+		return this.getStatus('system', isHealthy, {
+			cpu: Math.round(cpuLoad * 100) / 100,
+			memory: Math.round(memoryUsage * 100) / 100,
+		});
+	}
+}
 
 @Controller('health')
 export class HealthController {
 	constructor(
 		private health: HealthCheckService,
 		private db: SequelizeHealthIndicator,
-		@Inject(CACHE_MANAGER) private cacheManager: Cache,
+		private memory: MemoryHealthIndicator,
+		private redisHealth: RedisHealthIndicator,
+		private systemHealth: SystemHealthIndicator,
 	) {}
 
 	@Get()
 	@HealthCheck()
-	async check() {
+	async check(): Promise<HealthCheckResult> {
 		return this.health.check([
-			() => this.db.pingCheck('sequelize'),
-			async () => {
-				try {
-					const testKey = 'health-check-redis';
-					const testValue = 'ok';
-					await this.cacheManager.set(testKey, testValue, 1000); // Set with a short TTL
-					const retrievedValue = await this.cacheManager.get(testKey);
-					if (retrievedValue === testValue) {
-						return { redis: { status: 'up' } };
-					}
-					throw new Error('Redis check failed: value mismatch');
-				} catch (e) {
-					const err = e as Error;
-					throw new Error(`Redis check failed: ${err.message}`);
-				}
-			},
+			() => this.db.pingCheck('database', { timeout: 3000 }),
+			() => this.redisHealth.ping('health-check-redis'),
+			() => this.memory.checkHeap('heap_used', 300 * 1024 * 1024),
+			() => this.systemHealth.check(),
 		]);
 	}
 }
