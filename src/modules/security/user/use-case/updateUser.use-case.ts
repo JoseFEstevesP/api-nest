@@ -1,12 +1,15 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { LoggerService } from '@/services/logger.service';
 import { UserUpdateDTO } from '../dto/userUpdate.dto';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
 export class UpdateUserUseCase {
-	private readonly logger = new Logger(UpdateUserUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute({
 		data,
@@ -16,10 +19,24 @@ export class UpdateUserUseCase {
 		dataLog: string;
 	}): Promise<{ msg: string }> {
 		const { uid, ...updatedData } = data;
+
+		this.logger.debug(`Actualizando usuario: ${uid}`, {
+			type: 'user_update',
+			userId: uid,
+		});
+
 		const user = await this.userRepository.findOne({ where: { uid } });
 
 		if (!user) {
-			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
+			this.logger.error(
+				`${dataLog} - ${userMessages.log.userError}`,
+				'UpdateUserUseCase',
+				{
+					type: 'user_update',
+					userId: uid,
+					status: 'not_found',
+				},
+			);
 			throw new NotFoundException(userMessages.msg.findOne);
 		}
 
@@ -28,7 +45,13 @@ export class UpdateUserUseCase {
 			...(updatedData.status !== undefined && { status: !updatedData.status }),
 		});
 
-		this.logger.log(`${dataLog} - ${userMessages.log.updateSuccess}`);
+		this.logger.info(`${dataLog} - ${userMessages.log.updateSuccess}`, {
+			type: 'user_update',
+			userId: uid,
+			status: 'success',
+		});
+
+		this.logger.logMetric('usuario.actualizado', 1, { userId: uid });
 
 		return { msg: userMessages.msg.update };
 	}

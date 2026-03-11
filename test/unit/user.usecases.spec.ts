@@ -50,13 +50,32 @@ describe('FindUserForAuthUseCase', () => {
 describe('FindOneRolUseCase', () => {
 	let useCase: FindOneRolUseCase;
 	let mockRolRepository: any;
+	let mockCacheService: any;
+	let mockLoggerService: any;
 
 	beforeEach(() => {
 		mockRolRepository = {
 			findOne: vi.fn(),
 		};
 
-		useCase = new FindOneRolUseCase(mockRolRepository);
+		mockCacheService = {
+			buildRoleKey: vi.fn().mockReturnValue('cache:role:123'),
+			get: vi.fn().mockResolvedValue(undefined),
+			set: vi.fn().mockResolvedValue(undefined),
+		};
+
+		mockLoggerService = {
+			debug: vi.fn(),
+			info: vi.fn(),
+			warn: vi.fn(),
+			error: vi.fn(),
+		};
+
+		useCase = new FindOneRolUseCase(
+			mockRolRepository,
+			mockCacheService,
+			mockLoggerService,
+		);
 	});
 
 	afterEach(() => {
@@ -90,6 +109,7 @@ describe('FindOneRolUseCase', () => {
 describe('CreateAuditUseCase', () => {
 	let useCase: CreateAuditUseCase;
 	let mockAuditRepository: any;
+	let mockLoggerService: any;
 
 	beforeEach(() => {
 		mockAuditRepository = {
@@ -97,7 +117,14 @@ describe('CreateAuditUseCase', () => {
 			create: vi.fn(),
 		};
 
-		useCase = new CreateAuditUseCase(mockAuditRepository);
+		mockLoggerService = {
+			debug: vi.fn(),
+			info: vi.fn(),
+			warn: vi.fn(),
+			error: vi.fn(),
+		};
+
+		useCase = new CreateAuditUseCase(mockAuditRepository, mockLoggerService);
 	});
 
 	afterEach(() => {

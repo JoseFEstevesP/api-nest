@@ -1,7 +1,8 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
 import { EmailService } from '@/services/email.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { LoggerService } from '@/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { Op, WhereOptions } from 'sequelize';
@@ -14,18 +15,22 @@ import { userMessages } from '../user.messages';
 
 @Injectable()
 export class CreateUserUseCase {
-	private readonly logger = new Logger(CreateUserUseCase.name);
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly emailService: EmailService,
 		private readonly findOneRolUseCase: FindOneRolUseCase,
 		private readonly configService: ConfigService<EnvironmentVariables>,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute(data: UserDefaultRegisterDTO): Promise<{ msg: string }> {
-		// oxlint-disable-next-line no-unused-vars
 		const { confirmPassword, ...userData } = data;
 		const { phone, email, password } = userData;
+
+		this.logger.debug(`Creando usuario con email: ${email}`, {
+			type: 'create_user',
+			email,
+		});
 
 		const whereClause: WhereOptions<User> = {
 			[Op.or]: [{ phone }, { email }],
@@ -36,7 +41,8 @@ export class CreateUserUseCase {
 
 		validatePropertyData({
 			property: { phone, email },
-			data: (existingPatient as unknown as Record<string, unknown>) ?? undefined,
+			data:
+				(existingPatient as unknown as Record<string, unknown>) ?? undefined,
 			msg: userMessages,
 			checkErrors: checkValidationErrorsUser,
 		});
@@ -47,7 +53,11 @@ export class CreateUserUseCase {
 				: '0000000';
 
 		if (this.configService.get('NODE_ENV') === 'production') {
-			this.logger.log(`system - ${userMessages.log.emailActivated}`);
+			this.logger.info(userMessages.log.emailActivated, {
+				type: 'create_user',
+				email,
+				action: 'enviar_email_activacion',
+			});
 			this.emailService.activatedAccount({ code, email });
 		}
 
@@ -72,7 +82,14 @@ export class CreateUserUseCase {
 		} as User;
 
 		await this.userRepository.create(user);
-		this.logger.log(`${userMessages.log.createSuccess}`);
+
+		this.logger.info(userMessages.log.createSuccess, {
+			type: 'create_user',
+			userId: user.uid,
+			email,
+		});
+
+		this.logger.logMetric('usuario.creado', 1, { email });
 
 		return { msg: userMessages.msg.registerDefault };
 	}

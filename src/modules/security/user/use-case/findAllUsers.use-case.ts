@@ -1,8 +1,9 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
 import { PaginationResult } from '@/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
+import { LoggerService } from '@/services/logger.service';
 import { Role } from '../../rol/entities/rol.entity';
 import { Permission } from '../../rol/enum/permissions';
 import { UserGetAllDTO } from '../dto/userGetAll.dto';
@@ -13,8 +14,10 @@ import { userMessages } from '../user.messages';
 
 @Injectable()
 export class FindAllUsersUseCase {
-	private readonly logger = new Logger(FindAllUsersUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute({
 		filter,
@@ -52,7 +55,15 @@ export class FindAllUsersUseCase {
 
 		const pagination = this.calculatePagination(count, parsedLimit, parsedPage);
 
-		this.logger.log(`${dataLog} - ${userMessages.log.findAllSuccess}`);
+		this.logger.info(`${dataLog} - ${userMessages.log.findAllSuccess}`, {
+			type: 'user_find_all',
+			total: count,
+			page: parsedPage,
+			limit: parsedLimit,
+		});
+
+		this.logger.logMetric('usuario.buscar_todos', count);
+
 		const result = {
 			...this.formateRows(rows),
 			...pagination,

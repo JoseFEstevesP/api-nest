@@ -1,16 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
 
 @Injectable()
 export class FindAllRolsUseCase {
-	private readonly logger = new Logger(FindAllRolsUseCase.name);
 	private readonly CACHE_TTL = 3600000;
 
 	constructor(
 		private readonly rolRepository: RolRepository,
 		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute({ dataLog }: { dataLog: string }) {
@@ -19,7 +20,10 @@ export class FindAllRolsUseCase {
 		const cached =
 			await this.cacheService.get<{ value: string; label: string }[]>(cacheKey);
 		if (cached) {
-			this.logger.debug(`Returning cached roles: ${cacheKey}`);
+			this.logger.debug(`Retornando roles desde caché: ${cacheKey}`, {
+				type: 'role_find_all',
+				fromCache: true,
+			});
 			return cached;
 		}
 
@@ -34,7 +38,14 @@ export class FindAllRolsUseCase {
 		}));
 
 		await this.cacheService.set(cacheKey, formatterData, this.CACHE_TTL);
-		this.logger.log(`${dataLog} - ${rolMessages.log.findAllSuccess}`);
+
+		this.logger.info(`${dataLog} - ${rolMessages.log.findAllSuccess}`, {
+			type: 'role_find_all',
+			count: formatterData.length,
+			fromCache: false,
+		});
+
+		this.logger.logMetric('rol.buscar_todos', formatterData.length);
 
 		return formatterData;
 	}

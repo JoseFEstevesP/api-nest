@@ -1,15 +1,16 @@
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
+import { LoggerService } from '@/services/logger.service';
 import { authMessages } from '../auth.messages';
 
 @Injectable()
 export class LogoutUseCase {
-	private readonly logger = new Logger(LogoutUseCase.name);
 	constructor(
 		private readonly findOneUserUseCase: FindOneUserUseCase,
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute({
@@ -24,7 +25,11 @@ export class LogoutUseCase {
 		dataLog: string;
 	}) {
 		if (!refreshToken) {
-			this.logger.error(authMessages.log.refreshToken);
+			this.logger.warn('Logout intentado sin refresh token', {
+				type: 'auth_logout',
+				userId: uid,
+				status: 'failed',
+			});
 			throw new UnauthorizedException(authMessages.msg.refreshToken);
 		}
 
@@ -34,6 +39,13 @@ export class LogoutUseCase {
 		);
 
 		res.clearCookie('accessToken').clearCookie('refreshToken');
-		// Response will be handled by the controller
+
+		this.logger.info('Usuario cerró sesión exitosamente', {
+			type: 'auth_logout',
+			userId: uid,
+			status: 'success',
+		});
+
+		this.logger.logMetric('auth.logout.exitoso', 1);
 	}
 }

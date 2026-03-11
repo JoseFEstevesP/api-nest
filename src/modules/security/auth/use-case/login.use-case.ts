@@ -8,7 +8,6 @@ import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validat
 import {
 	ConflictException,
 	Injectable,
-	Logger,
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -17,12 +16,12 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Transaction } from 'sequelize';
+import { LoggerService } from '@/services/logger.service';
 import { authMessages } from '../auth.messages';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
 @Injectable()
 export class LoginUseCase {
-	private readonly logger = new Logger(LoginUseCase.name);
 	constructor(
 		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
 		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
@@ -30,6 +29,7 @@ export class LoginUseCase {
 		private readonly createAuditUseCase: CreateAuditUseCase,
 		private readonly configService: ConfigService<EnvironmentVariables>,
 		private readonly userRepository: UserRepository,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute({
@@ -44,11 +44,23 @@ export class LoginUseCase {
 		const { email, password } = data;
 		const user = await this.findUserForAuthUseCase.execute(email);
 
-		if (!user) throw new NotFoundException(authMessages.msg.userError);
+		if (!user) {
+			this.logger.warn('Login fallido - usuario no encontrado', {
+				type: 'auth_login',
+				email,
+				status: 'failed',
+			});
+			throw new NotFoundException(authMessages.msg.userError);
+		}
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
-			this.logger.error(`system - ${authMessages.log.loginPassword}`);
+			this.logger.warn('Login fallido - contraseña inválida', {
+				type: 'auth_login',
+				userId: user.uid,
+				email,
+				status: 'failed',
+			});
 			await this.validateAttemptUseCase.execute({ user });
 			throw new UnauthorizedException(authMessages.msg.credential);
 		}
@@ -78,13 +90,26 @@ export class LoginUseCase {
 
 			this.setCookies(res, accessToken, refreshToken);
 		} catch (error) {
-			this.logger.error(authMessages.log.sessionExisting, error);
+			this.logger.error(authMessages.log.sessionExisting, 'LoginUseCase', {
+				type: 'auth_login',
+				userId: user.uid,
+				email,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			throw new ConflictException(authMessages.log.sessionExisting);
 		}
 
-		this.logger.log(
+		this.logger.info(
 			`${user.surnames} ${user.names} - ${authMessages.log.loginSuccess}`,
+			{
+				type: 'auth_login',
+				userId: user.uid,
+				email,
+				status: 'success',
+			},
 		);
+
+		this.logger.logMetric('auth.login.exitoso', 1, { email });
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

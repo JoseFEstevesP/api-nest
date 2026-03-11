@@ -1,7 +1,7 @@
 import { Order } from '@/constants/dataConstants';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { PaginationResult } from '@/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
 	FindAndCountOptions,
 	Includeable,
@@ -9,6 +9,7 @@ import {
 	OrderItem,
 	WhereOptions,
 } from 'sequelize';
+import { LoggerService } from '@/services/logger.service';
 import { auditMessages } from '../audit.messages';
 import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';
@@ -17,8 +18,10 @@ import { AuditRepository } from '../repository/audit.repository';
 
 @Injectable()
 export class FindAllAuditsUseCase {
-	private readonly logger = new Logger(FindAllAuditsUseCase.name);
-	constructor(private readonly auditRepository: AuditRepository) {}
+	constructor(
+		private readonly auditRepository: AuditRepository,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute({
 		filter,
@@ -60,7 +63,15 @@ export class FindAllAuditsUseCase {
 			...pagination,
 		};
 
-		this.logger.log(`${dataLog} - ${auditMessages.log.findAllSuccess}`);
+		this.logger.info(`${dataLog} - ${auditMessages.log.findAllSuccess}`, {
+			type: 'audit_find_all',
+			total: count,
+			page: parsedPage,
+			limit: parsedLimit,
+		});
+
+		this.logger.logMetric('auditoria.buscar_todos', count);
+
 		return result;
 	}
 

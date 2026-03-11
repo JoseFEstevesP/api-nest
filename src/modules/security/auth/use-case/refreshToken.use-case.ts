@@ -4,16 +4,16 @@ import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAu
 import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
+import { LoggerService } from '@/services/logger.service';
 import { authMessages } from '../auth.messages';
 import { LogoutUseCase } from './logout.use-case';
 
 @Injectable()
 export class RefreshTokenUseCase {
-	private readonly logger = new Logger(RefreshTokenUseCase.name);
 	constructor(
 		private readonly findOneAuditUseCase: FindOneAuditUseCase,
 		private readonly updateAuditUseCase: UpdateAuditUseCase,
@@ -21,6 +21,7 @@ export class RefreshTokenUseCase {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService<EnvironmentVariables>,
 		private readonly logoutUseCase: LogoutUseCase,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute({
@@ -35,7 +36,10 @@ export class RefreshTokenUseCase {
 		const refreshToken = req.cookies?.refreshToken;
 
 		if (!refreshToken) {
-			this.logger.error(`system - ${authMessages.log.refreshToken}`);
+			this.logger.warn('Refresh token no proporcionado', {
+				type: 'auth_refresh_token',
+				status: 'failed',
+			});
 			throw new UnauthorizedException(authMessages.msg.refreshToken);
 		}
 
@@ -46,7 +50,10 @@ export class RefreshTokenUseCase {
 		});
 
 		if (!auditRef) {
-			this.logger.error(authMessages.log.userError);
+			this.logger.warn('Refresh token no encontrado en auditoría', {
+				type: 'auth_refresh_token',
+				status: 'failed',
+			});
 			return this.logoutUseCase.execute({
 				refreshToken,
 				res,
@@ -59,7 +66,11 @@ export class RefreshTokenUseCase {
 		});
 
 		if (refreshToken !== auditRef.refreshToken) {
-			this.logger.error(`system ${authMessages.log.refreshTokenUser}`);
+			this.logger.warn('Refresh token no coincide', {
+				type: 'auth_refresh_token',
+				userId: user.uid,
+				status: 'failed',
+			});
 			return this.logoutUseCase.execute({
 				uid: auditRef.uid,
 				res,
@@ -75,7 +86,14 @@ export class RefreshTokenUseCase {
 		});
 
 		this.setCookies(res, newAccessToken, newRefreshToken);
-		// Response will be handled by the controller
+
+		this.logger.info('Tokens renovados exitosamente', {
+			type: 'auth_refresh_token',
+			userId: user.uid,
+			status: 'success',
+		});
+
+		this.logger.logMetric('auth.refresh_token.exitoso', 1);
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

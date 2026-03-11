@@ -102,6 +102,7 @@ describe('FindAllRolsUseCase', () => {
 	let useCase: FindAllRolsUseCase;
 	let mockRolRepository: any;
 	let mockCacheService: any;
+	let mockLoggerService: any;
 
 	beforeEach(() => {
 		mockRolRepository = {
@@ -114,7 +115,19 @@ describe('FindAllRolsUseCase', () => {
 			set: vi.fn().mockResolvedValue(undefined),
 		};
 
-		useCase = new FindAllRolsUseCase(mockRolRepository, mockCacheService);
+		mockLoggerService = {
+			debug: vi.fn(),
+			info: vi.fn(),
+			warn: vi.fn(),
+			error: vi.fn(),
+			logMetric: vi.fn(),
+		};
+
+		useCase = new FindAllRolsUseCase(
+			mockRolRepository,
+			mockCacheService,
+			mockLoggerService,
+		);
 	});
 
 	afterEach(() => {

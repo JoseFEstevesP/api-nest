@@ -1,18 +1,19 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 import { Role } from '../entities/rol.entity';
 import { RolRepository } from '../repository/rol.repository';
 import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class FindOneRolUseCase {
-	private readonly logger = new Logger(FindOneRolUseCase.name);
 	private readonly CACHE_TTL = 3600000;
 
 	constructor(
 		private readonly rolRepository: RolRepository,
 		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute(where: WhereOptions<Role>, dataLog?: string) {
@@ -24,7 +25,10 @@ export class FindOneRolUseCase {
 		const cacheKey = this.cacheService.buildRoleKey(uid);
 		const cached = await this.cacheService.get<Role>(cacheKey);
 		if (cached) {
-			this.logger.debug(`Returning cached role: ${cacheKey}`);
+			this.logger.debug(`Retornando rol desde caché: ${cacheKey}`, {
+				type: 'role_find_one',
+				fromCache: true,
+			});
 			return cached;
 		}
 
@@ -46,6 +50,11 @@ export class FindOneRolUseCase {
 		if (!rol) {
 			this.logger.error(
 				`${dataLog ? dataLog : 'system'} - ${rolMessages.log.findOne}`,
+				'FindOneRolUseCase',
+				{
+					type: 'role_find_one',
+					status: 'not_found',
+				},
 			);
 			throw new NotFoundException(rolMessages.findOne);
 		}
@@ -54,8 +63,13 @@ export class FindOneRolUseCase {
 			await this.cacheService.set(cacheKey, rol, this.CACHE_TTL);
 		}
 
-		this.logger.log(
+		this.logger.info(
 			`${dataLog ? dataLog : 'system'} - ${rolMessages.log.findOneSuccess}`,
+			{
+				type: 'role_find_one',
+				roleId: rol.uid,
+				fromCache: false,
+			},
 		);
 
 		return rol;
