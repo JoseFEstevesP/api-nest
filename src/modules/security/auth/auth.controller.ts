@@ -1,4 +1,9 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import {
+	ApiErrorResponse,
+	ApiUnauthorizedResponse,
+	ApiTooManyRequestsResponse,
+} from '@/dto/api-response.dto';
 import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { dataInfoJWT } from '@/functions/dataInfoJWT';
 import { User } from '@/modules/security/user/entities/user.entity';
@@ -15,7 +20,12 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+	ApiBearerAuth,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+} from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { authMessages } from './auth.messages';
 import { AuthLoginDTO } from './dto/authLogin.dto';
@@ -38,9 +48,46 @@ export class AuthController {
 		private readonly configService: ConfigService,
 	) {}
 
-	@ApiResponse({ status: 201, description: 'Usuario logueado' })
-	@ApiResponse({ status: 400, description: 'Bad request' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiOperation({
+		summary: 'Iniciar sesión',
+		description: `
+## Descripción
+Autentica un usuario y devuelve tokens de acceso.
+
+## Permisos requeridos
+Ninguno - Endpoint público
+
+## Ejemplo de petición
+\`\`\`json
+{
+  "email": "usuario@ejemplo.com",
+  "password": "MiPassword123"
+}
+\`\`\`
+		`,
+	})
+	@ApiResponse({
+		status: 201,
+		description: 'Login exitoso - Devuelve tokens en cookies',
+		example: {
+			msg: 'Inicio de sesión exitoso',
+		},
+	})
+	@ApiResponse({
+		status: 400,
+		description: 'Datos de entrada inválidos',
+		type: ApiErrorResponse,
+	})
+	@ApiResponse({
+		status: 401,
+		description: 'Credenciales incorrectas',
+		type: ApiUnauthorizedResponse,
+	})
+	@ApiResponse({
+		status: 429,
+		description: 'Demasiadas peticiones',
+		type: ApiTooManyRequestsResponse,
+	})
 	@HttpCode(HttpStatus.CREATED)
 	@ThrottleAuth()
 	@Post('/login')
@@ -51,11 +98,31 @@ export class AuthController {
 	) {
 		this.logger.log(`system - ${authMessages.log.login}`);
 		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
-		return { msg: authMessages.msg.loginSuccess }; // Return response instead of manually sending it
+		return { msg: authMessages.msg.loginSuccess };
 	}
 
-	@ApiResponse({ status: 200, description: 'Usuario deslogueado' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiOperation({
+		summary: 'Cerrar sesión',
+		description: `
+## Descripción
+Cierra la sesión del usuario actual invalidando el token de refresh.
+
+## Permisos requeridos
+- Bearer Token (JWT)
+		`,
+	})
+	@ApiResponse({
+		status: 200,
+		description: 'Logout exitoso',
+		example: {
+			msg: 'Sesión cerrada exitosamente',
+		},
+	})
+	@ApiResponse({
+		status: 401,
+		description: 'Token no válido o expirado',
+		type: ApiUnauthorizedResponse,
+	})
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)
 	@Post('/logout')
@@ -69,8 +136,37 @@ export class AuthController {
 		return { msg: 'Sesión cerrada exitosamente' };
 	}
 
-	@ApiResponse({ status: 201, description: 'Token refrescado' })
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiOperation({
+		summary: 'Renovar token de acceso',
+		description: `
+## Descripción
+Renueva el token de acceso usando el token de refresh guardado en cookies.
+
+## Permisos requerions
+Ninguno - Requiere cookie de refresh token
+
+## Notas
+- El refresh token se envía automáticamente en cookies
+- Si el refresh token es válido, devuelve nuevos access y refresh tokens
+		`,
+	})
+	@ApiResponse({
+		status: 201,
+		description: 'Token refrescado exitosamente',
+		example: {
+			msg: 'Token actualizado',
+		},
+	})
+	@ApiResponse({
+		status: 401,
+		description: 'Refresh token inválido o expirado',
+		type: ApiUnauthorizedResponse,
+	})
+	@ApiResponse({
+		status: 429,
+		description: 'Demasiadas peticiones',
+		type: ApiTooManyRequestsResponse,
+	})
 	@HttpCode(HttpStatus.CREATED)
 	@ThrottleAuth()
 	@Post('/refresh-token')
@@ -83,9 +179,20 @@ export class AuthController {
 			res,
 			loginInfo: dataInfoJWT(req),
 		});
-		return { msg: 'Token actualizado' }; // Return response instead of manually sending it
+		return { msg: 'Token actualizado' };
 	}
 
+	@ApiOperation({
+		summary: 'Login con Google (Inicio)',
+		description: `
+## Descripción
+Inicia el proceso de autenticación con Google OAuth.
+
+## Permisos requeridos
+Ninguno
+		`,
+	})
+	@ApiResponse({ status: 200, description: 'Redirección a Google OAuth' })
 	@Get('google')
 	async googleLogin() {
 		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
@@ -94,6 +201,17 @@ export class AuthController {
 		}
 	}
 
+	@ApiOperation({
+		summary: 'Login con Google (Callback)',
+		description: `
+## Descripción
+Maneja el callback de Google OAuth después de la autenticación.
+
+## Permisos requeridos
+Ninguno
+		`,
+	})
+	@ApiResponse({ status: 200, description: 'Login con Google exitoso' })
 	@Get('google/callback')
 	async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
 		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');

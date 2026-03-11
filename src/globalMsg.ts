@@ -21,25 +21,90 @@ export const globalMsg = {
 			'Se envió el correo para la activación de la cuenta a la dirección:',
 	},
 	swagger: {
-		title: 'Documentación API',
-		description: 'Esta es la documentación de la API',
-		version: '1.0',
+		title: 'API REST - Gestión de Usuarios',
+		description: `
+## Acerca de la API
+
+Esta API proporciona endpoints para la gestión de usuarios, autenticación y control de acceso.
+
+### Autenticación
+
+La API utiliza JWT (JSON Web Tokens) para la autenticación. Para acceder a endpoints protegidos:
+
+1. Iniciar sesión con \`POST /api/auth/login\` para obtener tokens de acceso
+2. Incluir el token en el header: \`Authorization: Bearer <access_token>\`
+3. El token de acceso expira según configuración del servidor
+4. Usar \`POST /api/auth/refresh-token\` para renovar el token
+
+### Versionado
+
+- **v1**: Versión actual de la API
+- El versionado se indica en la URL: \`/api/v1/...\`
+
+### Códigos de Estado
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | OK - Solicitud exitosa |
+| 201 | Created - Recurso creado |
+| 400 | Bad Request - Datos inválidos |
+| 401 | Unauthorized - Autenticación requerida |
+| 403 | Forbidden - Acceso denegado |
+| 404 | Not Found - Recurso no encontrado |
+| 429 | Too Many Requests - Rate limit excedido |
+| 500 | Internal Server Error - Error del servidor |
+
+### Rate Limiting
+
+La API implementa rate limiting con los siguientes límites:
+- **Cortos**: 100 petitions/60s (consultas generales)
+- **Medios**: 50 petitions/5min (búsquedas)
+- **Largos**: 20 petitions/10min (operaciones pesadas)
+- **Auth**: 5 petitions/15min (autenticación)
+
+### Errores Comunes
+
+\`\`\`json
+{
+  "statusCode": 400,
+  "message": "El correo electrónico es requerido",
+  "error": "Bad Request"
+}
+\`\`\`
+		`,
+		version: '1.0.0',
+		contact: {
+			name: 'Soporte API',
+			email: 'soporte@ejemplo.com',
+		},
+		license: {
+			name: 'MIT',
+			url: 'https://opensource.org/licenses/MIT',
+		},
 		tags: {
 			user: {
 				name: 'User',
-				description: 'Gestión de usuarios y autenticación',
+				description: 'Gestión de usuarios - Endpoints para CRUD de usuarios',
 			},
 			rol: {
 				name: 'Rol',
-				description: 'Gestión de roles y permisos',
+				description: 'Gestión de roles y permisos - Control de acceso',
 			},
 			audit: {
 				name: 'Audit',
-				description: 'Registros de auditoría',
+				description: 'Registros de auditoría - Historial de acciones',
 			},
 			auth: {
 				name: 'Auth',
-				description: 'Autenticación de usuarios',
+				description: 'Autenticación - Login, logout, refresh token',
+			},
+			files: {
+				name: 'Files',
+				description: 'Gestión de archivos - Subida y descarga',
+			},
+			health: {
+				name: 'Health',
+				description: 'Estado del sistema - Health checks',
 			},
 		},
 	},
