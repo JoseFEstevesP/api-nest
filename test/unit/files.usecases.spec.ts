@@ -6,13 +6,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Mock del módulo fs
-jest.mock('fs', () => ({
-	...jest.requireActual('fs'),
-	existsSync: jest.fn(),
-	mkdirSync: jest.fn(),
+vi.mock('fs', () => ({
+	...vi.importActual('fs'),
+	existsSync: vi.fn(),
+	mkdirSync: vi.fn(),
 	promises: {
-		writeFile: jest.fn(),
-		unlink: jest.fn(),
+		writeFile: vi.fn(),
+		unlink: vi.fn(),
 	},
 }));
 
@@ -35,13 +35,17 @@ describe('Files Use Cases', () => {
 
 	beforeEach(async () => {
 		// Reset mocks
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Setup fs mocks
-		(fs.existsSync as jest.Mock).mockReturnValue(false);
-		(fs.mkdirSync as jest.Mock).mockImplementation(() => {});
-		(fs.promises.writeFile as jest.Mock).mockResolvedValue(undefined);
-		(fs.promises.unlink as jest.Mock).mockResolvedValue(undefined);
+		(fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(false);
+		(fs.mkdirSync as ReturnType<typeof vi.fn>).mockImplementation(() => {});
+		(fs.promises.writeFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+			undefined,
+		);
+		(fs.promises.unlink as ReturnType<typeof vi.fn>).mockResolvedValue(
+			undefined,
+		);
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [SaveFileUseCase, DeleteFileUseCase],
@@ -57,7 +61,9 @@ describe('Files Use Cases', () => {
 
 			expect(result).toBeDefined();
 			expect(typeof result).toBe('string');
-			expect(result).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/);
+			expect(result).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/,
+			);
 			expect(fs.promises.writeFile).toHaveBeenCalled();
 		});
 
@@ -72,7 +78,9 @@ describe('Files Use Cases', () => {
 
 			expect(result).toBeDefined();
 			expect(typeof result).toBe('string');
-			expect(result).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/);
+			expect(result).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/,
+			);
 			expect(fs.promises.writeFile).toHaveBeenCalled();
 		});
 
@@ -164,16 +172,16 @@ describe('Files Use Cases', () => {
 		});
 
 		it('should throw BadRequestException when writeFile fails', async () => {
-			(fs.promises.writeFile as jest.Mock).mockRejectedValue(
+			(fs.promises.writeFile as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Disk full'),
 			);
 
-			await expect(
-				saveFileUseCase.execute(mockFile, 'image'),
-			).rejects.toThrow(BadRequestException);
-			await expect(
-				saveFileUseCase.execute(mockFile, 'image'),
-			).rejects.toThrow('Failed to save file: Disk full');
+			await expect(saveFileUseCase.execute(mockFile, 'image')).rejects.toThrow(
+				BadRequestException,
+			);
+			await expect(saveFileUseCase.execute(mockFile, 'image')).rejects.toThrow(
+				'Failed to save file: Disk full',
+			);
 		});
 
 		it('should create directories if they do not exist', () => {
@@ -193,7 +201,7 @@ describe('Files Use Cases', () => {
 
 	describe('DeleteFileUseCase', () => {
 		it('should delete an image file successfully', async () => {
-			(fs.existsSync as jest.Mock).mockReturnValue(true);
+			(fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
 			await expect(
 				deleteFileUseCase.execute('test-image.jpg', 'image'),
@@ -206,7 +214,7 @@ describe('Files Use Cases', () => {
 		});
 
 		it('should delete a document file successfully', async () => {
-			(fs.existsSync as jest.Mock).mockReturnValue(true);
+			(fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
 			await expect(
 				deleteFileUseCase.execute('test-document.pdf', 'document'),
@@ -219,12 +227,12 @@ describe('Files Use Cases', () => {
 		});
 
 		it('should throw BadRequestException when filename is not provided', async () => {
-			await expect(
-				deleteFileUseCase.execute('', 'image'),
-			).rejects.toThrow(BadRequestException);
-			await expect(
-				deleteFileUseCase.execute('', 'image'),
-			).rejects.toThrow('El nombre del archivo es obligatorio.');
+			await expect(deleteFileUseCase.execute('', 'image')).rejects.toThrow(
+				BadRequestException,
+			);
+			await expect(deleteFileUseCase.execute('', 'image')).rejects.toThrow(
+				'El nombre del archivo es obligatorio.',
+			);
 		});
 
 		it('should throw BadRequestException when type is not provided', async () => {
@@ -237,7 +245,7 @@ describe('Files Use Cases', () => {
 		});
 
 		it('should throw BadRequestException when file does not exist', async () => {
-			(fs.existsSync as jest.Mock).mockReturnValue(false);
+			(fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(false);
 
 			// Note: The use case wraps the not found error in a BadRequestException
 			await expect(
@@ -249,8 +257,8 @@ describe('Files Use Cases', () => {
 		});
 
 		it('should throw BadRequestException when unlink fails', async () => {
-			(fs.existsSync as jest.Mock).mockReturnValue(true);
-			(fs.promises.unlink as jest.Mock).mockRejectedValue(
+			(fs.existsSync as ReturnType<typeof vi.fn>).mockReturnValue(true);
+			(fs.promises.unlink as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Permission denied'),
 			);
 

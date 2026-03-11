@@ -1,9 +1,21 @@
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
 	test: {
 		globals: true,
 		environment: 'node',
 		setupFiles: ['./test/setup-vitest.ts', 'tsconfig-paths/register'],
+		sequence: {
+			sequential: true,
+		},
+	},
+	resolve: {
+		alias: {
+			'@': path.resolve(__dirname, './src'),
+		},
+	},
+	optimizeDeps: {
+		exclude: ['dotenv'],
 	},
 });

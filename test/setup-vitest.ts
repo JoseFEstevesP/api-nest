@@ -1,14 +1,13 @@
 import { vi } from 'vitest';
 
-declare global {
-	var jest: any;
-}
-
-// Minimal compatibility: map Jest globals to Vitest equivalents
-global.jest = {
+(global as any).jest = {
 	fn: vi.fn,
 	spyOn: vi.spyOn,
+	mock: vi.mock,
 	mockImplementation: vi.fn,
+	clearAllMocks: vi.clearAllMocks,
+	resetAllMocks: vi.resetAllMocks,
+	requireActual: vi.fn(),
 };
 
 export {};

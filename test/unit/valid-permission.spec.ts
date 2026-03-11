@@ -17,7 +17,7 @@ describe('ValidPermission Decorator', () => {
 	it('should set metadata with correct key and value', () => {
 		const permission = 'USER_READ';
 		const decorator = ValidPermission(permission);
-		
+
 		// The decorator should use SetMetadata with 'valid-permission' key
 		// We can't directly test the metadata without a target, but we can verify it returns a function
 		expect(() => decorator(class TestClass {}, 'test')).not.toThrow();
@@ -40,16 +40,16 @@ describe('ValidPermission Decorator', () => {
 
 describe('PermissionsGuard', () => {
 	let guard: PermissionsGuard;
-	let mockReflector: jest.Mocked<Reflector>;
+	let mockReflector: vi.Mocked<Reflector>;
 	let mockFindOneRolUseCase: any;
 
 	beforeEach(() => {
 		mockReflector = {
-			get: jest.fn(),
+			get: vi.fn(),
 		} as any;
 
 		mockFindOneRolUseCase = {
-			execute: jest.fn(),
+			execute: vi.fn(),
 		} as any;
 
 		// Create guard instance manually with mocks
@@ -57,18 +57,18 @@ describe('PermissionsGuard', () => {
 	});
 
 	afterEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe('canActivate', () => {
 		const createMockContext = (user?: any, handlerMetadata?: any) => {
 			return {
-				switchToHttp: jest.fn().mockReturnValue({
-					getRequest: jest.fn().mockReturnValue({
+				switchToHttp: vi.fn().mockReturnValue({
+					getRequest: vi.fn().mockReturnValue({
 						user: user || {},
 					}),
 				}),
-				getHandler: jest.fn().mockReturnValue(handlerMetadata || {}),
+				getHandler: vi.fn().mockReturnValue(handlerMetadata || {}),
 			} as any as ExecutionContext;
 		};
 
