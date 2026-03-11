@@ -4,9 +4,9 @@ import 'winston-daily-rotate-file';
 
 @Injectable()
 export class LoggerService {
-	declare private loggerInfo: Logger;
-	declare private loggerError: Logger;
-	declare private loggerAll: Logger;
+	private loggerInfo: Logger;
+	private loggerError: Logger;
+	private loggerAll: Logger;
 
 	constructor() {
 		this.createLoggers();

@@ -13,7 +13,7 @@ import {
 	Res,
 	UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { authMessages } from './auth.messages';
@@ -34,7 +34,6 @@ export class AuthController {
 		private readonly logoutUseCase: LogoutUseCase,
 		private readonly refreshTokenUseCase: RefreshTokenUseCase,
 		private readonly googleLoginUseCase: GoogleLoginUseCase,
-		private readonly configService: ConfigService,
 	) {}
 
 	@ApiResponse({ status: 201, description: 'Usuario logueado' })
@@ -84,19 +83,15 @@ export class AuthController {
 	}
 
 	@Get('google')
-	async googleLogin() {
-		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-		if (!clientId) {
-			return { msg: 'Google OAuth not configured' };
-		}
-	}
+	@UseGuards(AuthGuard('google'))
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	async googleLogin() {}
 
 	@Get('google/callback')
-	async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-		if (!clientId) {
-			return { msg: 'Google OAuth not configured' };
-		}
+	@UseGuards(AuthGuard('google'))
+	googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+		// The GoogleLoginUseCase handles the response with res.redirect()
+		// so no return value is needed here
 		this.googleLoginUseCase.execute({
 			user: req.user as User,
 			res,

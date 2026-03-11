@@ -22,7 +22,7 @@ export class UserUpdateProfilePasswordDTO {
 	)
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
-	declare readonly olPassword: string;
+	readonly olPassword: string;
 
 	@ApiProperty({
 		example: 'P@ssw0rd123',
@@ -42,5 +42,5 @@ export class UserUpdateProfilePasswordDTO {
 	)
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
-	declare readonly newPassword: string;
+	readonly newPassword: string;
 }

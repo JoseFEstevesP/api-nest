@@ -19,7 +19,7 @@ export class AuditUpdateDTO extends PartialType(AuditRegisterDTO) {
 	@IsUUID('all', { message: auditMessages.validation.dto.uid.valid })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsDefined({ message: auditMessages.validation.dto.defined })
-	declare readonly uid: string;
+	readonly uid: string;
 
 	@ApiProperty({
 		example: true,
@@ -28,5 +28,5 @@ export class AuditUpdateDTO extends PartialType(AuditRegisterDTO) {
 	@IsBoolean({ message: auditMessages.validation.dto.status })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsOptional()
-	declare readonly status?: boolean;
+	readonly status?: boolean;
 }

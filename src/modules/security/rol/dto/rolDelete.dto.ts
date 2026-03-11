@@ -10,5 +10,5 @@ export class RolDeleteDTO {
 	@IsUUID('all', { message: rolMessages.validation.dto.uid.valid })
 	@IsNotEmpty({ message: rolMessages.validation.dto.empty })
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	declare readonly uid: string;
+	readonly uid: string;
 }

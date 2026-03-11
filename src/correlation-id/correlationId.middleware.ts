@@ -8,12 +8,7 @@ export const correlationIdHeader = 'X-Correlation-Id';
 export class CorrelationIdMiddleware implements NestMiddleware {
 	use(req: Request, res: Response, next: NextFunction) {
 		const id = randomUUID();
-		Object.defineProperty(req, correlationIdHeader, {
-			value: id,
-			writable: true,
-			enumerable: true,
-			configurable: true,
-		});
+		req[correlationIdHeader] = id;
 		res.set(correlationIdHeader, id);
 		next();
 	}

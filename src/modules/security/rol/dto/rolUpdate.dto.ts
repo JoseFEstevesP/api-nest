@@ -18,7 +18,7 @@ export class RolUpdateDTO extends OmitType(RolRegisterDTO, ['typeRol']) {
 	@IsUUID('all', { message: rolMessages.validation.dto.uid.valid })
 	@IsNotEmpty({ message: rolMessages.validation.dto.empty })
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	declare readonly uid: string;
+	readonly uid: string;
 
 	@ApiProperty({
 		example: true,
@@ -27,5 +27,5 @@ export class RolUpdateDTO extends OmitType(RolRegisterDTO, ['typeRol']) {
 	@IsBoolean({ message: rolMessages.validation.dto.status })
 	@IsNotEmpty({ message: rolMessages.validation.dto.empty })
 	@IsOptional()
-	declare readonly status: boolean;
+	readonly status: boolean;
 }

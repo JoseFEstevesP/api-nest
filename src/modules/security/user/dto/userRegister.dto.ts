@@ -51,7 +51,7 @@ export class UserRegisterDTO {
 	@Length(3, 255, { message: userMessages.dto.lengthValue })
 	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
-	declare readonly names: string;
+	readonly names: string;
 
 	@ApiProperty({
 		example: 'Doe',
@@ -62,7 +62,7 @@ export class UserRegisterDTO {
 	@Length(3, 255, { message: userMessages.dto.lengthValue })
 	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
-	declare readonly surnames: string;
+	readonly surnames: string;
 
 	@ApiProperty({
 		example: 'jhon.doe@example.com',
@@ -72,7 +72,7 @@ export class UserRegisterDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
 	@Transform(({ value }) => value.trim())
-	declare readonly email: string;
+	readonly email: string;
 
 	@ApiProperty({
 		example: '1234567890',
@@ -85,7 +85,7 @@ export class UserRegisterDTO {
 	@Matches(regexPhone, {
 		message: userMessages.validation.dto.phone,
 	})
-	declare readonly phone: string;
+	readonly phone: string;
 
 	@ApiProperty({
 		example: 'P@ssw0rd123',
@@ -104,7 +104,7 @@ export class UserRegisterDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
-	declare readonly password: string;
+	readonly password: string;
 
 	@ApiProperty({
 		example: 'P@ssw0rd123',
@@ -114,7 +114,7 @@ export class UserRegisterDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
 	@Match('password', { message: userMessages.validation.dto.passwordMatch })
-	declare readonly confirmPassword: string;
+	readonly confirmPassword: string;
 
 	@ApiProperty({
 		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
@@ -124,5 +124,5 @@ export class UserRegisterDTO {
 	@IsString({ message: userMessages.dto.stringValue })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
-	declare readonly uidRol?: string;
+	readonly uidRol?: string;
 }

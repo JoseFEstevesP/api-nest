@@ -10,7 +10,7 @@ export class queryDTO {
 	})
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsOptional()
-	declare readonly status?: string;
+	readonly status?: string;
 
 	@ApiProperty({
 		example: 'texto a buscar',
@@ -18,7 +18,7 @@ export class queryDTO {
 	})
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsOptional()
-	declare readonly search?: string;
+	readonly search?: string;
 
 	@ApiProperty({
 		example: 1,
@@ -26,7 +26,7 @@ export class queryDTO {
 	})
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsDefined({ message: globalMsg.dto.defined })
-	declare readonly page: string;
+	readonly page: string;
 
 	@ApiProperty({
 		example: 10,
@@ -34,7 +34,7 @@ export class queryDTO {
 	})
 	@IsString({ message: globalMsg.dto.stringValue })
 	@IsDefined({ message: globalMsg.dto.defined })
-	declare readonly limit: string;
+	readonly limit: string;
 
 	@ApiProperty({
 		example: Order.ASC,
@@ -42,5 +42,5 @@ export class queryDTO {
 	})
 	@IsEnum(Order, { message: globalMsg.dto.enumValue })
 	@IsDefined({ message: globalMsg.dto.defined })
-	declare readonly order: Order;
+	readonly order: Order;
 }

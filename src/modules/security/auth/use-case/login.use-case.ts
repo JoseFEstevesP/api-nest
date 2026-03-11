@@ -56,7 +56,7 @@ export class LoginUseCase {
 		const accessToken = await this.generateAccessToken(user, loginInfo);
 		const refreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		const loginInfoArray = Object.values(loginInfo);
+		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
 
 		try {
 			await this.userRepository.transaction(async (t: Transaction) => {

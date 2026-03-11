@@ -23,12 +23,8 @@ export class CreateRolUseCase {
 		});
 
 		validatePropertyData({
-			property: { name, typeRol } as {
-				name: string;
-				typeRol: string;
-				status: boolean;
-			},
-			data: (existingPatient as unknown as Record<string, unknown>) ?? undefined,
+			property: { name, typeRol },
+			data: existingPatient,
 			msg: rolMessages,
 		});
 

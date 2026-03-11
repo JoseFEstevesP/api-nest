@@ -7,68 +7,48 @@ export class AppConfigService {
 	constructor(private configService: ConfigService<EnvironmentVariables>) {}
 
 	get port(): number {
-		return this.configService.get<number>('PORT', { infer: true }) ?? 3000;
+		return this.configService.get('PORT');
 	}
 
 	get jwtConfig() {
 		return {
-			secret:
-				this.configService.get<string>('JWT_SECRET', { infer: true }) ?? '',
-			refreshSecret:
-				this.configService.get<string>('JWT_REFRESH_SECRET', { infer: true }) ??
-				'',
+			secret: this.configService.get('JWT_SECRET'),
+			refreshSecret: this.configService.get('JWT_REFRESH_SECRET'),
 		};
 	}
 
 	get emailConfig() {
 		return {
-			user: this.configService.get<string>('EMAIL_USER', { infer: true }) ?? '',
-			pass: this.configService.get<string>('EMAIL_PASS', { infer: true }) ?? '',
+			user: this.configService.get('EMAIL_USER'),
+			pass: this.configService.get('EMAIL_PASS'),
 		};
 	}
 
 	get databaseConfig() {
 		return {
-			dialect:
-				this.configService.get<string>('DATABASE_DIALECT', { infer: true }) ??
-				'postgres',
-			host:
-				this.configService.get<string>('DATABASE_HOST', { infer: true }) ??
-				'localhost',
-			port:
-				this.configService.get<number>('DATABASE_PORT', { infer: true }) ??
-				5432,
-			username:
-				this.configService.get<string>('POSTGRES_USER', { infer: true }) ?? '',
-			password:
-				this.configService.get<string>('POSTGRES_PASSWORD', { infer: true }) ??
-				'',
-			database:
-				this.configService.get<string>('POSTGRES_DB', { infer: true }) ?? '',
+			dialect: this.configService.get('DATABASE_DIALECT'),
+			host: this.configService.get('DATABASE_HOST'),
+			port: this.configService.get('DATABASE_PORT'),
+			username: this.configService.get('POSTGRES_USER'),
+			password: this.configService.get('POSTGRES_PASSWORD'),
+			database: this.configService.get('POSTGRES_DB'),
 		};
 	}
 
 	get corsConfig(): string[] {
-		const cors = this.configService.get('CORS');
-		if (Array.isArray(cors)) {
-			return cors as string[];
-		}
-		return [];
+		return this.configService.get('CORS');
 	}
 
 	get rateLimitConfig() {
 		return {
-			ttl:
-				this.configService.get<number>('RATE_LIMIT_TTL', { infer: true }) ?? 60,
-			limit:
-				this.configService.get<number>('RATE_LIMIT_LIMIT', { infer: true }) ??
-				100,
+			ttl: this.configService.get('RATE_LIMIT_TTL'),
+			limit: this.configService.get('RATE_LIMIT_LIMIT'),
 		};
 	}
 
 	get redisConfig() {
 		return {
-			url: this.configService.get<string>('REDIS_URL', { infer: true }) ?? '',
+			url: this.configService.get('REDIS_URL'),
 		};
 	}
 }

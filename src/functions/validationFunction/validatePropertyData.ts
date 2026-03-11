@@ -1,16 +1,14 @@
 import { checkValidationErrors } from './checkValidationErrors';
 import { ValidatePropertyDataProps } from './interface';
 
-export const validatePropertyData = <T extends Record<string, unknown>>({
+export const validatePropertyData = <T extends { status: boolean }>({
 	property,
 	data,
 	msg,
 	checkErrors,
 }: ValidatePropertyDataProps<T>): void => {
-	if (!data) return;
-
 	for (const item of Object.keys(property) as Array<keyof T>) {
-		if (data[item] === property[item]) {
+		if (data && data[item] === property[item]) {
 			const validationFn = checkErrors || checkValidationErrors;
 			validationFn({
 				data,

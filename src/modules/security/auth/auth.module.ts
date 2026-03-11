@@ -8,18 +8,18 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthController } from './auth.controller';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleLoginUseCase } from './use-case/google-login.use-case';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
 import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
 import { ValidateGoogleUserUseCase } from './use-case/validate-google-user.use-case';
-import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
 	imports: [
 		UserModule,
-		PassportModule.register({ defaultStrategy: 'jwt' }),
+		PassportModule,
 		AuditModule,
 		forwardRef(() => RolModule),
 		SequelizeModule.forFeature([]),
@@ -40,28 +40,9 @@ import { GoogleStrategy } from './strategies/google.strategy';
 		LoginUseCase,
 		LogoutUseCase,
 		RefreshTokenUseCase,
+		GoogleStrategy,
 		GoogleLoginUseCase,
 		ValidateGoogleUserUseCase,
-		{
-			provide: 'GOOGLE_STRATEGY',
-			useFactory: async (
-				validateGoogleUserUseCase: ValidateGoogleUserUseCase,
-				configService: ConfigService<EnvironmentVariables>,
-			) => {
-				const clientId = configService.get<string>('GOOGLE_CLIENT_ID', {
-					infer: true,
-				});
-				const clientSecret = configService.get<string>('GOOGLE_SECRET', {
-					infer: true,
-				});
-
-				if (clientId && clientSecret) {
-					return new GoogleStrategy(validateGoogleUserUseCase, configService);
-				}
-				return null;
-			},
-			inject: [ValidateGoogleUserUseCase, ConfigService],
-		},
 	],
 	exports: [JwtStrategy, JwtModule],
 })

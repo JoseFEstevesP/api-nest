@@ -62,9 +62,8 @@ export class SaveFileUseCase {
 			this.logger.log(`File saved: ${filename}`);
 			return filename;
 		} catch (error) {
-			const err = error as Error;
-			this.logger.error(`Error saving file ${filename}: ${err.message}`);
-			throw new BadRequestException(`Failed to save file: ${err.message}`);
+			this.logger.error(`Error saving file ${filename}: ${error.message}`);
+			throw new BadRequestException(`Failed to save file: ${error.message}`);
 		}
 	}
 }

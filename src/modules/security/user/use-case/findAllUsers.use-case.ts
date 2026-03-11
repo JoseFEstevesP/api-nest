@@ -1,20 +1,22 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
+import { Permission } from '@/modules/security/rol/enum/permissions';
+import { UserGetAllDTO } from '@/modules/security/user/dto/userGetAll.dto';
+import { OrderUserProperty } from '@/modules/security/user/enum/data';
 import { PaginationResult } from '@/types';
 import { Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
-import { Permission } from '../../rol/enum/permissions';
-import { UserGetAllDTO } from '../dto/userGetAll.dto';
 import { User } from '../entities/user.entity';
-import { OrderUserProperty } from '../enum/orderProperty';
-import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
+import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
 export class FindAllUsersUseCase {
 	private readonly logger = new Logger(FindAllUsersUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+	) {}
 
 	async execute({
 		filter,
@@ -34,7 +36,7 @@ export class FindAllUsersUseCase {
 			order = Order.ASC,
 		} = filter;
 
-		const status = booleanStatus({ status: olStatus ?? 'true' }) ?? true;
+		const status = olStatus ? booleanStatus({ status: olStatus }) : true;
 		const parsedLimit = Number(limit);
 		const parsedPage = Number(page);
 
@@ -81,8 +83,7 @@ export class FindAllUsersUseCase {
 		} as WhereOptions;
 
 		if (search) {
-			(where as Record<string, unknown>)['$or'] =
-				this.getSearchConditions(search);
+			where[Op.or] = this.getSearchConditions(search);
 		}
 
 		return where;

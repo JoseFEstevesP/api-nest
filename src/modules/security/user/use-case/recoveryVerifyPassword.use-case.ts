@@ -30,7 +30,7 @@ export class RecoveryVerifyPasswordUseCase {
 		}
 
 		await this.userRepository.update(user.uid, {
-			code: undefined,
+			code: null,
 		});
 
 		const token = await this.jwtService.signAsync(

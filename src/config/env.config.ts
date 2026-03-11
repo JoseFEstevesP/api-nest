@@ -23,76 +23,76 @@ export enum DefaultRole {
 
 export class EnvironmentVariables {
 	@IsNumber()
-	declare PORT: number;
+	PORT: number;
 
 	@IsString()
 	@MinLength(64)
-	declare JWT_SECRET: string;
+	JWT_SECRET: string;
 
 	@IsString()
 	@MinLength(64)
-	declare JWT_REFRESH_SECRET: string;
+	JWT_REFRESH_SECRET: string;
 
 	@IsString()
-	declare EMAIL_HOST: string;
+	EMAIL_HOST: string;
 
 	@IsEmail()
-	declare EMAIL_USER: string;
+	EMAIL_USER: string;
 
 	@IsString()
-	declare EMAIL_PASS: string;
+	EMAIL_PASS: string;
 
 	@IsEnum(Environment)
-	declare NODE_ENV: Environment;
+	NODE_ENV: Environment;
 
 	@IsEnum(DefaultRole)
-	declare DEFAULT_ROL_FROM_USER: DefaultRole;
+	DEFAULT_ROL_FROM_USER: DefaultRole;
 
 	@IsString({ each: true })
 	@Validate(IsCorsValidConstraint)
-	declare CORS: string[];
+	CORS: string[];
 
 	@IsString()
-	declare DATABASE_DIALECT: Dialect;
+	DATABASE_DIALECT: Dialect;
 
 	@IsString()
-	declare DATABASE_HOST: string;
+	DATABASE_HOST: string;
 
 	@IsNumber()
-	declare DATABASE_PORT: number;
+	DATABASE_PORT: number;
 
 	@IsString()
-	declare POSTGRES_USER: string;
+	POSTGRES_USER: string;
 
 	@IsString()
-	declare POSTGRES_PASSWORD: string;
+	POSTGRES_PASSWORD: string;
 
 	@IsString()
-	declare POSTGRES_DB: string;
+	POSTGRES_DB: string;
 
 	@IsNumber()
-	declare RATE_LIMIT_TTL: number;
+	RATE_LIMIT_TTL: number;
 
 	@IsNumber()
-	declare RATE_LIMIT_LIMIT: number;
+	RATE_LIMIT_LIMIT: number;
 
 	@IsString()
-	declare REDIS_URL: string;
+	REDIS_URL: string;
 
 	@IsNumber()
-	declare SALT_ROUNDS: number;
+	SALT_ROUNDS: number;
 
 	@IsString()
-	declare GOOGLE_CLIENT_ID: string;
+	GOOGLE_CLIENT_ID: string;
 
 	@IsString()
-	declare GOOGLE_SECRET: string;
+	GOOGLE_SECRET: string;
 
 	@IsString()
-	declare GOOGLE_CALLBACK_URL: string;
+	GOOGLE_CALLBACK_URL: string;
 
 	@IsString()
-	declare FRONT_END_URL: string;
+	FRONT_END_URL: string;
 }
 
 export const validateEnv = (config: Record<string, unknown>) => {

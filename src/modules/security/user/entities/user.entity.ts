@@ -9,15 +9,7 @@ import {
 	Table,
 } from 'sequelize-typescript';
 
-@Table({
-	indexes: [
-		{ unique: true, fields: ['email'], name: 'idx_user_email' },
-		{ fields: ['uidRol'], name: 'idx_user_uid_rol' },
-		{ fields: ['status'], name: 'idx_user_status' },
-		{ fields: ['activatedAccount'], name: 'idx_user_activated_account' },
-		{ fields: ['phone'], name: 'idx_user_phone' },
-	],
-})
+@Table
 export class User extends Model<User> {
 	@ApiProperty({
 		example: crypto.randomUUID(),
@@ -50,7 +42,7 @@ export class User extends Model<User> {
 		example: 'john@doe.com',
 		description: 'Correo electrónico del usuario',
 	})
-	@Column({ allowNull: false, type: DataType.STRING, unique: true })
+	@Column({ allowNull: false, type: DataType.STRING })
 	declare email: string;
 
 	@ApiProperty({

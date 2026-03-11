@@ -21,7 +21,7 @@ export class UserNewPasswordDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
-	declare readonly newPassword: string;
+	readonly newPassword: string;
 
 	@ApiProperty({
 		example: 'P@ssw0rd123',
@@ -40,5 +40,5 @@ export class UserNewPasswordDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
-	declare readonly confirmPassword: string;
+	readonly confirmPassword: string;
 }

@@ -49,9 +49,9 @@ export class UpdateUserProfilePasswordUseCase {
 
 		const hashPass = await hash(
 			newPassword,
-			this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
+			this.configService.get('SALT_ROUNDS'),
 		);
-		await this.userRepository.update(uid, { password: await hashPass });
+		await this.userRepository.update(uid, { password: hashPass });
 		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog); // This is an external dependency, needs to be injected
 
 		this.logger.log(`${dataLog} - ${userMessages.log.profileSuccess}`);

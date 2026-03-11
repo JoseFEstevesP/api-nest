@@ -30,8 +30,7 @@ export class HealthController {
 					}
 					throw new Error('Redis check failed: value mismatch');
 				} catch (e) {
-					const err = e as Error;
-					throw new Error(`Redis check failed: ${err.message}`);
+					throw new Error(`Redis check failed: ${e.message}`);
 				}
 			},
 		]);

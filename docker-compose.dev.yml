@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: dockerfile.dev
     ports:
       - '${PORT}:${PORT}'
     depends_on:
@@ -12,6 +12,9 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
 
   db:
     image: postgres:17-alpine

@@ -39,7 +39,7 @@ export class RefreshTokenUseCase {
 			throw new UnauthorizedException(authMessages.msg.refreshToken);
 		}
 
-		const loginInfoArray = Object.values(loginInfo);
+		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
 		const auditRef = await this.findOneAuditUseCase.execute({
 			refreshToken,
 			dataToken: loginInfoArray,

@@ -35,22 +35,22 @@ export class CreateProtectUserUseCase {
 
 		validatePropertyData({
 			property: { phone, email },
-			data: existingPatient as unknown as Record<string, unknown> | undefined,
+			data: existingPatient,
 			msg: userMessages,
 			checkErrors: checkValidationErrorsUser,
 		});
 
 		const hashPass = await hash(
 			password,
-			this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
+			this.configService.get('SALT_ROUNDS'),
 		);
 
 		const user = {
 			...userData,
-			password: await hashPass,
+			password: hashPass,
 			activatedAccount: true,
-			code: undefined,
-		} as unknown as User;
+			code: null,
+		} as User;
 
 		await this.userRepository.create(user);
 		this.logger.log(`${dataLog} ${userMessages.log.createSuccess}`);

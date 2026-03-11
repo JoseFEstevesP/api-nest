@@ -2,14 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { TypeRol } from '../enum/rolData';
 
-@Table({
-	tableName: 'Roles',
-	indexes: [
-		{ unique: true, fields: ['name'], name: 'idx_role_name' },
-		{ fields: ['typeRol'], name: 'idx_role_type_rol' },
-		{ fields: ['status'], name: 'idx_role_status' },
-	],
-})
+@Table({ tableName: 'Roles' })
 export class Role extends Model<Role> {
 	@ApiProperty({
 		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',

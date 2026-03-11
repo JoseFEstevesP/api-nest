@@ -43,9 +43,8 @@ export class DeleteFileUseCase {
 				throw new NotFoundException(filesMessages.fileNotFound);
 			}
 		} catch (error) {
-			const err = error as Error;
-			this.logger.error(`Error deleting file ${filename}: ${err.message}`);
-			throw new BadRequestException(`Failed to delete file: ${err.message}`);
+			this.logger.error(`Error deleting file ${filename}: ${error.message}`);
+			throw new BadRequestException(`Failed to delete file: ${error.message}`);
 		}
 	}
 }
