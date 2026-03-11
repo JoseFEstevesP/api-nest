@@ -17,6 +17,7 @@ import { globalMsg } from './globalMsg';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { LoggerService } from './services/logger.service';
+import { MetricsService } from './services/metrics.service';
 
 function setupSwagger(app: INestApplication) {
 	const config = new DocumentBuilder()
@@ -128,11 +129,14 @@ async function bootstrap() {
 		}),
 	);
 
+	const loggerService = new LoggerService();
+	const metricsService = new MetricsService();
+
 	const httpAdapterHost = app.get(HttpAdapterHost);
-	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
+	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, loggerService));
 
 	app.useGlobalInterceptors(
-		new LoggingInterceptor(),
+		new LoggingInterceptor(loggerService, metricsService),
 		new TransformInterceptor(),
 	);
 
