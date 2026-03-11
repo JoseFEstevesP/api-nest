@@ -1,42 +1,103 @@
-# ---- Base ----
-FROM node:24.6.0-alpine AS base
+# =============================================================================
+# Stage 1: Base - Dependencies
+# =============================================================================
+FROM node:24.6.0-alpine3.20 AS base
+
+# Install pnpm globally
+RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
+
+# Create app directory
 WORKDIR /usr/src/app
-RUN npm install -g pnpm@10.15.0
 
-# ---- Dependencies (Production) ----
-FROM base AS deps
-ARG NODE_ENV=production
+# Copy package files for dependency installation
 COPY package.json pnpm-lock.yaml ./
-RUN if [ "$NODE_ENV" = "production" ]; then \
-      pnpm install --frozen-lockfile --prod; \
-    else \
-      pnpm install --frozen-lockfile; \
-    fi
 
-# ---- Build ----
+# =============================================================================
+# Stage 2: Dependencies - Install production dependencies
+# =============================================================================
+FROM base AS deps
+
+ARG NODE_ENV=production
+
+# Install dependencies
+RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
+    pnpm install --frozen-lockfile --prod
+
+# =============================================================================
+# Stage 3: Builder - Build the application
+# =============================================================================
 FROM base AS builder
-ARG NODE_ENV=production
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY . .
-RUN pnpm build
 
-# ---- Release (Production) ----
-FROM base AS production
 ARG NODE_ENV=production
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=builder /usr/src/app/dist ./dist
+ENV NODE_ENV=$NODE_ENV
+
+# Copy dependencies from deps stage
 COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY package.json .
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client (if needed) and build
+RUN pnpm run build
+
+# =============================================================================
+# Stage 4: Production - Minimal runtime image
+# =============================================================================
+FROM node:24.6.0-alpine3.20 AS production
+
+# Security: Create non-root user and group
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup -s /bin/sh
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy built artifacts
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package.json ./package.json
+
+# Copy only necessary files for production
+COPY --from=builder /usr/src/app/package.json ./package.json
+
+# Environment variables
+ENV NODE_ENV=production \
+    PORT=3000 \
+    NODE_OPTIONS="--max-old-space-size=256"
+
+# Create necessary directories with proper ownership
+RUN mkdir -p uploads logs && \
+    chown -R appuser:appgroup /usr/src/app
+
+# Switch to non-root user
 USER appuser
+
+# Expose port
 EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || exit 1
+
+# Start the application
 CMD ["node", "dist/main.js"]
 
-# ---- Development ----
+# =============================================================================
+# Stage 5: Development - Local development environment
+# =============================================================================
 FROM deps AS development
+
 ARG NODE_ENV=development
-USER root
-RUN apk add --no-cache dumb-init
-USER root
+ENV NODE_ENV=$NODE_ENV
+
+# Install development tools
+RUN apk add --no-cache dumb-init curl
+
+# Copy source code for development
 COPY . .
-EXPOSE 3000
-CMD ["dumb-init", "pnpm", "dev"]
+
+# Expose ports
+EXPOSE 3000 9229
+
+# Use dumb-init to handle signals properly
+CMD ["dumb-init", "pnpm", "run", "dev"]

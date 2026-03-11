@@ -1,14 +1,38 @@
 services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: api-nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    networks:
+      - api-network
+
+  # API Application
   api:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NODE_ENV: ${NODE_ENV:-production}
+        NODE_ENV: production
     image: api-nest:${VERSION:-latest}
     container_name: api-nest
-    ports:
-      - '${PORT:-3000}:3000'
+    expose:
+      - 3000
     depends_on:
       db:
         condition: service_healthy
@@ -17,8 +41,8 @@ services:
     env_file:
       - .env
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      PORT: 3000
+      - NODE_ENV=production
+      - PORT=3000
     volumes:
       - uploads:/usr/src/app/uploads
       - logs:/usr/src/app/logs
@@ -35,15 +59,15 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      - /usr/src/app/logs
     networks:
       - api-network
 
+  # PostgreSQL Database
   db:
     image: postgres:17-alpine
     container_name: api-nest-db
-    ports:
-      - '${DATABASE_PORT:-5432}:5432'
+    expose:
+      - 5432
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -63,14 +87,20 @@ services:
     networks:
       - api-network
 
+  # Redis Cache
   redis:
     image: redis:8.2.1-alpine
     container_name: api-nest-redis
-    ports:
-      - '${REDIS_PORT:-6379}:6379'
+    expose:
+      - 6379
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --maxclients 10000
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -86,72 +116,6 @@ services:
     networks:
       - api-network
 
-  migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: ${NODE_ENV:-production}
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-    command: pnpm run migrate
-    profiles:
-      - migrate
-    restart: 'no'
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - api-network
-
-  migrate-undo:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: ${NODE_ENV:-production}
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-    command: pnpm run migrate:undo
-    profiles:
-      - migrate
-    restart: 'no'
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - api-network
-
-  migrate-fresh:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: ${NODE_ENV:-production}
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-    command: pnpm run migrate:fresh
-    profiles:
-      - migrate
-    restart: 'no'
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - api-network
-
 networks:
   api-network:
     driver: bridge
@@ -164,4 +128,6 @@ volumes:
   uploads:
     driver: local
   logs:
+    driver: local
+  nginx_logs:
     driver: local
