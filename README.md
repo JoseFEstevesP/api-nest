@@ -653,6 +653,139 @@ Esto creará la estructura completa:
 
 ---
 
+## 🧪 Testing
+
+### Ejecutar Tests
+
+```bash
+# Tests unitarios y de integración
+pnpm test
+
+# Tests con configuración completa (genera .env.test si no existe)
+pnpm test:all
+
+# Tests en modo watch
+pnpm test:watch
+
+# Tests con coverage
+pnpm test:cov
+```
+
+### Configuración de Tests
+
+- **Framework**: Vitest
+- **Configuración**: `vitest.config.ts`
+- **Setup**: `test/setup-vitest.ts`
+
+### Cobertura de Tests
+
+```
+test/
+├── unit/                    # Tests unitarios
+│   ├── functions/          # Funciones utilitarias
+│   ├── files.usecases.spec.ts
+│   ├── user.usecases.spec.ts
+│   ├── rol.usecases.spec.ts
+│   ├── audit.usecases.spec.ts
+│   ├── user.repository.spec.ts
+│   ├── valid-permission.spec.ts
+│   └── health.controller.spec.ts
+└── integration/            # Tests de integración (skipped)
+    ├── auth.usecases.integration.spec.ts
+    ├── audit.usecases.integration.spec.ts
+    ├── rol.repository.integration.spec.ts
+    └── user.repository.integration.spec.ts
+```
+
+**Resultados actuales:**
+
+- ✅ 221 tests passing
+- ⏭️ 51 tests skipped (integration tests)
+
+---
+
+## ⚙️ Mejoras Recientes
+
+### 1. Optimización de Consultas de Base de Datos
+
+**Paginación mejorada:**
+
+- Límite máximo de 100 registros por página
+- Validación de página mínima (1)
+- Implementado en: `findAllUsers`, `findAllRols`, `findAllAudits`
+
+**Índices compuestos agregados:**
+
+```sql
+-- Users
+idx_user_status_rol (status + uidRol)
+idx_user_status_active (status + activatedAccount)
+
+-- Audit
+idx_audit_user_created (uidUser + createdAt)
+```
+
+### 2. Control de Tasa (Rate Limiting)
+
+**Múltiples niveles configurados:**
+
+| Nombre   | TTL   | Límite | Uso                  |
+| -------- | ----- | ------ | -------------------- |
+| `short`  | 60s   | 100    | Endpoints generales  |
+| `medium` | 5min  | 50     | Consultas frecuentes |
+| `long`   | 10min | 20     | Operaciones lentas   |
+| `auth`   | 15min | 5      | Login, recovery      |
+
+**Decoradores disponibles:**
+
+```typescript
+@ThrottleShort()   // Rate limit estándar
+@ThrottleMedium()  // Rate limit moderado
+@ThrottleLong()   // Rate limit estricto
+@ThrottleAuth()   // Rate limit para auth
+@ThrottleStrict() // Rate limit muy estricto
+```
+
+### 3. Seguridad Mejorada
+
+**Helmet configurado:**
+
+- Content Security Policy (CSP)
+- HSTS (HTTP Strict Transport Security)
+- X-Content-Type-Options
+- Referrer Policy
+- Frameguard (previene clickjacking)
+
+**Pipe de sanitización:**
+
+- Elimina scripts maliciosos
+- Elimina protocolos javascript: y data:
+- Elimina event handlers (onclick, onload, etc.)
+
+### 4. Monitoreo y Health Checks
+
+**Endpoint `GET /api/health` retorna:**
+
+```json
+{
+	"status": "ok",
+	"details": {
+		"database": { "status": "up", "responseTime": 15 },
+		"redis": { "status": "up", "responseTime": 5 },
+		"heap_used": { "status": "up", "used": "150MB", "limit": "300MB" },
+		"system": { "status": "up", "cpu": 0.45, "memory": 65.2 }
+	}
+}
+```
+
+**Health Indicators personalizados:**
+
+- `RedisHealthIndicator` - Verifica Redis
+- `SystemHealthIndicator` - CPU y memoria
+- `MemoryHealthIndicator` - Heap de Node.js
+
+---
+
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
