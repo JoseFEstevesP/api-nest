@@ -28,8 +28,8 @@ import { AppConfigService } from './services/config.service';
 			inject: [ConfigService],
 			useFactory: (config: ConfigService<EnvironmentVariables>) => [
 				{
-					ttl: config.get<number>('RATE_LIMIT_TTL'),
-					limit: config.get<number>('RATE_LIMIT_LIMIT'),
+					ttl: config.get<number>('RATE_LIMIT_TTL', { infer: true }) ?? 60000,
+					limit: config.get<number>('RATE_LIMIT_LIMIT', { infer: true }) ?? 100,
 				},
 			],
 		}),

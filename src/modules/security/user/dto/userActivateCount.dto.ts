@@ -15,5 +15,5 @@ export class UserActivateCountDTO {
 		message: userMessages.validation.dto.code.invalidCharacters,
 	})
 	@Transform(({ value }) => value.trim())
-	readonly code: string;
+	declare readonly code: string;
 }

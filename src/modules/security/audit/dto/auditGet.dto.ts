@@ -10,5 +10,5 @@ export class AuditGetDTO {
 	@IsUUID('all', { message: auditMessages.validation.dto.uid.valid })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsDefined({ message: auditMessages.validation.dto.defined })
-	readonly uid: string;
+	declare readonly uid: string;
 }

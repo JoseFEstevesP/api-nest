@@ -36,7 +36,7 @@ export class CreateUserUseCase {
 
 		validatePropertyData({
 			property: { phone, email },
-			data: existingPatient,
+			data: (existingPatient as unknown as Record<string, unknown>) ?? undefined,
 			msg: userMessages,
 			checkErrors: checkValidationErrorsUser,
 		});
@@ -44,7 +44,7 @@ export class CreateUserUseCase {
 		const code =
 			this.configService.get('NODE_ENV') === 'production'
 				? `${this.generateCode()}`
-				: null;
+				: '0000000';
 
 		if (this.configService.get('NODE_ENV') === 'production') {
 			this.logger.log(`system - ${userMessages.log.emailActivated}`);
@@ -53,7 +53,7 @@ export class CreateUserUseCase {
 
 		const hashPass = await hash(
 			password,
-			this.configService.get('SALT_ROUNDS'),
+			this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
 		);
 
 		const { uid: uidRol } = await this.findOneRolUseCase.execute({

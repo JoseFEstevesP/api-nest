@@ -16,7 +16,7 @@ export class AuditRegisterDTO {
 	@IsUUID('all', { message: auditMessages.validation.dto.uidUser })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsDefined({ message: auditMessages.validation.dto.defined })
-	readonly uidUser: string;
+	declare readonly uidUser: string;
 
 	@ApiProperty({
 		example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
@@ -25,7 +25,7 @@ export class AuditRegisterDTO {
 	@IsString({ message: auditMessages.validation.dto.refreshToken })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsDefined({ message: auditMessages.validation.dto.defined })
-	readonly refreshToken: string;
+	declare readonly refreshToken: string;
 
 	@ApiProperty({
 		example: ['data1', 'data2'],
@@ -34,5 +34,5 @@ export class AuditRegisterDTO {
 	@IsArray({ message: auditMessages.validation.dto.dataToken })
 	@IsNotEmpty({ message: auditMessages.validation.dto.empty })
 	@IsDefined({ message: auditMessages.validation.dto.defined })
-	readonly dataToken: string[];
+	declare readonly dataToken: string[];
 }

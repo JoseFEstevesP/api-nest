@@ -10,5 +10,5 @@ export class UserGetDTO {
 	@IsUUID('all', { message: userMessages.dto.uid.valid })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
-	readonly uid: string;
+	declare readonly uid: string;
 }

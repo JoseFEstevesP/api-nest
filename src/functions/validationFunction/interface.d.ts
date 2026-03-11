@@ -1,11 +1,11 @@
-export interface ValidatePropertyDataProps<T extends { status: boolean }> {
+export interface ValidatePropertyDataProps<T extends Record<string, unknown>> {
 	property: Partial<T>;
-	data: T;
+	data: T | undefined;
 	msg: MsgStructure;
 	checkErrors?: (props: CheckValidationErrorsProps<T>) => void;
 }
 
-export interface CheckValidationErrorsProps<T extends { status: boolean }> {
+export interface CheckValidationErrorsProps<T extends Record<string, unknown>> {
 	data: T;
 	msg: MsgStructure;
 	name: string;

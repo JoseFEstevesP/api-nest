@@ -28,15 +28,16 @@ export class AuditRepository {
 		transaction?: Transaction,
 	): Promise<Audit> {
 		try {
-			return await this.auditModel.create(data, {
+			return await this.auditModel.create(data as any, {
 				...(transaction && { transaction }),
 			});
 		} catch (error) {
 			handleDatabaseError(
-				error,
+				error as Error,
 				this.logger,
 				'la creación del registro de auditoría',
 			);
+			throw error;
 		}
 	}
 
@@ -91,7 +92,7 @@ export class AuditRepository {
 			await this.auditModel.update(data, { where: { uid } });
 		} catch (error) {
 			handleDatabaseError(
-				error,
+				error as Error,
 				this.logger,
 				'la actualización del registro de auditoría',
 			);
@@ -102,7 +103,11 @@ export class AuditRepository {
 		try {
 			await this.auditModel.destroy({ where: { uid } });
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la eliminación del rol');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la eliminación del rol',
+			);
 		}
 	}
 
@@ -118,10 +123,11 @@ export class AuditRepository {
 			});
 		} catch (error) {
 			handleDatabaseError(
-				error,
+				error as Error,
 				this.logger,
 				'la eliminación de los registros de auditoría antiguos',
 			);
+			return 0;
 		}
 	}
 }

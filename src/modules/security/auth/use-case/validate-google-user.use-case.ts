@@ -4,7 +4,7 @@ import { User } from '@/modules/security/user/entities/user.entity';
 import { UserRepository } from '@/modules/security/user/repository/user.repository';
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Profile } from 'passport-google-oauth20';
+import type { Profile } from 'passport-google-oauth20';
 
 @Injectable()
 export class ValidateGoogleUserUseCase {
@@ -16,7 +16,13 @@ export class ValidateGoogleUserUseCase {
 	) {}
 
 	async execute(profile: Profile): Promise<User> {
-		const email = profile.emails[0].value;
+		const emails = profile.emails;
+		if (!emails || !emails[0]) {
+			throw new ConflictException(
+				'No se pudo obtener el correo electrónico de Google',
+			);
+		}
+		const email = emails[0].value;
 		const user = await this.userRepository.findOne({ where: { email } });
 
 		if (user) {
@@ -32,19 +38,23 @@ export class ValidateGoogleUserUseCase {
 		}
 
 		const { uid: uidRol } = await this.findOneRolUseCase.execute({
-			typeRol: this.configService.get('DEFAULT_ROL_FROM_USER'),
+			typeRol:
+				this.configService.get<string>('DEFAULT_ROL_FROM_USER', {
+					infer: true,
+				}) ?? 'user',
 		});
 
+		const name = profile.name;
 		const newUser = {
-			names: profile.name.givenName,
-			surnames: profile.name.familyName,
+			names: name?.givenName ?? '',
+			surnames: name?.familyName ?? '',
 			email,
 			password: null,
 			provider: 'google',
 			phone: '0000000000',
 			uidRol,
 			activatedAccount: true,
-		} as User;
+		} as unknown as User;
 
 		this.logger.log(`Creando nuevo usuario de Google: ${email}`);
 		return this.userRepository.create(newUser);

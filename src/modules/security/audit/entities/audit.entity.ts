@@ -9,7 +9,13 @@ import {
 	Table,
 } from 'sequelize-typescript';
 
-@Table({ tableName: 'Audit' })
+@Table({
+	tableName: 'Audit',
+	indexes: [
+		{ fields: ['uidUser'], name: 'idx_audit_uid_user' },
+		{ fields: ['createdAt'], name: 'idx_audit_created_at' },
+	],
+})
 export class Audit extends Model<Audit> {
 	@ApiProperty({
 		example: crypto.randomUUID(),
@@ -32,7 +38,7 @@ export class Audit extends Model<Audit> {
 	declare uidUser: string;
 
 	@BelongsTo(() => User)
-	user: User;
+	declare user: User;
 
 	@ApiProperty({
 		example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',

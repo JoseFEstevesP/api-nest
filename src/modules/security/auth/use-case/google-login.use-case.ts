@@ -29,7 +29,7 @@ export class GoogleLoginUseCase {
 		const accessToken = await this.generateAccessToken(user, loginInfo);
 		const refreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		const loginInfoArray = Object.keys(loginInfo).map(key => loginInfo[key]);
+		const loginInfoArray = Object.values(loginInfo);
 
 		await this.createAuditUseCase.execute({
 			data: {
@@ -43,7 +43,12 @@ export class GoogleLoginUseCase {
 		this.logger.log(
 			`${user.surnames} ${user.names} - ${authMessages.log.loginSuccess}`,
 		);
-		res.redirect(this.configService.get('FRONT_END_URL'));
+		const frontEndUrl = this.configService.get<string>('FRONT_END_URL', {
+			infer: true,
+		});
+		if (frontEndUrl) {
+			res.redirect(frontEndUrl);
+		}
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

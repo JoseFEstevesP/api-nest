@@ -26,7 +26,7 @@ export class UserUpdatePasswordDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
-	readonly newPassword: string;
+	declare readonly newPassword: string;
 
 	@ApiProperty({
 		example: 'P@ssw0rd123',
@@ -45,7 +45,7 @@ export class UserUpdatePasswordDTO {
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@Transform(({ value }) => value.trim())
 	@IsDefined({ message: userMessages.dto.defined })
-	readonly confirmPassword: string;
+	declare readonly confirmPassword: string;
 
 	@ApiProperty({
 		example: 'a4e1e8b0-6f1f-4b9d-8c1a-2b3c4d5e6f7g',
@@ -54,5 +54,5 @@ export class UserUpdatePasswordDTO {
 	@IsUUID('all', { message: userMessages.dto.uid.valid })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
-	readonly uidUser: string;
+	declare readonly uidUser: string;
 }

@@ -30,7 +30,7 @@ export class SetNewPasswordUseCase {
 		dataLog: string;
 	}): Promise<{ msg: string }> {
 		const user = await this.userRepository.findOne({
-			where: { uid: uidUser, code: null, status: true },
+			where: { uid: uidUser, code: undefined, status: true },
 		});
 
 		if (!user) {
@@ -47,11 +47,11 @@ export class SetNewPasswordUseCase {
 
 		const hashPass = await hash(
 			newPassword,
-			this.configService.get('SALT_ROUNDS'),
+			this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
 		);
 
 		await this.userRepository.update(uidUser, {
-			password: hashPass,
+			password: await hashPass,
 		});
 
 		this.logger.log(

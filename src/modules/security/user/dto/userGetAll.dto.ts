@@ -1,8 +1,8 @@
 import { queryDTO } from '@/dto/query.dto';
-import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { OrderUserProperty } from '../enum/data';
+import { OrderUserProperty } from '../enum/orderProperty';
 import { userMessages } from '../user.messages';
 
 export class UserGetAllDTO extends PartialType(queryDTO) {
