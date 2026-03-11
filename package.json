@@ -36,6 +36,7 @@
 		"setup:test-db": "node scripts/setup-test-db.js",
 		"pretest": "pnpm run setup:test-db",
 		"test": "vitest run --config vitest.config.ts",
+		"test:all": "node scripts/run-tests.js",
 		"test:watch": "vitest",
 		"test:cov": "vitest run --config vitest.config.ts --coverage"
 	},
