@@ -19,7 +19,7 @@ export class ActivateAccountUseCase {
 		}
 
 		await this.userRepository.update(user.uid, {
-			code: null,
+			code: undefined,
 			activatedAccount: true,
 		});
 

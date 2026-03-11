@@ -2,7 +2,7 @@ import { IsObject } from 'class-validator';
 
 export class ReqUidDTO {
 	@IsObject({ message: 'El objeto no es valido' })
-	user: {
+	declare user: {
 		uid: string;
 		uidRol: string;
 		uidPharmacy: string | null;

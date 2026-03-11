@@ -21,11 +21,32 @@ export class UserRepository {
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
+	private async invalidateCache(): Promise<void> {
+		try {
+			const cache = this.cacheManager as unknown as {
+				reset: () => Promise<void>;
+			};
+			if (typeof cache.reset === 'function') {
+				await cache.reset();
+			}
+			this.logger.log('Cache invalidated successfully');
+		} catch (error) {
+			this.logger.warn('Failed to invalidate cache', error);
+		}
+	}
+
 	async create(user: User): Promise<User> {
 		try {
-			return await this.userModel.create(user);
+			const result = await this.userModel.create(user as any);
+			await this.invalidateCache();
+			return result;
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la creación del usuario');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la creación del usuario',
+			);
+			throw error;
 		}
 	}
 
@@ -99,9 +120,15 @@ export class UserRepository {
 			if (affectedCount === 0) {
 				return null;
 			}
+			await this.invalidateCache();
 			return this.findOne({ where: { uid } });
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la actualización del usuario');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la actualización del usuario',
+			);
+			return null;
 		}
 	}
 
@@ -110,13 +137,25 @@ export class UserRepository {
 			const deletedCount = await this.userModel.destroy({
 				where: { uid },
 			});
+			if (deletedCount > 0) {
+				await this.invalidateCache();
+			}
 			return deletedCount > 0;
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la eliminación del usuario');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la eliminación del usuario',
+			);
+			return false;
 		}
 	}
 
 	async transaction<T>(callback: (t: Transaction) => Promise<T>): Promise<T> {
-		return await this.userModel.sequelize.transaction(callback);
+		const sequelize = this.userModel.sequelize;
+		if (!sequelize) {
+			throw new Error('Sequelize instance not available');
+		}
+		return await sequelize.transaction(callback);
 	}
 }

@@ -13,9 +13,7 @@ import { RolRepository } from '../repository/rol.repository';
 export class FindAllRolsPaginationUseCase {
 	private readonly logger = new Logger(FindAllRolsPaginationUseCase.name);
 
-	constructor(
-		private readonly rolRepository: RolRepository,
-	) {}
+	constructor(private readonly rolRepository: RolRepository) {}
 
 	async execute({
 		filter,
@@ -34,7 +32,7 @@ export class FindAllRolsPaginationUseCase {
 			permission,
 		} = filter;
 
-		const status = olStatus ? booleanStatus({ status: olStatus }) : true;
+		const status = booleanStatus({ status: olStatus ?? 'true' }) ?? true;
 		const parsedLimit = Number(limit);
 		const parsedPage = Number(page);
 
@@ -69,15 +67,17 @@ export class FindAllRolsPaginationUseCase {
 		const where: WhereOptions<Role> = { status };
 
 		if (search || permission) {
-			where[Op.or] = [];
+			const orConditions: Record<string, unknown>[] = [];
 
 			if (search) {
-				where[Op.or].push({ name: { [Op.iLike]: `%${search}%` } });
+				orConditions.push({ name: { [Op.iLike]: `%${search}%` } });
 			}
 
 			if (permission) {
-				where[Op.or].push({ permissions: { [Op.overlap]: permission } });
+				orConditions.push({ permissions: { [Op.overlap]: permission } });
 			}
+
+			(where as Record<string, unknown>)['$or'] = orConditions;
 		}
 
 		return where;

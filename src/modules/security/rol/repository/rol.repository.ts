@@ -19,11 +19,28 @@ export class RolRepository {
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
+	private async invalidateCache(): Promise<void> {
+		try {
+			const cache = this.cacheManager as unknown as {
+				reset: () => Promise<void>;
+			};
+			if (typeof cache.reset === 'function') {
+				await cache.reset();
+			}
+			this.logger.log('Cache invalidated successfully');
+		} catch (error) {
+			this.logger.warn('Failed to invalidate cache', error);
+		}
+	}
+
 	async create(data: Role): Promise<Role> {
 		try {
-			return await this.rolModel.create(data);
+			const result = await this.rolModel.create(data as any);
+			await this.invalidateCache();
+			return result;
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la creación del rol');
+			handleDatabaseError(error as Error, this.logger, 'la creación del rol');
+			throw error;
 		}
 	}
 
@@ -98,16 +115,26 @@ export class RolRepository {
 	async update(uid: string, data: Partial<Role>): Promise<void> {
 		try {
 			await this.rolModel.update(data, { where: { uid } });
+			await this.invalidateCache();
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la actualización del rol');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la actualización del rol',
+			);
 		}
 	}
 
 	async remove(uid: string): Promise<void> {
 		try {
 			await this.rolModel.destroy({ where: { uid } });
+			await this.invalidateCache();
 		} catch (error) {
-			handleDatabaseError(error, this.logger, 'la eliminación del rol');
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la eliminación del rol',
+			);
 		}
 	}
 }

@@ -321,10 +321,8 @@ export class UserController {
 				dataLog,
 			});
 		} catch (error) {
-			throw new UnauthorizedException(
-				'Token inválido o expirado',
-				error.message,
-			);
+			const err = error as Error;
+			throw new UnauthorizedException('Token inválido o expirado', err.message);
 		}
 	}
 

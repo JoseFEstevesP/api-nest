@@ -3,12 +3,12 @@ import { ConflictException } from '@nestjs/common';
 import { CheckValidationErrorsUserProps } from './types';
 import { userMessages } from '../user.messages';
 
-export const checkValidationErrorsUser = <
-	T extends { status: boolean; activatedAccount: boolean },
->({
+export const checkValidationErrorsUser = <T extends Record<string, unknown>>({
 	data,
 	name,
 }: CheckValidationErrorsUserProps<T>): void => {
+	const typedData = data as { status?: boolean; activatedAccount?: boolean };
+
 	const possibleErrors = {
 		status: objectError({
 			name,
@@ -24,23 +24,26 @@ export const checkValidationErrorsUser = <
 		}),
 	};
 
-	if (data.status === false) {
+	if (typedData.status === false) {
 		throw new ConflictException(possibleErrors.default);
 	}
 
-	if (data.status === true) {
+	if (typedData.status === true) {
 		throw new ConflictException(possibleErrors.status);
 	}
 
-	if (data.activatedAccount === false) {
+	if (typedData.activatedAccount === false) {
 		throw new ConflictException(possibleErrors.activatedAccount);
 	}
 };
 
-export const checkValidationErrorsUserLogin = <T extends { status: boolean }>({
+export const checkValidationErrorsUserLogin = <
+	T extends Record<string, unknown>,
+>({
 	data,
 	name,
 }: CheckValidationErrorsUserProps<T>) => {
+	const typedData = data as { status?: boolean };
 	const possibleErrors = {
 		status: objectError({
 			name,
@@ -48,5 +51,5 @@ export const checkValidationErrorsUserLogin = <T extends { status: boolean }>({
 		}),
 	};
 
-	return !data.status && possibleErrors['status'];
+	return !typedData.status && possibleErrors['status'];
 };

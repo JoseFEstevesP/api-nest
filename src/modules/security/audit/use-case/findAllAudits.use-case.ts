@@ -18,9 +18,7 @@ import { AuditRepository } from '../repository/audit.repository';
 @Injectable()
 export class FindAllAuditsUseCase {
 	private readonly logger = new Logger(FindAllAuditsUseCase.name);
-	constructor(
-		private readonly auditRepository: AuditRepository,
-	) {}
+	constructor(private readonly auditRepository: AuditRepository) {}
 
 	async execute({
 		filter,
@@ -72,7 +70,8 @@ export class FindAllAuditsUseCase {
 		} as WhereOptions;
 
 		if (search) {
-			where[Op.or] = this.getSearchConditions(search);
+			(where as Record<string, unknown>)['$or'] =
+				this.getSearchConditions(search);
 		}
 
 		return where;

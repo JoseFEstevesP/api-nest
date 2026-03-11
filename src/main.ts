@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -86,7 +87,31 @@ async function bootstrap() {
 		logger,
 	});
 
-	app.use(helmet());
+	app.use(compression());
+	app.use(
+		helmet({
+			contentSecurityPolicy: {
+				directives: {
+					defaultSrc: ["'self'"],
+					styleSrc: ["'self'", "'unsafe-inline'"],
+					scriptSrc: ["'self'"],
+					imgSrc: ["'self'", 'data:', 'https:'],
+					connectSrc: ["'self'"],
+					fontSrc: ["'self'"],
+					objectSrc: ["'none'"],
+					mediaSrc: ["'self'"],
+					frameSrc: ["'none'"],
+				},
+			},
+			hsts: {
+				maxAge: 31536000,
+				includeSubDomains: true,
+				preload: true,
+			},
+			referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+			xContentTypeOptions: true,
+		}),
+	);
 
 	const httpAdapterHost = app.get(HttpAdapterHost);
 	app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
@@ -117,9 +142,11 @@ async function bootstrap() {
 			forbidNonWhitelisted: true,
 			exceptionFactory: errors => {
 				const result = errors.map(error => {
+					const constraints = error.constraints;
+					const firstKey = Object.keys(constraints ?? {})[0];
 					return objectError({
 						name: error.property,
-						msg: error.constraints[Object.keys(error.constraints)[0]],
+						msg: constraints?.[firstKey] ?? '',
 					});
 				});
 

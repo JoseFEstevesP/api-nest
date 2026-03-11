@@ -8,7 +8,9 @@ export const validatePermission = ({
 	permission: string;
 }) => {
 	const validate = permissions.some(
-		item => item === permission || item === Permission.super,
+		item =>
+			(!permission.split('_')[0] && item === permission) ||
+			item === Permission.super,
 	);
 	return validate;
 };

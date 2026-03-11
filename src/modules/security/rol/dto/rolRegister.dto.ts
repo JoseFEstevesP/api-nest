@@ -23,7 +23,7 @@ export class RolRegisterDTO {
 		message: rolMessages.validation.dto.lengthValue,
 	})
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	readonly name: string;
+	declare readonly name: string;
 
 	@ApiProperty({
 		example: 'Rol de administrador',
@@ -35,7 +35,7 @@ export class RolRegisterDTO {
 		message: rolMessages.validation.dto.lengthValue,
 	})
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	readonly description: string;
+	declare readonly description: string;
 
 	@ApiProperty({
 		example: [
@@ -55,7 +55,7 @@ export class RolRegisterDTO {
 		message: rolMessages.validation.dto.stringValue,
 	})
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	readonly permissions: Permission[];
+	declare readonly permissions: Permission[];
 
 	@ApiProperty({
 		example: TypeRol.user,
@@ -66,5 +66,5 @@ export class RolRegisterDTO {
 	@IsString({ message: rolMessages.validation.dto.stringValue })
 	@IsNotEmpty({ message: rolMessages.validation.dto.permission })
 	@IsDefined({ message: rolMessages.validation.dto.defined })
-	readonly typeRol: TypeRol;
+	declare readonly typeRol: TypeRol;
 }

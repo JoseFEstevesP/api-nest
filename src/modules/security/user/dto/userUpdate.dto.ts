@@ -21,7 +21,7 @@ export class UserUpdateDTO extends OmitType(UserRegisterDTO, [
 	@IsUUID('all', { message: userMessages.dto.uid.valid })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsDefined({ message: userMessages.dto.defined })
-	readonly uid: string;
+	declare readonly uid: string;
 
 	@ApiProperty({
 		example: true,
@@ -30,5 +30,5 @@ export class UserUpdateDTO extends OmitType(UserRegisterDTO, [
 	@IsBoolean({ message: userMessages.dto.status })
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsOptional()
-	readonly status?: boolean;
+	declare readonly status?: boolean;
 }
