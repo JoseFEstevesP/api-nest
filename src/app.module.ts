@@ -9,6 +9,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { Dialect } from 'sequelize';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
 import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
+import { CacheCleanupService } from './services/cache-cleanup.service';
 import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuditModule } from './modules/security/audit/audit.module';
@@ -74,6 +75,8 @@ import { AppConfigService } from './services/config.service';
 				store: new KeyvRedis({
 					url: config.get<string>('REDIS_URL'),
 				}),
+				max: 1000,
+				ttl: 300000,
 			}),
 			isGlobal: true,
 		}),
@@ -93,6 +96,7 @@ import { AppConfigService } from './services/config.service';
 			provide: AppConfigService,
 			useClass: AppConfigService,
 		},
+		CacheCleanupService,
 	],
 	exports: [AppConfigService],
 })

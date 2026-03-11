@@ -2,6 +2,7 @@ import { UserModule } from '@/modules/security/user/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { CacheService } from '@/services/cache.service';
 import { Role } from './entities/rol.entity';
 import { RolRepository } from './repository/rol.repository';
 import { RolController } from './rol.controller';
@@ -22,6 +23,7 @@ import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 	controllers: [RolController],
 	providers: [
 		RolRepository,
+		CacheService,
 		CreateRolUseCase,
 		FindOneRolUseCase,
 		FindAllRolsPaginationUseCase,
@@ -30,6 +32,6 @@ import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 		RemoveRolUseCase,
 		FindRolPermissionsUseCase,
 	],
-	exports: [FindOneRolUseCase, FindAllRolsUseCase],
+	exports: [FindOneRolUseCase, FindAllRolsUseCase, CacheService],
 })
 export class RolModule {}

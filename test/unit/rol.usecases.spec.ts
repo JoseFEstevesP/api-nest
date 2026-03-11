@@ -101,13 +101,20 @@ describe('RemoveRolUseCase', () => {
 describe('FindAllRolsUseCase', () => {
 	let useCase: FindAllRolsUseCase;
 	let mockRolRepository: any;
+	let mockCacheService: any;
 
 	beforeEach(() => {
 		mockRolRepository = {
 			findAll: vi.fn().mockResolvedValue([{ uid: '1', name: 'admin' }]),
 		};
 
-		useCase = new FindAllRolsUseCase(mockRolRepository);
+		mockCacheService = {
+			buildRoleListKey: vi.fn().mockReturnValue('cache:role:all'),
+			get: vi.fn().mockResolvedValue(undefined),
+			set: vi.fn().mockResolvedValue(undefined),
+		};
+
+		useCase = new FindAllRolsUseCase(mockRolRepository, mockCacheService);
 	});
 
 	afterEach(() => {
@@ -119,6 +126,8 @@ describe('FindAllRolsUseCase', () => {
 			const result = await useCase.execute({ dataLog: 'test' });
 
 			expect(mockRolRepository.findAll).toHaveBeenCalled();
+			expect(mockCacheService.get).toHaveBeenCalledWith('cache:role:all');
+			expect(mockCacheService.set).toHaveBeenCalled();
 			expect(result).toHaveLength(1);
 		});
 	});
