@@ -101,6 +101,7 @@ async function bootstrap() {
 					objectSrc: ["'none'"],
 					mediaSrc: ["'self'"],
 					frameSrc: ["'none'"],
+					upgradeInsecureRequests: [],
 				},
 			},
 			hsts: {
@@ -110,6 +111,9 @@ async function bootstrap() {
 			},
 			referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 			xContentTypeOptions: true,
+			frameguard: {
+				action: 'deny',
+			},
 		}),
 	);
 
