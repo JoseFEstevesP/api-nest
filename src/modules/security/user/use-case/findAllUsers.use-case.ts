@@ -35,8 +35,8 @@ export class FindAllUsersUseCase {
 		} = filter;
 
 		const status = booleanStatus({ status: olStatus ?? 'true' }) ?? true;
-		const parsedLimit = Number(limit);
-		const parsedPage = Number(page);
+		const parsedLimit = Math.min(Number(limit), 100);
+		const parsedPage = Math.max(Number(page), 1);
 
 		const where = this.buildWhereClause(uidUser, status, search);
 		const queryOptions = this.buildQueryOptions(

@@ -37,8 +37,8 @@ export class FindAllAuditsUseCase {
 			order = Order.ASC,
 		} = filter;
 
-		const parsedLimit = Number(limit);
-		const parsedPage = Number(page);
+		const parsedLimit = Math.min(Number(limit), 100);
+		const parsedPage = Math.max(Number(page), 1);
 
 		const where = this.buildWhereClause(uidUser, search);
 		const queryOptions = this.buildQueryOptions(

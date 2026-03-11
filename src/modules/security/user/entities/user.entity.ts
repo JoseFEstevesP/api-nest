@@ -16,6 +16,8 @@ import {
 		{ fields: ['status'], name: 'idx_user_status' },
 		{ fields: ['activatedAccount'], name: 'idx_user_activated_account' },
 		{ fields: ['phone'], name: 'idx_user_phone' },
+		{ fields: ['status', 'uidRol'], name: 'idx_user_status_rol' },
+		{ fields: ['status', 'activatedAccount'], name: 'idx_user_status_active' },
 	],
 })
 export class User extends Model<User> {

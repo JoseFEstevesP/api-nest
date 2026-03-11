@@ -14,6 +14,7 @@ import {
 	indexes: [
 		{ fields: ['uidUser'], name: 'idx_audit_uid_user' },
 		{ fields: ['createdAt'], name: 'idx_audit_created_at' },
+		{ fields: ['uidUser', 'createdAt'], name: 'idx_audit_user_created' },
 	],
 })
 export class Audit extends Model<Audit> {
