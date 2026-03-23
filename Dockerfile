@@ -1,7 +1,7 @@
 # =============================================================================
 # Stage 1: Base - Dependencies
 # =============================================================================
-FROM node:24.6.0-alpine3.20 AS base
+FROM node:24-alpine3.20 AS base
 
 # Install pnpm globally
 RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
