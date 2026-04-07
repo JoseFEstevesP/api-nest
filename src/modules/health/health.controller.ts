@@ -1,15 +1,15 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Controller, Get, Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import {
 	HealthCheck,
-	HealthCheckService,
 	HealthCheckResult,
+	HealthCheckService,
 	HealthIndicator,
 	HealthIndicatorResult,
 	MemoryHealthIndicator,
 	SequelizeHealthIndicator,
 } from '@nestjs/terminus';
+import type { Cache } from 'cache-manager';
 import * as os from 'os';
 
 export class RedisHealthIndicator extends HealthIndicator {

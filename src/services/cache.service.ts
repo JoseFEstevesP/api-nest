@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import type { Cache } from 'cache-manager';
 
 export interface CacheOptions {
 	ttl?: number;
@@ -18,7 +19,7 @@ export class CacheService implements OnModuleDestroy {
 	private readonly defaultTTL = 300000;
 	private readonly prefixes = new Map<string, string>();
 
-	constructor(private readonly cacheManager: Cache) {
+	constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {
 		this.initPrefixes();
 	}
 

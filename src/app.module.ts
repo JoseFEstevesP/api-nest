@@ -9,14 +9,15 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { Dialect } from 'sequelize';
 import { EnvironmentVariables, validateEnv } from './config/env.config';
 import { CorrelationIdMiddleware } from './correlation-id/correlationId.middleware';
-import { CacheCleanupService } from './services/cache-cleanup.service';
 import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuditModule } from './modules/security/audit/audit.module';
 import { AuthModule } from './modules/security/auth/auth.module';
 import { RolModule } from './modules/security/rol/rol.module';
 import { UserModule } from './modules/security/user/user.module';
+import { CacheCleanupService } from './services/cache-cleanup.service';
 import { AppConfigService } from './services/config.service';
+import { LoggerService } from './services/logger.service';
 
 @Module({
 	imports: [
@@ -97,6 +98,7 @@ import { AppConfigService } from './services/config.service';
 			useClass: AppConfigService,
 		},
 		CacheCleanupService,
+		LoggerService,
 	],
 	exports: [AppConfigService],
 })

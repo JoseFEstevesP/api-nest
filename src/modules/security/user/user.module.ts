@@ -1,6 +1,7 @@
 import { AuditModule } from '@/modules/security/audit/audit.module';
 import { RolModule } from '@/modules/security/rol/rol.module';
 import { EmailService } from '@/services/email.service';
+import { LoggerService } from '@/services/logger.service';
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -8,7 +9,6 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './repository/user.repository';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
-import { CreateUserUseCase } from './use-case/createUser.use-case';
 import { FindAllUsersUseCase } from './use-case/findAllUsers.use-case';
 import { FindOneUserUseCase } from './use-case/findOneUser.use-case';
 import { FindUserByIdUseCase } from './use-case/findUserByEmail.use-case';
@@ -35,10 +35,10 @@ import { UserController } from './user.controller';
 	controllers: [UserController],
 
 	providers: [
+		LoggerService,
 		EmailService,
 		JwtService,
 		UserRepository,
-		CreateUserUseCase,
 		CreateProtectUserUseCase,
 		FindAllUsersUseCase,
 		UpdateUserUseCase,
@@ -62,6 +62,7 @@ import { UserController } from './user.controller';
 		FindOneUserUseCase,
 		FindUserForAuthUseCase,
 		ValidateAttemptUseCase,
+		LoggerService,
 	],
 })
 export class UserModule {}
