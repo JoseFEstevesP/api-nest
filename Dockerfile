@@ -1,7 +1,7 @@
 # =============================================================================
 # Stage 1: Base - Dependencies
 # =============================================================================
-FROM node:24-alpine3.20 AS base
+FROM node:25-alpine3.20 AS base
 
 # Install pnpm globally
 RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
@@ -20,26 +20,25 @@ FROM base AS deps
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-# Install dependencies
-RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
-    pnpm install --frozen-lockfile --prod
+# Install dependencies (skip prepare script to avoid husky in prod)
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # =============================================================================
 # Stage 3: Builder - Build the application
 # =============================================================================
 FROM base AS builder
 
-ARG NODE_ENV=production
+ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
-# Copy dependencies from deps stage
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+# Install dev dependencies for building
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
 
-# Generate Prisma client (if needed) and build
-RUN pnpm run build
+# Build the application using npx
+RUN npx @nestjs/cli build
 
 # =============================================================================
 # Stage 4: Production - Minimal runtime image
@@ -89,8 +88,7 @@ ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 # Install development dependencies
-RUN --mount=type=cache,target=/usr/src/app/node_modules,sharing=locked \
-    pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Install development tools
 RUN apk add --no-cache dumb-init curl
