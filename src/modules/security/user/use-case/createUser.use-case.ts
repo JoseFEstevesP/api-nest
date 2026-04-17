@@ -24,7 +24,7 @@ export class CreateUserUseCase {
 	) {}
 
 	async execute(data: UserDefaultRegisterDTO): Promise<{ msg: string }> {
-		const { confirmPassword, ...userData } = data;
+		const { confirmPassword: _, ...userData } = data;
 		const { phone, email, password } = userData;
 
 		this.logger.debug(`Creando usuario con email: ${email}`, {

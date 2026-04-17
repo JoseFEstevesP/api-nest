@@ -1,5 +1,4 @@
 import {
-	ConflictException,
 	InternalServerErrorException,
 	Logger,
 } from '@nestjs/common';

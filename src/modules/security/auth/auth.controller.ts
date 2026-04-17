@@ -127,12 +127,13 @@ Cierra la sesión del usuario actual invalidando el token de refresh.
 	@UseGuards(JwtAuthGuard)
 	@Post('/logout')
 	async logout(
+		@Req() req: Request & ReqUidDTO,
 		@Res({ passthrough: true }) res: Response,
-		@Req() req: ReqUidDTO,
 	) {
 		const { uid, dataLog } = req.user;
+		const refreshToken = req.cookies?.refreshToken;
 		this.logger.log(`${dataLog} - ${authMessages.log.logout}`);
-		await this.logoutUseCase.execute({ uid, res, dataLog });
+		await this.logoutUseCase.execute({ uid, res, refreshToken, dataLog });
 		return { msg: 'Sesión cerrada exitosamente' };
 	}
 

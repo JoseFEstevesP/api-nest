@@ -2,7 +2,7 @@ import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
 
 @Injectable()
 export class SanitizeInputPipe implements PipeTransform {
-	transform(value: any, metadata: ArgumentMetadata): any {
+	transform(value: any, _metadata: ArgumentMetadata): any {
 		if (value && typeof value === 'object') {
 			return this.sanitizeObject(value);
 		}

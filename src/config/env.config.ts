@@ -5,7 +5,6 @@ import {
 	IsNumber,
 	IsString,
 	Max,
-	MaxLength,
 	Min,
 	MinLength,
 	Validate,

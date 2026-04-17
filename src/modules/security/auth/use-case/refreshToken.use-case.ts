@@ -3,7 +3,7 @@ import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAudit.use-case';
 import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
-import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
+import { UserRepository } from '@/modules/security/user/repository/user.repository';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -11,13 +11,14 @@ import { Request, Response } from 'express';
 import { LoggerService } from '@/services/logger.service';
 import { authMessages } from '../auth.messages';
 import { LogoutUseCase } from './logout.use-case';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 
 @Injectable()
 export class RefreshTokenUseCase {
 	constructor(
 		private readonly findOneAuditUseCase: FindOneAuditUseCase,
 		private readonly updateAuditUseCase: UpdateAuditUseCase,
-		private readonly findOneUserUseCase: FindOneUserUseCase,
+		private readonly userRepository: UserRepository,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService<EnvironmentVariables>,
 		private readonly logoutUseCase: LogoutUseCase,
@@ -61,9 +62,24 @@ export class RefreshTokenUseCase {
 			});
 		}
 
-		const user = await this.findOneUserUseCase.execute({
-			uid: auditRef.uidUser,
+		const user = await this.userRepository.findOne({
+			where: { uid: auditRef.uidUser, status: true },
+			attributes: { exclude: ['password', 'status', 'createdAt', 'updatedAt'] },
+			include: [{ model: Role, required: true, attributes: ['name', 'permissions'] }],
 		});
+
+		if (!user) {
+			this.logger.warn('Usuario no encontrado para refresh token', {
+				type: 'auth_refresh_token',
+				uidUser: auditRef.uidUser,
+				status: 'failed',
+			});
+			return this.logoutUseCase.execute({
+				refreshToken,
+				res,
+				dataLog: 'system',
+			});
+		}
 
 		if (refreshToken !== auditRef.refreshToken) {
 			this.logger.warn('Refresh token no coincide', {

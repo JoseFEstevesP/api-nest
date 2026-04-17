@@ -1,10 +1,5 @@
 import { Audit } from '@/modules/security/audit/entities/audit.entity';
-import {
-	ConflictException,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
@@ -19,8 +14,8 @@ export class RemoveAuditUseCase {
 		const audit = await this.auditRepository.findOne({ where });
 
 		if (!audit) {
-			this.logger.error(`${dataLog} - ${auditMessages.log.findOne}`);
-			throw new NotFoundException(auditMessages.findOne);
+			this.logger.warn(`${dataLog} - Registro de auditoría no encontrado para logout`);
+			return { msg: 'Sesión cerrada' };
 		}
 
 		try {

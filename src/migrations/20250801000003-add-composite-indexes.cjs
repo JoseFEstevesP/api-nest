@@ -1,5 +1,5 @@
 module.exports = {
-	async up(queryInterface, Sequelize) {
+	async up(queryInterface, _Sequelize) {
 		await queryInterface.addIndex('Users', ['status', 'uidRol'], {
 			name: 'idx_user_status_rol',
 		});
@@ -11,7 +11,7 @@ module.exports = {
 		});
 	},
 
-	async down(queryInterface, Sequelize) {
+	async down(queryInterface, _Sequelize) {
 		await queryInterface.removeIndex('Users', 'idx_user_status_rol');
 		await queryInterface.removeIndex('Users', 'idx_user_status_active');
 		await queryInterface.removeIndex('Audit', 'idx_audit_user_created');

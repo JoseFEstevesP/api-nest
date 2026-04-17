@@ -1,14 +1,11 @@
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
-import { FindOneUserUseCase } from '@/modules/security/user/use-case/findOneUser.use-case';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { LoggerService } from '@/services/logger.service';
-import { authMessages } from '../auth.messages';
 
 @Injectable()
 export class LogoutUseCase {
 	constructor(
-		private readonly findOneUserUseCase: FindOneUserUseCase,
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
 		private readonly logger: LoggerService,
 	) {}
@@ -24,19 +21,12 @@ export class LogoutUseCase {
 		res: Response;
 		dataLog: string;
 	}) {
-		if (!refreshToken) {
-			this.logger.warn('Logout intentado sin refresh token', {
-				type: 'auth_logout',
-				userId: uid,
-				status: 'failed',
-			});
-			throw new UnauthorizedException(authMessages.msg.refreshToken);
+		if (refreshToken) {
+			await this.removeAuditUseCase.execute(
+				{ refreshToken },
+				dataLog,
+			);
 		}
-
-		await this.removeAuditUseCase.execute(
-			{ ...(uid && { uid }), ...(refreshToken && { refreshToken }) },
-			dataLog,
-		);
 
 		res.clearCookie('accessToken').clearCookie('refreshToken');
 
