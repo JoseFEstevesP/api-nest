@@ -9,7 +9,7 @@ export const objectError = ({ name, msg }: { name: string; msg: string }) => {
 			cur[key] = cur[key] || {};
 			cur = cur[key];
 		}
-		cur[parts[parts.length - 1]] = { message: msg };
+		cur[parts[parts.length - 1]] = { error: msg };
 		return root;
 	}
 	return {

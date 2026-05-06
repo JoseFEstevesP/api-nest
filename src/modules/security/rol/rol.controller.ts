@@ -1,4 +1,5 @@
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import { UidDTO } from '@/dto/uid.dto';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
 import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
@@ -16,8 +17,6 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RolDeleteDTO } from './dto/rolDelete.dto';
-import { RolGetDTO } from './dto/rolGet.dto';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
@@ -77,7 +76,7 @@ export class RolController {
 	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
 	@ValidPermission(Permission.rolReadOne)
 	@Get('/one/:uid')
-	async findOne(@Param() data: RolGetDTO, @Req() req: ReqUidDTO) {
+	async findOne(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${rolMessages.log.controller.findOne}`);
 
@@ -160,7 +159,7 @@ export class RolController {
 	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
 	@ValidPermission(Permission.rolDelete)
 	@Delete('/delete/:uid')
-	async delete(@Param() data: RolDeleteDTO, @Req() req: ReqUidDTO) {
+	async delete(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${rolMessages.log.controller.remove}`);
 

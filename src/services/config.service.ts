@@ -51,11 +51,6 @@ export interface AppConfig {
 		saltRounds: number;
 		bcryptRounds: number;
 	};
-	googleConfig: {
-		clientId: string;
-		secret: string;
-		callbackUrl: string;
-	};
 	frontEndUrl: string;
 	cacheConfig: {
 		enabled: boolean;
@@ -84,7 +79,6 @@ export class AppConfigService {
 			rateLimitConfig: this.rateLimitConfig,
 			redisConfig: this.redisConfig,
 			securityConfig: this.securityConfig,
-			googleConfig: this.googleConfig,
 			frontEndUrl: this.frontEndUrl,
 			cacheConfig: this.cacheConfig,
 		};
@@ -187,20 +181,6 @@ export class AppConfigService {
 			saltRounds:
 				this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
 			bcryptRounds: isProduction ? 12 : 10,
-		};
-	}
-
-	get googleConfig() {
-		return {
-			clientId:
-				this.configService.get<string>('GOOGLE_CLIENT_ID', { infer: true }) ??
-				'',
-			secret:
-				this.configService.get<string>('GOOGLE_SECRET', { infer: true }) ?? '',
-			callbackUrl:
-				this.configService.get<string>('GOOGLE_CALLBACK_URL', {
-					infer: true,
-				}) ?? '',
 		};
 	}
 

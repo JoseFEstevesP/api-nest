@@ -1,4 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserUpdateProfileDataDTO } from '../dto/userUpdateProfileData.dto';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
@@ -21,7 +23,9 @@ export class UpdateUserProfileUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		await this.userRepository.update(uid, data);

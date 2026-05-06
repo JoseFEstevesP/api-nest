@@ -1,4 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { Injectable } from '@nestjs/common';
 import { Transaction } from 'sequelize';
 import { LoggerService } from '@/services/logger.service';
 import { AuditRegisterDTO } from '../dto/auditRegister.dto';
@@ -29,16 +31,24 @@ export class CreateAuditUseCase {
 			},
 		});
 
+		let created: Audit;
+
 		if (audit) {
-			this.logger.warn('Auditoría ya existe', {
+			this.logger.info('Auditoría ya existe, actualizando', {
 				type: 'audit_create',
 				userId: data.uidUser,
-				status: 'duplicate',
+				auditId: audit.uid,
+				status: 'updated',
 			});
-			throw new ConflictException(auditMessages.errorService.create);
+			await this.auditRepository.update(
+				audit.uid,
+				{ refreshToken: data.refreshToken },
+				t,
+			);
+			created = audit;
+		} else {
+			created = await this.auditRepository.create(data, t);
 		}
-
-		const created = await this.auditRepository.create(data, t);
 
 		this.logger.info(auditMessages.log.createSuccess, {
 			type: 'audit_create',

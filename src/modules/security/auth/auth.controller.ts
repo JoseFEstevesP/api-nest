@@ -4,22 +4,20 @@ import {
 	ApiUnauthorizedResponse,
 	ApiTooManyRequestsResponse,
 } from '@/dto/api-response.dto';
-import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
+import { SkipThrottle, ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { dataInfoJWT } from '@/functions/dataInfoJWT';
-import { User } from '@/modules/security/user/entities/user.entity';
 import {
 	Body,
 	Controller,
-	Get,
 	HttpCode,
 	HttpStatus,
 	Logger,
+	Get,
 	Post,
 	Req,
 	Res,
 	UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
 	ApiBearerAuth,
 	ApiOperation,
@@ -30,10 +28,10 @@ import type { Request, Response } from 'express';
 import { authMessages } from './auth.messages';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
-import { GoogleLoginUseCase } from './use-case/google-login.use-case';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
 import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
+import { CheckSessionUseCase } from './use-case/checkSession.use-case';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -44,8 +42,7 @@ export class AuthController {
 		private readonly loginUseCase: LoginUseCase,
 		private readonly logoutUseCase: LogoutUseCase,
 		private readonly refreshTokenUseCase: RefreshTokenUseCase,
-		private readonly googleLoginUseCase: GoogleLoginUseCase,
-		private readonly configService: ConfigService,
+		private readonly checkSessionUseCase: CheckSessionUseCase,
 	) {}
 
 	@ApiOperation({
@@ -131,9 +128,8 @@ Cierra la sesión del usuario actual invalidando el token de refresh.
 		@Res({ passthrough: true }) res: Response,
 	) {
 		const { uid, dataLog } = req.user;
-		const refreshToken = req.cookies?.refreshToken;
 		this.logger.log(`${dataLog} - ${authMessages.log.logout}`);
-		await this.logoutUseCase.execute({ uid, res, refreshToken, dataLog });
+		await this.logoutUseCase.execute({ uid, res, dataLog });
 		return { msg: 'Sesión cerrada exitosamente' };
 	}
 
@@ -169,7 +165,6 @@ Ninguno - Requiere cookie de refresh token
 		type: ApiTooManyRequestsResponse,
 	})
 	@HttpCode(HttpStatus.CREATED)
-	@ThrottleAuth()
 	@Post('/refresh-token')
 	async refreshToken(
 		@Req() req: Request & ReqUidDTO,
@@ -184,45 +179,33 @@ Ninguno - Requiere cookie de refresh token
 	}
 
 	@ApiOperation({
-		summary: 'Login con Google (Inicio)',
+		summary: 'Verificar sesión activa',
 		description: `
 ## Descripción
-Inicia el proceso de autenticación con Google OAuth.
+Verifica si el usuario tiene una sesión activa mediante el refresh token en cookies.
 
 ## Permisos requeridos
-Ninguno
+Ninguno - Requiere cookie refreshToken
 		`,
 	})
-	@ApiResponse({ status: 200, description: 'Redirección a Google OAuth' })
-	@Get('google')
-	async googleLogin() {
-		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-		if (!clientId) {
-			return { msg: 'Google OAuth not configured' };
-		}
-	}
-
-	@ApiOperation({
-		summary: 'Login con Google (Callback)',
-		description: `
-## Descripción
-Maneja el callback de Google OAuth después de la autenticación.
-
-## Permisos requeridos
-Ninguno
-		`,
+	@ApiResponse({
+		status: 200,
+		description: 'Sesión activa',
+		example: {
+			isAuthenticated: true,
+		},
 	})
-	@ApiResponse({ status: 200, description: 'Login con Google exitoso' })
-	@Get('google/callback')
-	async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
-		const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-		if (!clientId) {
-			return { msg: 'Google OAuth not configured' };
-		}
-		this.googleLoginUseCase.execute({
-			user: req.user as User,
-			res,
-			loginInfo: dataInfoJWT(req),
-		});
+	@ApiResponse({
+		status: 200,
+		description: 'Sesión no activa',
+		example: {
+			isAuthenticated: false,
+		},
+	})
+	@Get('/check-session')
+	@SkipThrottle()
+	async checkSession(@Req() req: Request & ReqUidDTO) {
+		const refreshToken = req.cookies?.refreshToken;
+		return this.checkSessionUseCase.execute({ refreshToken });
 	}
 }

@@ -1,8 +1,7 @@
-import {
-	Injectable,
-	NotFoundException,
-	ConflictException,
-} from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { Injectable } from '@nestjs/common';
 import { LoggerService } from '@/services/logger.service';
 import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
@@ -40,7 +39,9 @@ export class RemoveUserUseCase {
 					status: 'not_found',
 				},
 			);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		try {
@@ -65,7 +66,9 @@ export class RemoveUserUseCase {
 					error: err instanceof Error ? err.message : 'Unknown error',
 				},
 			);
-			throw new ConflictException(userMessages.log.relationError);
+			throw new ExtendedConflictException(
+				objectError({ name: 'uid', msg: userMessages.log.relationError }),
+			);
 		}
 	}
 }

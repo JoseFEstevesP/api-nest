@@ -1,5 +1,5 @@
 {
-	"name": "api-nest",
+	"name": "api_nest",
 	"version": "0.0.1",
 	"description": "",
 	"author": "",
@@ -11,7 +11,7 @@
 	},
 	"packageManager": "pnpm@10.32.1",
 	"scripts": {
-		"build": "nest build",
+		"build": "rm -f src/metadata.ts && nest build && rm -f dist/metadata.js",
 		"start": "nest start",
 		"dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
@@ -32,7 +32,8 @@
 		"docker:logs": "docker compose logs -f",
 		"docker:migrate": "docker compose run --rm migrate",
 		"docker:migrate:undo": "docker compose run --rm migrate-undo",
-		"docker:migrate:create": "docker compose run --rm migrate npm run migrate:create",
+		"docker:migrate:create": "docker compose run --rm migrate pnpm run migrate:create",
+		"seed": "tsx src/scripts/seed.ts",
 		"setup:test-db": "node scripts/setup-test-db.js",
 		"pretest": "pnpm run setup:test-db",
 		"test": "vitest run --config vitest.config.ts",
@@ -53,7 +54,6 @@
 		"@nestjs/platform-express": "11.1.16",
 		"@nestjs/schedule": "6.1.1",
 		"@nestjs/serve-static": "5.0.4",
-		"@nestjs/swagger": "11.2.6",
 		"@nestjs/terminus": "11.1.1",
 		"@nestjs/throttler": "6.5.0",
 		"@types/passport-google-oauth20": "2.0.17",
@@ -86,6 +86,7 @@
 		"@nestjs/cli": "11.0.16",
 		"@nestjs/schematics": "11.0.9",
 		"@nestjs/sequelize": "11.0.1",
+		"@nestjs/swagger": "11.4.2",
 		"@nestjs/testing": "11.1.16",
 		"@swc/cli": "0.8.0",
 		"@swc/core": "1.15.18",
@@ -99,6 +100,7 @@
 		"@types/node": "25.4.0",
 		"@types/nodemailer": "7.0.11",
 		"@types/passport-jwt": "4.0.1",
+		"@types/pg": "8.11.11",
 		"@types/supertest": "7.2.0",
 		"husky": "9.1.7",
 		"lint-staged": "16.3.3",
@@ -107,6 +109,7 @@
 		"sequelize-cli": "6.6.5",
 		"testcontainers": "11.12.0",
 		"tsconfig-paths": "4.2.0",
+		"tsx": "^4.21.0",
 		"typescript": "5.9.3",
 		"vitest": "^4.0.18"
 	},
@@ -130,9 +133,10 @@
 			"@scarf/scarf",
 			"@swc/core",
 			"bcrypt",
+			"cpu-features",
 			"esbuild",
-			"protobufjs",
 			"sharp",
+			"ssh2",
 			"unrs-resolver"
 		]
 	}

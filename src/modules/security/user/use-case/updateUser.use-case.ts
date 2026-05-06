@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { LoggerService } from '@/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import { UserUpdateDTO } from '../dto/userUpdate.dto';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class UpdateUserUseCase {
@@ -37,12 +39,14 @@ export class UpdateUserUseCase {
 					status: 'not_found',
 				},
 			);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		await this.userRepository.update(uid, {
 			...updatedData,
-			...(updatedData.status !== undefined && { status: !updatedData.status }),
+			...(updatedData.activatedAccount === true ? { code: undefined } : {}),
 		});
 
 		this.logger.info(`${dataLog} - ${userMessages.log.updateSuccess}`, {

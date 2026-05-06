@@ -1,8 +1,9 @@
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { ExtendedUnauthorizedException } from '@/exceptions/extended-unauthorized.exception';
 import {
 	Injectable,
 	Logger,
-	NotFoundException,
-	UnauthorizedException,
 } from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserUpdateProfileEmailDTO } from '../dto/userUpdateProfileEmail.dto';
@@ -28,13 +29,17 @@ export class UpdateUserProfileEmailUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
 			this.logger.error(`${dataLog} - ${userMessages.log.passwordError}`);
-			throw new UnauthorizedException(userMessages.msg.passwordError);
+			throw new ExtendedUnauthorizedException(
+				objectError({ name: 'password', msg: userMessages.msg.passwordError }),
+			);
 		}
 
 		await this.userRepository.update(uid, { email });

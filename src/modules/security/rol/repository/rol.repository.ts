@@ -53,41 +53,17 @@ export class RolRepository {
 		attributes?: FindAttributeOptions;
 		include?: Includeable[];
 	}): Promise<Role | null> {
-		const cacheKey = `Rol-findOne:${JSON.stringify({ where, attributes })}`;
-		const cachedData = await this.cacheManager.get<Role | null>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const rol = await this.rolModel.findOne({
+		return this.rolModel.findOne({
 			where,
 			...(attributes && { attributes }),
 			...(include && { include }),
 		});
-
-		if (rol) {
-			await this.cacheManager.set(cacheKey, rol, 1000 * 60);
-		}
-
-		return rol;
 	}
 
 	async findAndCountAll(
 		options: FindAndCountOptions<Role>,
 	): Promise<{ rows: Role[]; count: number }> {
-		const cacheKey = `Rol-findAndCountAll:${JSON.stringify(options)}`;
-		const cachedData = await this.cacheManager.get<{
-			rows: Role[];
-			count: number;
-		}>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const result = await this.rolModel.findAndCountAll(options);
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-
-		return result;
+		return this.rolModel.findAndCountAll(options);
 	}
 
 	async findAll({
@@ -97,19 +73,10 @@ export class RolRepository {
 		where: WhereOptions<Role>;
 		attributes?: FindAttributeOptions;
 	}): Promise<Role[]> {
-		const cacheKey = `Rol-findAll:${JSON.stringify({ where, attributes })}`;
-		const cachedData = await this.cacheManager.get<Role[]>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const rols = await this.rolModel.findAll({
+		return this.rolModel.findAll({
 			where,
 			...(attributes && { attributes }),
 		});
-		await this.cacheManager.set(cacheKey, rols, 1000 * 60);
-
-		return rols;
 	}
 
 	async update(uid: string, data: Partial<Role>): Promise<void> {

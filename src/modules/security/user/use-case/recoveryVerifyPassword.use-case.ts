@@ -1,4 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../repository/user.repository';
@@ -26,7 +28,9 @@ export class RecoveryVerifyPasswordUseCase {
 
 		if (!user) {
 			this.logger.error(`system - ${userMessages.log.userError}`);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'code', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		await this.userRepository.update(user.uid, {

@@ -4,12 +4,12 @@ import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAu
 import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { UserRepository } from '@/modules/security/user/repository/user.repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { TokenExpiredException } from '@/exceptions/token-expired.exception';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { LoggerService } from '@/services/logger.service';
-import { authMessages } from '../auth.messages';
 import { LogoutUseCase } from './logout.use-case';
 import { Role } from '@/modules/security/rol/entities/rol.entity';
 
@@ -41,7 +41,24 @@ export class RefreshTokenUseCase {
 				type: 'auth_refresh_token',
 				status: 'failed',
 			});
-			throw new UnauthorizedException(authMessages.msg.refreshToken);
+			res.status(401).json({
+				expired: true,
+				tokenType: 'refresh',
+				message: 'Token de refresco no encontrado. Inicie sesión nuevamente.',
+			});
+			return;
+		}
+
+		try {
+			await this.jwtService.verifyAsync(refreshToken, {
+				secret: this.configService.get('JWT_REFRESH_SECRET'),
+			});
+		} catch (err) {
+			const error = err as { name?: string };
+			if (error?.name === 'TokenExpiredError') {
+				throw new TokenExpiredException('refresh');
+			}
+			throw err;
 		}
 
 		const loginInfoArray = Object.values(loginInfo);
@@ -56,7 +73,6 @@ export class RefreshTokenUseCase {
 				status: 'failed',
 			});
 			return this.logoutUseCase.execute({
-				refreshToken,
 				res,
 				dataLog: 'system',
 			});
@@ -75,7 +91,7 @@ export class RefreshTokenUseCase {
 				status: 'failed',
 			});
 			return this.logoutUseCase.execute({
-				refreshToken,
+				uid: auditRef.uidUser,
 				res,
 				dataLog: 'system',
 			});
@@ -88,7 +104,7 @@ export class RefreshTokenUseCase {
 				status: 'failed',
 			});
 			return this.logoutUseCase.execute({
-				uid: auditRef.uid,
+				uid: auditRef.uidUser,
 				res,
 				dataLog: 'system',
 			});
@@ -114,19 +130,18 @@ export class RefreshTokenUseCase {
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {
 		const isProduction = this.configService.get('NODE_ENV') === 'production';
-		const sameSite = isProduction ? 'none' : 'lax';
 
 		res
 			.cookie('accessToken', accessToken, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite,
+				sameSite: isProduction ? 'none' : 'lax',
 				maxAge: 3600 * 1000,
 			})
 			.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite,
+				sameSite: isProduction ? 'none' : 'lax',
 				maxAge: 7 * 24 * 3600 * 1000,
 			});
 	}

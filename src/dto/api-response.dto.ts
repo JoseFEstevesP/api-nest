@@ -1,67 +1,81 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class ApiErrorResponse {
+export class ApiErrorDetail {
+	@ApiProperty({ example: 'field' })
+	field!: string;
+
+	@ApiProperty({ example: 'Error message' })
+	message!: string;
+}
+
+export class ApiError {
 	@ApiProperty({ example: 400 })
-	statusCode!: number;
-
-	@ApiProperty({ example: ['El correo electrónico es requerido'] })
-	message!: string[] | string;
+	code!: number;
 
 	@ApiProperty({ example: 'Bad Request' })
-	error!: string;
+	name!: string;
 
-	@ApiPropertyOptional({ example: '2024-01-15T10:30:00.000Z' })
-	timestamp?: string;
+	@ApiProperty({ example: 'Error message' })
+	message!: string;
 
-	@ApiPropertyOptional({ example: 'POST' })
-	method?: string;
+	@ApiProperty({ type: [ApiErrorDetail], required: false })
+	details?: ApiErrorDetail[];
+}
 
-	@ApiPropertyOptional({ example: '/api/v1/user' })
-	path?: string;
+export class ApiErrorResponse {
+	@ApiProperty({ example: false })
+	success!: false;
+
+	@ApiProperty({ type: ApiError })
+	error!: ApiError;
 }
 
 export class ApiUnauthorizedResponse {
-	@ApiProperty({ example: 401 })
-	statusCode!: number;
+	@ApiProperty({ example: false })
+	success!: false;
 
-	@ApiProperty({ example: 'Unauthorized' })
-	message!: string;
-
-	@ApiProperty({ example: 'Unauthorized' })
-	error!: string;
+	@ApiProperty()
+	error!: {
+		code: number;
+		name: string;
+		message: string;
+	};
 }
 
 export class ApiForbiddenResponse {
-	@ApiProperty({ example: 403 })
-	statusCode!: number;
+	@ApiProperty({ example: false })
+	success!: false;
 
-	@ApiProperty({ example: 'Forbidden' })
-	message!: string;
-
-	@ApiProperty({ example: 'Forbidden' })
-	error!: string;
+	@ApiProperty()
+	error!: {
+		code: number;
+		name: string;
+		message: string;
+	};
 }
 
 export class ApiNotFoundResponse {
-	@ApiProperty({ example: 404 })
-	statusCode!: number;
+	@ApiProperty({ example: false })
+	success!: false;
 
-	@ApiProperty({ example: 'Usuario no encontrado' })
-	message!: string;
-
-	@ApiProperty({ example: 'Not Found' })
-	error!: string;
+	@ApiProperty()
+	error!: {
+		code: number;
+		name: string;
+		message: string;
+	};
 }
 
 export class ApiTooManyRequestsResponse {
-	@ApiProperty({ example: 429 })
-	statusCode!: number;
+	@ApiProperty({ example: false })
+	success!: false;
 
-	@ApiProperty({ example: 'Too Many Requests' })
-	message!: string;
-
-	@ApiProperty({ example: 'Too Many Requests' })
-	error!: string;
+	@ApiProperty()
+	error!: {
+		code: number;
+		name: string;
+		message: string;
+	};
 }
 
 export class ApiValidationError {
@@ -73,12 +87,14 @@ export class ApiValidationError {
 }
 
 export class ApiValidationErrorResponse {
-	@ApiProperty({ example: 400 })
-	statusCode!: number;
+	@ApiProperty({ example: false })
+	success!: false;
 
-	@ApiProperty({ type: [ApiValidationError] })
-	message!: ApiValidationError[];
-
-	@ApiProperty({ example: 'Bad Request' })
-	error!: string;
+	@ApiProperty()
+	error!: {
+		code: number;
+		name: string;
+		message: string;
+		details: ApiValidationError[];
+	};
 }

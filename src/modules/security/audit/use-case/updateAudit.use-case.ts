@@ -1,4 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { Injectable, Logger } from '@nestjs/common';
 import { AuditUpdateDTO } from '../dto/auditUpdate.dto';
 import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
@@ -17,7 +19,9 @@ export class UpdateAuditUseCase {
 
 		if (!audit) {
 			this.logger.error(auditMessages.log.findOne);
-			throw new NotFoundException(auditMessages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: auditMessages.findOne }),
+			);
 		}
 
 		await this.auditRepository.update(uid, { refreshToken });

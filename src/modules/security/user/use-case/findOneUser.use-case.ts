@@ -1,15 +1,11 @@
-import {
-	ForbiddenException,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from '@nestjs/common';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { Includeable, WhereOptions } from 'sequelize';
 import { Role } from '../../rol/entities/rol.entity';
-import { TypeRol } from '../../rol/enum/rolData';
 import { User } from '../entities/user.entity';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class FindOneUserUseCase {
@@ -19,19 +15,22 @@ export class FindOneUserUseCase {
 
 	async execute(where: WhereOptions<User>, dataLog?: string): Promise<User> {
 		const user = await this.userRepository.findOne({
-			where: { ...where, status: true },
+			where: { ...where },
 			attributes: {
-				exclude: ['password', 'status', 'createdAt', 'updatedAt'],
+				exclude: ['password', 'createdAt', 'updatedAt'],
 			},
 			include: this.getIncludeOptions(),
 		});
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
-		if (user.rol.typeRol !== TypeRol.admin) {
+		const isAdmin = user.rol.permissions.includes('user.delete');
+		if (!isAdmin) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ForbiddenException(userMessages.msg.userType);
 		}
@@ -45,7 +44,7 @@ export class FindOneUserUseCase {
 			{
 				model: Role,
 				required: true,
-				attributes: ['name', 'permissions', 'typeRol'],
+				attributes: ['name', 'permissions'],
 			},
 		];
 	}

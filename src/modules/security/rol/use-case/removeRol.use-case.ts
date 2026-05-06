@@ -1,11 +1,7 @@
-import {
-	ConflictException,
-	forwardRef,
-	Inject,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from '../../user/repository/user.repository';
 import { FindOneUserUseCase } from '../../user/use-case/findOneUser.use-case';
 import { RolRepository } from '../repository/rol.repository';
@@ -28,7 +24,9 @@ export class RemoveRolUseCase {
 		});
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
-			throw new NotFoundException(rolMessages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: rolMessages.findOne }),
+			);
 		}
 
 		const user = await this.userRepository.findOne({
@@ -37,7 +35,9 @@ export class RemoveRolUseCase {
 
 		if (user) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
-			throw new ConflictException(rolMessages.findUserExit);
+			throw new ExtendedConflictException(
+				objectError({ name: 'uid', msg: rolMessages.findUserExit }),
+			);
 		}
 
 		await this.rolRepository.remove(uid);

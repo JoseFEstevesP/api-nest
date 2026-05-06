@@ -1,5 +1,5 @@
 export enum OrderRolProperty {
 	name = 'name',
-	permissions = 'permissions',
-	typeRol = 'typeRol',
+	description = 'description',
+	status = 'status',
 }

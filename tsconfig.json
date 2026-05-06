@@ -10,7 +10,6 @@
 		"sourceMap": true,
 		"outDir": "./dist",
 		"baseUrl": "./",
-		"ignoreDeprecations": "6.0",
 		"paths": {
 			"@/*": ["./src/*"]
 		},
@@ -21,5 +20,6 @@
 		"strictNullChecks": true,
 		"noImplicitAny": true,
 		"forceConsistentCasingInFileNames": true
-	}
+	},
+	"exclude": ["src/metadata.ts"]
 }

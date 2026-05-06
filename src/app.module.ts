@@ -28,28 +28,32 @@ import { LoggerService } from './services/logger.service';
 		}),
 		ThrottlerModule.forRootAsync({
 			inject: [ConfigService],
-			useFactory: (config: ConfigService<EnvironmentVariables>) => [
-				{
-					name: 'short',
-					ttl: config.get<number>('RATE_LIMIT_TTL', { infer: true }) ?? 60000,
-					limit: config.get<number>('RATE_LIMIT_LIMIT', { infer: true }) ?? 100,
-				},
-				{
-					name: 'medium',
-					ttl: 60000 * 5,
-					limit: 50,
-				},
-				{
-					name: 'long',
-					ttl: 60000 * 10,
-					limit: 20,
-				},
-				{
-					name: 'auth',
-					ttl: 60000 * 15,
-					limit: 5,
-				},
-			],
+			useFactory: (config: ConfigService<EnvironmentVariables>) => ({
+				throttlers: [
+					{
+						name: 'short',
+						ttl: config.get<number>('RATE_LIMIT_TTL', { infer: true }) ?? 60000,
+						limit:
+							config.get<number>('RATE_LIMIT_LIMIT', { infer: true }) ?? 500,
+					},
+					{
+						name: 'medium',
+						ttl: 60000 * 5,
+						limit: 300,
+					},
+					{
+						name: 'long',
+						ttl: 60000 * 10,
+						limit: 100,
+					},
+					{
+						name: 'auth',
+						ttl: 60000 * 15,
+						limit: 20,
+					},
+				],
+				ignoreRoutes: ['/api/auth/refresh-token', '/api/auth/check-session'],
+			}),
 		}),
 		ScheduleModule.forRoot(),
 		SequelizeModule.forRootAsync({

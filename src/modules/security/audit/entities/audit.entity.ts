@@ -10,7 +10,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-	tableName: 'Audit',
+	tableName: 'audit',
 	indexes: [
 		{ fields: ['uidUser'], name: 'idx_audit_uid_user' },
 		{ fields: ['createdAt'], name: 'idx_audit_created_at' },

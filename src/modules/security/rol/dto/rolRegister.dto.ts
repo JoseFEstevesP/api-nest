@@ -9,7 +9,6 @@ import {
 	Length,
 } from 'class-validator';
 import { Permission } from '../enum/permissions';
-import { TypeRol } from '../enum/rolData';
 import { rolMessages } from '../rol.messages';
 
 export class RolRegisterDTO {
@@ -56,15 +55,4 @@ export class RolRegisterDTO {
 	})
 	@IsDefined({ message: rolMessages.validation.dto.defined })
 	declare readonly permissions: Permission[];
-
-	@ApiProperty({
-		example: TypeRol.user,
-		enum: TypeRol,
-		description: 'Tipo de rol',
-	})
-	@IsEnum(TypeRol, { message: rolMessages.validation.dto.stringValue })
-	@IsString({ message: rolMessages.validation.dto.stringValue })
-	@IsNotEmpty({ message: rolMessages.validation.dto.permission })
-	@IsDefined({ message: rolMessages.validation.dto.defined })
-	declare readonly typeRol: TypeRol;
 }

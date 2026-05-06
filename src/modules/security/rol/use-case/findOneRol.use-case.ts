@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { WhereOptions } from 'sequelize';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
+import { Injectable } from '@nestjs/common';
+import { WhereOptions } from 'sequelize';
 import { Role } from '../entities/rol.entity';
 import { RolRepository } from '../repository/rol.repository';
 import { rolMessages } from '../rol.messages';
@@ -41,9 +43,9 @@ export class FindOneRolUseCase {
 		cacheKey?: string,
 	): Promise<Role> {
 		const rol = await this.rolRepository.findOne({
-			where: { ...where, status: true },
+			where: { ...where },
 			attributes: {
-				exclude: ['createdAt', 'updatedAt', 'status'],
+				exclude: ['createdAt', 'updatedAt'],
 			},
 		});
 
@@ -56,7 +58,9 @@ export class FindOneRolUseCase {
 					status: 'not_found',
 				},
 			);
-			throw new NotFoundException(rolMessages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: rolMessages.findOne }),
+			);
 		}
 
 		if (cacheKey) {

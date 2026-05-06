@@ -1,4 +1,6 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { Injectable, Logger } from '@nestjs/common';
 import { RolRepository } from '../repository/rol.repository';
 import { rolMessages } from '../rol.messages';
 
@@ -18,7 +20,9 @@ export class FindRolPermissionsUseCase {
 
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
-			throw new NotFoundException(rolMessages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: rolMessages.findOne }),
+			);
 		}
 
 		this.logger.log(`${dataLog} - ${rolMessages.log.findOneSuccess}`);

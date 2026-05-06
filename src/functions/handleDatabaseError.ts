@@ -1,7 +1,4 @@
-import {
-	InternalServerErrorException,
-	Logger,
-} from '@nestjs/common';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { UniqueConstraintError } from 'sequelize';
 import { ExtendedConflictException } from '../exceptions/extended-conflict.exception';
 

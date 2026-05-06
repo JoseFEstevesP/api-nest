@@ -8,6 +8,8 @@ export const authMessages = {
 	logout: 'Sesión cerrada exitosamente.',
 	userError: 'Usuario no encontrado.',
 	refreshToken: 'No se encontró el token de refresco.',
+	throttler: 'Demasiadas solicitudes. Intente de nuevo más tarde.',
+	notAuthenticated: 'Sesión no autenticada.',
 
 	// Log messages
 	log: {

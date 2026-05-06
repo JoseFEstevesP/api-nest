@@ -2,7 +2,7 @@ services:
   # Nginx Reverse Proxy (solo producción)
   nginx:
     image: nginx:1.27-alpine
-    container_name: api-nest-nginx
+    container_name: api_nest-nginx
     ports:
       - '${NGINX_PORT:-80}:80'
       - '${NGINX_SSL_PORT:-443}:443'
@@ -32,8 +32,8 @@ services:
       target: ${NODE_ENV:-development}
       args:
         NODE_ENV: ${NODE_ENV:-development}
-    image: api-nest:${VERSION:-latest}
-    container_name: api-nest
+    image: api_nest:${VERSION:-latest}
+    container_name: api_nest
     ports:
       - '${PORT:-3000}:3000'
     expose:
@@ -51,7 +51,7 @@ services:
     volumes:
       - ./src:/usr/src/app/src
       - uploads:/usr/src/app/uploads
-      - logs:/usr/src/app/logs
+      - ./logs:/usr/src/app/logs
     restart: unless-stopped
     healthcheck:
       test:
@@ -68,16 +68,15 @@ services:
   # PostgreSQL Database
   db:
     image: postgres:17-alpine
-    container_name: api-nest-db
-    ports:
-      - '${DATABASE_PORT}:5432'
-    expose:
-      - '5432'
+    container_name: api_nest-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      DATABASE_PORT: ${DATABASE_PORT}
       PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '${DATABASE_PORT}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -95,7 +94,7 @@ services:
   # Redis Cache
   redis:
     image: redis:8.2.1-alpine
-    container_name: api-nest-redis
+    container_name: api_nest-redis
     ports:
       - '${REDIS_PORT}:6379'
     expose:

@@ -1,22 +1,21 @@
-import { EnvironmentVariables } from '@/config/env.config';
+import { Environment, EnvironmentVariables } from '@/config/env.config';
+import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { ExtendedUnauthorizedException } from '@/exceptions/extended-unauthorized.exception';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
+import { objectError } from '@/functions/objectError';
 import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { UserRepository } from '@/modules/security/user/repository/user.repository';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
-import {
-	ConflictException,
-	Injectable,
-	NotFoundException,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { LoggerService } from '@/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Transaction } from 'sequelize';
-import { LoggerService } from '@/services/logger.service';
 import { authMessages } from '../auth.messages';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
@@ -50,7 +49,9 @@ export class LoginUseCase {
 				email,
 				status: 'failed',
 			});
-			throw new NotFoundException(authMessages.msg.userError);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'all', msg: authMessages.msg.credential }),
+			);
 		}
 
 		const checkPassword = await compare(password, user.password);
@@ -62,7 +63,9 @@ export class LoginUseCase {
 				status: 'failed',
 			});
 			await this.validateAttemptUseCase.execute({ user });
-			throw new UnauthorizedException(authMessages.msg.credential);
+			throw new ExtendedUnauthorizedException(
+				objectError({ name: 'all', msg: authMessages.msg.credential }),
+			);
 		}
 
 		const accessToken = await this.generateAccessToken(user, loginInfo);
@@ -74,7 +77,7 @@ export class LoginUseCase {
 			await this.userRepository.transaction(async (t: Transaction) => {
 				await user.update({ attemptCount: 0 }, { transaction: t });
 
-				const data = {
+				const formaData = {
 					uidUser: user.uid,
 					refreshToken,
 					dataToken: loginInfoArray,
@@ -82,7 +85,7 @@ export class LoginUseCase {
 
 				await this.createAuditUseCase.execute(
 					{
-						data,
+						data: formaData,
 					},
 					t,
 				);
@@ -96,7 +99,9 @@ export class LoginUseCase {
 				email,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
-			throw new ConflictException(authMessages.log.sessionExisting);
+			throw new ExtendedConflictException(
+				objectError({ name: 'all', msg: authMessages.log.sessionExisting }),
+			);
 		}
 
 		this.logger.info(
@@ -113,20 +118,19 @@ export class LoginUseCase {
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {
-		const isProduction = this.configService.get('NODE_ENV') === 'production';
-		const sameSite = isProduction ? 'none' : 'lax';
+		const isProduction = this.configService.get('NODE_ENV') === Environment.Production;
 
 		res
 			.cookie('accessToken', accessToken, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite,
+				sameSite: isProduction ? 'none' : 'lax',
 				maxAge: 3600 * 1000,
 			})
 			.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
 				secure: isProduction,
-				sameSite,
+				sameSite: isProduction ? 'none' : 'lax',
 				maxAge: 7 * 24 * 3600 * 1000,
 			});
 	}

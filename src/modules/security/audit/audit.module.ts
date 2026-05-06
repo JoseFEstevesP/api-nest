@@ -16,6 +16,7 @@ import { UpdateAuditUseCase } from './use-case/updateAudit.use-case';
 	imports: [SequelizeModule.forFeature([Audit]), forwardRef(() => RolModule)],
 	controllers: [AuditController],
 	providers: [
+		LoggerService,
 		AuditRepository,
 		RemoveAuditUseCase,
 		CreateAuditUseCase,
@@ -23,7 +24,6 @@ import { UpdateAuditUseCase } from './use-case/updateAudit.use-case';
 		FindOneAuditUseCase,
 		UpdateAuditUseCase,
 		CleanUpOldAuditsUseCase,
-		LoggerService,
 	],
 	exports: [
 		AuditRepository,
@@ -32,7 +32,6 @@ import { UpdateAuditUseCase } from './use-case/updateAudit.use-case';
 		FindAllAuditsUseCase,
 		FindOneAuditUseCase,
 		UpdateAuditUseCase,
-		CleanUpOldAuditsUseCase,
 		LoggerService,
 	],
 })

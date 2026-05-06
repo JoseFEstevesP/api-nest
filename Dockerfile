@@ -1,7 +1,7 @@
 # =============================================================================
 # Stage 1: Base - Dependencies
 # =============================================================================
-FROM node:25-alpine3.20 AS base
+FROM node:24-alpine AS base
 
 # Install pnpm globally
 RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
@@ -33,6 +33,9 @@ ENV NODE_ENV=${NODE_ENV}
 
 # Install dev dependencies for building
 RUN pnpm install --frozen-lockfile --ignore-scripts
+
+# Install types (needed for build)
+RUN pnpm install -D @types/pg --ignore-scripts
 
 # Copy source code
 COPY . .

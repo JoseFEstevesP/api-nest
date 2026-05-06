@@ -1,4 +1,6 @@
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+
+export { SkipThrottle };
 
 export const ThrottleShort = () =>
 	Throttle({ default: { ttl: 60000, limit: 100 } });

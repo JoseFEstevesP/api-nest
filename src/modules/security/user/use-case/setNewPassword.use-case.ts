@@ -1,9 +1,7 @@
-import {
-	Injectable,
-	Logger,
-	NotFoundException,
-	BadRequestException,
-} from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { ExtendedBadRequestException } from '@/exceptions/extended-bad-request.exception';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
 import { userMessages } from '../user.messages';
@@ -35,14 +33,18 @@ export class SetNewPasswordUseCase {
 
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
-			throw new NotFoundException(userMessages.msg.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+			);
 		}
 
 		if (newPassword !== confirmPassword) {
 			this.logger.error(
 				`${dataLog} - ${userMessages.log.userErrorNewPassword}`,
 			);
-			throw new BadRequestException(userMessages.msg.newPassword);
+			throw new ExtendedBadRequestException(
+				objectError({ name: 'confirmPassword', msg: userMessages.msg.newPassword }),
+			);
 		}
 
 		const hashPass = await hash(

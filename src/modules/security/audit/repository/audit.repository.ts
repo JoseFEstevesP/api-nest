@@ -87,9 +87,12 @@ export class AuditRepository {
 		return result;
 	}
 
-	async update(uid: string, data: Partial<Audit>): Promise<void> {
+	async update(uid: string, data: Partial<Audit>, transaction?: Transaction): Promise<void> {
 		try {
-			await this.auditModel.update(data, { where: { uid } });
+			await this.auditModel.update(data, {
+				where: { uid },
+				...(transaction && { transaction }),
+			});
 		} catch (error) {
 			handleDatabaseError(
 				error as Error,

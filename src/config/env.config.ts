@@ -19,10 +19,6 @@ export enum Environment {
 	Test = 'test',
 }
 
-export enum DefaultRole {
-	User = 'user',
-}
-
 export const CONFIG_DOCS = {
 	JWT_SECRET: {
 		description: 'Clave secreta para firmar tokens JWT',
@@ -83,9 +79,6 @@ export class EnvironmentVariables {
 	@IsEnum(Environment)
 	declare NODE_ENV: Environment;
 
-	@IsEnum(DefaultRole)
-	declare DEFAULT_ROL_FROM_USER: DefaultRole;
-
 	@IsString({ each: true })
 	@Validate(IsCorsValidConstraint)
 	declare CORS: string[];
@@ -135,19 +128,15 @@ export class EnvironmentVariables {
 
 	@IsString()
 	@MinLength(1)
-	declare GOOGLE_CLIENT_ID: string;
-
-	@IsString()
-	@MinLength(1)
-	declare GOOGLE_SECRET: string;
-
-	@IsString()
-	@MinLength(1)
-	declare GOOGLE_CALLBACK_URL: string;
-
-	@IsString()
-	@MinLength(1)
 	declare FRONT_END_URL: string;
+
+	@IsString()
+	@MinLength(1)
+	declare DISABLE_SECURE_COOKIE: string;
+
+	@IsString()
+	@MinLength(1)
+	declare ENABLE_CROSS_SITE_COOKIE: string;
 }
 
 export const validateEnv = (config: Record<string, unknown>) => {

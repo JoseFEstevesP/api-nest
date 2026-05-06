@@ -1,7 +1,7 @@
 import { RemoveAuditUseCase } from '@/modules/security/audit/use-case/removeAudit.use-case';
+import { LoggerService } from '@/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
-import { LoggerService } from '@/services/logger.service';
 
 @Injectable()
 export class LogoutUseCase {
@@ -13,17 +13,15 @@ export class LogoutUseCase {
 	async execute({
 		res,
 		uid,
-		refreshToken,
 		dataLog,
 	}: {
-		refreshToken?: string;
 		uid?: string;
 		res: Response;
 		dataLog: string;
 	}) {
-		if (refreshToken) {
+		if (uid) {
 			await this.removeAuditUseCase.execute(
-				{ refreshToken },
+				{ uidUser: uid },
 				dataLog,
 			);
 		}

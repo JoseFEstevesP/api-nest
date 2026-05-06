@@ -1,36 +1,35 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, HttpStatus } from '@nestjs/common';
+import { errorResponse, ApiErrorDetail } from '@/dto/api-response-wrapper.dto';
 
-// Custom ConflictException that preserves a structured response
-// while also exposing a human-readable message for toThrow checks.
 export class ExtendedConflictException extends ConflictException {
-	private readonly _responseObj: any;
+	private readonly _responseObj: Record<string, { message: string }>;
+	private readonly _statusCode: number;
+	private readonly _message: string;
 
-	constructor(responseObj: any) {
-		// Derive a readable message from the structured response if possible
+	constructor(responseObj: Record<string, { message: string }>) {
+		const fields = Object.keys(responseObj);
 		let message = '';
-		if (responseObj && typeof responseObj === 'object') {
-			const fields = Object.keys(responseObj);
-			if (fields.length > 0) {
-				const first = responseObj[fields[0]];
-				if (first && typeof first === 'object' && 'message' in first) {
-					// If we have a specific message for the first field, use it as the basis
-					message = first.message;
-				}
-			}
-			// Build a broader message if multiple fields exist
-			if (fields.length > 1) {
-				const joined = fields.join(', ');
-				message = `El valor para ${joined} ya está en uso.`;
+		if (fields.length > 0) {
+			const first = responseObj[fields[0]];
+			if (first && typeof first === 'object' && 'message' in first) {
+				message = first.message;
 			}
 		}
+		if (fields.length > 1) {
+			message = `Los campos ${fields.join(', ')} tienen conflictos.`;
+		}
 
-		// Initialize as a normal ConflictException with a derived message
-		// Cast second arg to any to satisfy differing overload signatures in environment
-		super(message || 'Conflict', 409 as any);
+		super(message || 'Conflicto');
 		this._responseObj = responseObj;
+		this._statusCode = HttpStatus.CONFLICT;
+		this._message = message || 'Conflicto';
 	}
 
-	getResponse(): any {
-		return this._responseObj;
+	getResponse(): ReturnType<typeof errorResponse> {
+		const details: ApiErrorDetail[] = Object.entries(this._responseObj).map(([field, value]) => ({
+			field,
+			message: value.message,
+		}));
+		return errorResponse(this._statusCode, this._message, details);
 	}
 }

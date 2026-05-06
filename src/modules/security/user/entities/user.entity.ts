@@ -10,6 +10,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
+	tableName: 'users',
 	indexes: [
 		{ unique: true, fields: ['email'], name: 'idx_user_email' },
 		{ fields: ['uidRol'], name: 'idx_user_uid_rol' },

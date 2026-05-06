@@ -1,5 +1,6 @@
-import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
+import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import { UidDTO } from '@/dto/uid.dto';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
@@ -23,12 +24,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
-import { UserDefaultRegisterDTO } from './dto/userDefaultRegister.dto';
-import { UserDeleteDTO } from './dto/userDelete.dto';
+import { UserChartDataResponseDTO } from './dto/userChartData.dto';
 import { UserGetAllDTO } from './dto/userGetAll.dto';
 import { UserNewPasswordDTO } from './dto/userNewPassword.dto';
-import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
 import { RecoveryVerifyPasswordDTO } from './dto/userRecoveryVerifyPassword.dto';
+import { UserRecoveryPasswordDTO } from './dto/userRecoveryPassword.dto';
 import { UserRegisterDTO } from './dto/userRegister.dto';
 import { UserUpdateDTO } from './dto/userUpdate.dto';
 import { UserUpdateProfileDataDTO } from './dto/userUpdateProfileData.dto';
@@ -37,8 +37,9 @@ import { UserUpdateProfilePasswordDTO } from './dto/userUpdateProfilePassword.dt
 import { User } from './entities/user.entity';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
-import { CreateUserUseCase } from './use-case/createUser.use-case';
 import { FindAllUsersUseCase } from './use-case/findAllUsers.use-case';
+import { FindOneUserByUidUseCase } from './use-case/findOneUserByUid.use-case';
+import { GetUserChartsUseCase } from './use-case/getUserCharts.use-case';
 import { GetUserProfileUseCase } from './use-case/getUserProfile.use-case';
 import { RecoveryPasswordUseCase } from './use-case/recoveryPassword.use-case';
 import { RecoveryVerifyPasswordUseCase } from './use-case/recoveryVerifyPassword.use-case';
@@ -56,9 +57,9 @@ import { userMessages } from './user.messages';
 export class UserController {
 	private readonly logger = new Logger(UserController.name);
 	constructor(
-		private readonly createUserUseCase: CreateUserUseCase,
 		private readonly createProtectUserUseCase: CreateProtectUserUseCase,
 		private readonly findAllUsersUseCase: FindAllUsersUseCase,
+		private readonly findOneUserByUidUseCase: FindOneUserByUidUseCase,
 		private readonly updateUserUseCase: UpdateUserUseCase,
 		private readonly getUserProfileUseCase: GetUserProfileUseCase,
 		private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
@@ -70,19 +71,10 @@ export class UserController {
 		private readonly recoveryVerifyPasswordUseCase: RecoveryVerifyPasswordUseCase,
 		private readonly setNewPasswordUseCase: SetNewPasswordUseCase,
 		private readonly activateAccountUseCase: ActivateAccountUseCase,
+		private readonly getUserChartsUseCase: GetUserChartsUseCase,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 	) {}
-
-	@ApiResponse({ status: 201, description: 'Usuario creado', type: User })
-	@ApiResponse({ status: 400, description: 'Bad request' })
-	@Post()
-	create(@Body() data: UserDefaultRegisterDTO) {
-		this.logger.log(
-			`system - ${data.surnames} ${data.names} - ${userMessages.log.create}`,
-		);
-		return this.createUserUseCase.execute(data);
-	}
 
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -119,6 +111,48 @@ export class UserController {
 			uidUser: uid,
 			dataLog,
 		});
+	}
+
+	@ApiBearerAuth()
+	@UseGuards(JwtAuthGuard, PermissionsGuard)
+	@ValidPermission(Permission.userRead)
+	@ApiResponse({ status: 200, description: 'Usuario encontrado', type: User })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+	@Get('/one/:uid')
+	async findOneByUid(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
+		const { dataLog } = req.user;
+		this.logger.log(`${dataLog} - ${userMessages.log.findOne}`);
+
+		return this.findOneUserByUidUseCase.execute(data.uid, dataLog);
+	}
+
+	@ApiBearerAuth()
+	@UseGuards(JwtAuthGuard, PermissionsGuard)
+	@ValidPermission(Permission.userRead)
+	@ApiResponse({
+		status: 200,
+		description: 'Datos para gráficos de usuarios',
+		type: UserChartDataResponseDTO,
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@Get('/charts')
+	async getCharts(@Req() req: ReqUidDTO) {
+		const { dataLog } = req.user;
+		this.logger.log(`${dataLog} - ${userMessages.log.charts}`);
+
+		try {
+			return await this.getUserChartsUseCase.execute({ dataLog });
+		} catch (error) {
+			const err = error as Error;
+			this.logger.error(
+				`${dataLog} - Error en getCharts: ${err.message}`,
+				err.stack,
+			);
+			throw error;
+		}
 	}
 
 	@ApiBearerAuth()
@@ -251,7 +285,7 @@ export class UserController {
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ApiResponse({ status: 404, description: 'Usuario no encontrado' })
 	@Delete('/delete/:uid')
-	async remove(@Param() data: UserDeleteDTO, @Req() req: ReqUidDTO) {
+	async remove(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
 		this.logger.log(`${dataLog} - ${userMessages.log.remove}`);
 

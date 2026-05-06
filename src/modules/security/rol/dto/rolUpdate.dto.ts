@@ -10,7 +10,7 @@ import {
 import { rolMessages } from '../rol.messages';
 import { RolRegisterDTO } from './rolRegister.dto';
 
-export class RolUpdateDTO extends OmitType(RolRegisterDTO, ['typeRol']) {
+export class RolUpdateDTO extends OmitType(RolRegisterDTO, []) {
 	@ApiProperty({
 		example: crypto.randomUUID(),
 		description: 'Identificador único del rol',

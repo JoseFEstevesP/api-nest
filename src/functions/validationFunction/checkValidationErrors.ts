@@ -20,7 +20,7 @@ export const checkValidationErrors = <T extends Record<string, unknown>>({
 
 	const status = (data as { status?: boolean }).status;
 	// Treat undefined or missing status as false to align with edge-case tests
-	const effectiveStatus = status === undefined ? false : !!status;
+	const effectiveStatus = status === undefined ? false : Boolean(status);
 
 	if (effectiveStatus) {
 		throw new ExtendedConflictException(possibleErrors.status);

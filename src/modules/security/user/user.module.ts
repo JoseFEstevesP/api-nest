@@ -5,14 +5,17 @@ import { LoggerService } from '@/services/logger.service';
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { Role } from '../rol/entities/rol.entity';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repository/user.repository';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
 import { FindAllUsersUseCase } from './use-case/findAllUsers.use-case';
 import { FindOneUserUseCase } from './use-case/findOneUser.use-case';
+import { FindOneUserByUidUseCase } from './use-case/findOneUserByUid.use-case';
 import { FindUserByIdUseCase } from './use-case/findUserByEmail.use-case';
 import { FindUserForAuthUseCase } from './use-case/findUserById.use-case';
+import { GetUserChartsUseCase } from './use-case/getUserCharts.use-case';
 import { GetUserProfileUseCase } from './use-case/getUserProfile.use-case';
 import { RecoveryPasswordUseCase } from './use-case/recoveryPassword.use-case';
 import { RecoveryVerifyPasswordUseCase } from './use-case/recoveryVerifyPassword.use-case';
@@ -28,10 +31,11 @@ import { UserController } from './user.controller';
 
 @Module({
 	imports: [
-		SequelizeModule.forFeature([User]),
+		SequelizeModule.forFeature([User, Role]),
 		forwardRef(() => AuditModule),
 		forwardRef(() => RolModule),
 	],
+
 	controllers: [UserController],
 
 	providers: [
@@ -51,15 +55,18 @@ import { UserController } from './user.controller';
 		SetNewPasswordUseCase,
 		ActivateAccountUseCase,
 		FindOneUserUseCase,
+		FindOneUserByUidUseCase,
 		FindUserForAuthUseCase,
 		FindUserByIdUseCase,
 		ValidateAttemptUseCase,
 		RecoveryPasswordUseCase,
 		RecoveryVerifyPasswordUseCase,
+		GetUserChartsUseCase,
 	],
 	exports: [
 		UserRepository,
 		FindOneUserUseCase,
+		FindOneUserByUidUseCase,
 		FindUserForAuthUseCase,
 		ValidateAttemptUseCase,
 		LoggerService,

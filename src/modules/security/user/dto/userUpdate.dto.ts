@@ -31,4 +31,13 @@ export class UserUpdateDTO extends OmitType(UserRegisterDTO, [
 	@IsNotEmpty({ message: userMessages.dto.empty })
 	@IsOptional()
 	declare readonly status?: boolean;
+
+	@ApiProperty({
+		example: true,
+		description: 'Activo o no el usuario',
+	})
+	@IsBoolean({ message: userMessages.dto.activatedAccount })
+	@IsNotEmpty({ message: userMessages.dto.empty })
+	@IsOptional()
+	declare readonly activatedAccount?: boolean;
 }

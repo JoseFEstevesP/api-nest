@@ -1,9 +1,9 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
+import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
 import { Injectable } from '@nestjs/common';
 import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
-import { LoggerService } from '@/services/logger.service';
 import { Role } from '../../rol/entities/rol.entity';
 import { Permission } from '../../rol/enum/permissions';
 import { UserGetAllDTO } from '../dto/userGetAll.dto';
@@ -92,19 +92,29 @@ export class FindAllUsersUseCase {
 		} as WhereOptions;
 
 		if (search) {
-			(where as Record<string, unknown>)['$or'] =
-				this.getSearchConditions(search);
+			const orConditions = this.getSearchConditions(search);
+			return {
+				...where,
+				[Op.or]: orConditions,
+			} as WhereOptions;
 		}
 
 		return where;
 	}
 
 	private getSearchConditions(search: string): WhereOptions[] {
-		const searchableFields = ['names', 'surnames', 'ci', 'email'];
+		if (search.includes('@')) {
+			return [{ email: search }];
+		}
 
-		return searchableFields.map(field => ({
-			[field]: { [Op.iLike]: `%${search}%` },
-		}));
+		return [
+			{ names: { [Op.iLike]: `%${search}%` } },
+			{ surnames: { [Op.iLike]: `%${search}%` } },
+			{ phone: { [Op.iLike]: `%${search}%` } },
+			{ email: { [Op.iLike]: `%${search}%` } },
+			{ provider: { [Op.iLike]: `%${search}%` } },
+			{ '$rol.name$': { [Op.iLike]: `%${search}%` } },
+		];
 	}
 
 	private buildQueryOptions(
@@ -131,7 +141,7 @@ export class FindAllUsersUseCase {
 			{
 				model: Role,
 				required: true,
-				attributes: ['name', 'permissions', 'typeRol'],
+				attributes: ['name', 'permissions'],
 			},
 		];
 	}
@@ -139,11 +149,9 @@ export class FindAllUsersUseCase {
 	private getExcludedAttributes(): string[] {
 		return [
 			'password',
-			'status',
 			'createdAt',
 			'updatedAt',
 			'code',
-			'activatedAccount',
 			'attemptCount',
 			'dataOfAttempt',
 		];

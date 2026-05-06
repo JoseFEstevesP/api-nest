@@ -1,19 +1,25 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { RolGetAllDTO } from '../dto/rolGetAll.dto';
 import { Role } from '../entities/rol.entity';
 import { OrderRolProperty } from '../enum/orderProperty';
-import { rolMessages } from '../rol.messages';
 import { RolRepository } from '../repository/rol.repository';
+import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class FindAllRolsPaginationUseCase {
-	private readonly logger = new Logger(FindAllRolsPaginationUseCase.name);
+	private readonly CACHE_TTL = 60000;
 
-	constructor(private readonly rolRepository: RolRepository) {}
+	constructor(
+		private readonly rolRepository: RolRepository,
+		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute({
 		filter,
@@ -32,9 +38,29 @@ export class FindAllRolsPaginationUseCase {
 			permission,
 		} = filter;
 
-		const status = booleanStatus({ status: olStatus ?? 'true' }) ?? true;
+		const status =
+			olStatus === undefined
+				? undefined
+				: (booleanStatus({ status: olStatus }) ?? true);
 		const parsedLimit = Math.min(Number(limit), 100);
 		const parsedPage = Math.max(Number(page), 1);
+
+		const cacheKey = this.buildCacheKey(
+			parsedPage,
+			parsedLimit,
+			search,
+			status,
+			permission,
+		);
+		const cached =
+			await this.cacheService.get<PaginationResult<Role>>(cacheKey);
+		if (cached) {
+			this.logger.debug(`Retornando roles paginados desde caché: ${cacheKey}`, {
+				type: 'role_find_pagination',
+				fromCache: true,
+			});
+			return cached;
+		}
 
 		const where = this.buildWhereClause(status, search, permission);
 		const queryOptions = this.buildQueryOptions(
@@ -54,30 +80,53 @@ export class FindAllRolsPaginationUseCase {
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
 
+		await this.cacheService.set(cacheKey, result, this.CACHE_TTL);
+
 		this.logger.log(`${dataLog} - ${rolMessages.log.findAllSuccess}`);
 
 		return result;
 	}
 
+	private buildCacheKey(
+		page: number,
+		limit: number,
+		search?: string,
+		status?: boolean,
+		permission?: string,
+	): string {
+		const params = { page, limit, search, status, permission };
+		return `cache:role:pagination:${JSON.stringify(params)}`;
+	}
+
 	private buildWhereClause(
-		status: boolean,
+		status: boolean | undefined,
 		search?: string,
 		permission?: string,
 	): WhereOptions<Role> {
-		const where: WhereOptions<Role> = { status };
+		const where: WhereOptions<Role> = {};
+
+		if (status !== undefined) {
+			where.status = status;
+		}
 
 		if (search || permission) {
-			const orConditions: Record<string, unknown>[] = [];
+			const orConditions: WhereOptions<Role>[] = [];
 
 			if (search) {
 				orConditions.push({ name: { [Op.iLike]: `%${search}%` } });
 			}
 
 			if (permission) {
-				orConditions.push({ permissions: { [Op.overlap]: permission } });
+				const permissionArray = Array.isArray(permission)
+					? permission
+					: [permission];
+				orConditions.push({ permissions: { [Op.overlap]: permissionArray } });
 			}
 
-			(where as Record<string, unknown>)['$or'] = orConditions;
+			return {
+				...where,
+				[Op.or]: orConditions,
+			} as WhereOptions<Role>;
 		}
 
 		return where;
@@ -93,7 +142,7 @@ export class FindAllRolsPaginationUseCase {
 		return {
 			where,
 			attributes: {
-				exclude: ['status', 'createdAt', 'updatedAt'],
+				exclude: ['createdAt', 'updatedAt'],
 			},
 			limit,
 			offset: (page - 1) * limit,

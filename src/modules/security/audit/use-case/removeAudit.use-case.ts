@@ -1,5 +1,7 @@
+import { objectError } from '@/functions/objectError';
+import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
 import { Audit } from '@/modules/security/audit/entities/audit.entity';
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { auditMessages } from '../audit.messages';
 import { AuditRepository } from '../repository/audit.repository';
@@ -25,7 +27,9 @@ export class RemoveAuditUseCase {
 		} catch (err) {
 			if (err) {
 				this.logger.error(`${dataLog} - ${auditMessages.log.relationError}`);
-				throw new ConflictException(auditMessages.log.relationError);
+				throw new ExtendedConflictException(
+				objectError({ name: 'uid', msg: auditMessages.log.relationError }),
+			);
 			}
 		}
 	}

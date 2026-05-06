@@ -37,7 +37,7 @@ export class UserRepository {
 
 	async create(user: User): Promise<User> {
 		try {
-			const result = await this.userModel.create(user as any);
+			const result = await this.userModel.create(user);
 			await this.invalidateCache();
 			return result;
 		} catch (error) {
@@ -92,19 +92,8 @@ export class UserRepository {
 	}
 
 	async findAndCountAll(options: FindAndCountOptions<User>) {
-		const cacheKey = `User-findAndCountAll:${JSON.stringify(options)}`;
-		const cachedData = await this.cacheManager.get<{
-			rows: User[];
-			count: number;
-		}>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const result = await this.userModel.findAndCountAll(options);
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-
-		return result;
+		// Caché desactivado: los Símbolos de Sequelize no se serializan en JSON
+		return this.userModel.findAndCountAll(options);
 	}
 
 	async update(
@@ -157,5 +146,14 @@ export class UserRepository {
 			throw new Error('Sequelize instance not available');
 		}
 		return await sequelize.transaction(callback);
+	}
+
+	async findAllWithOptions<T>(options: FindAndCountOptions<User>): Promise<T[]> {
+		const result = await this.userModel.findAll(options);
+		return result as unknown as T[];
+	}
+
+	async count(options: { where?: WhereOptions<User> }): Promise<number> {
+		return this.userModel.count(options);
 	}
 }

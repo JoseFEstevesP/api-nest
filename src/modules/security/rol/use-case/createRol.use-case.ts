@@ -1,9 +1,8 @@
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
 import { Injectable, Logger } from '@nestjs/common';
-import { Op, WhereOptions } from 'sequelize';
+import { WhereOptions } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
 import { Role } from '../entities/rol.entity';
-import { TypeRol } from '../enum/rolData';
 import { RolRepository } from '../repository/rol.repository';
 import { rolMessages } from '../rol.messages';
 
@@ -14,21 +13,18 @@ export class CreateRolUseCase {
 	constructor(private readonly rolRepository: RolRepository) {}
 
 	async execute({ data, dataLog }: { data: RolRegisterDTO; dataLog: string }) {
-		const { name, typeRol } = data;
-		const whereClause: WhereOptions<Role> = {
-			[Op.or]: [{ name }, { typeRol: TypeRol.user }],
-		};
-		const existingPatient = await this.rolRepository.findOne({
+		const { name } = data;
+		const whereClause: WhereOptions<Role> = { name };
+		const existingRol = await this.rolRepository.findOne({
 			where: whereClause,
 		});
 
 		validatePropertyData({
-			property: { name, typeRol } as {
+			property: { name } as {
 				name: string;
-				typeRol: string;
 				status: boolean;
 			},
-			data: (existingPatient as unknown as Record<string, unknown>) ?? undefined,
+			data: (existingRol as unknown as Record<string, unknown>) ?? undefined,
 			msg: rolMessages,
 		});
 

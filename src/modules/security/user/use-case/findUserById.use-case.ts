@@ -12,7 +12,7 @@ export class FindUserForAuthUseCase {
 		const includeOptions: Includeable[] = [
 			{
 				model: Role,
-				attributes: ['typeRol', 'permissions', 'name'],
+				attributes: ['name', 'permissions'],
 			},
 		];
 
