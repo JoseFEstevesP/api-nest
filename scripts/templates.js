@@ -1,5 +1,5 @@
 export const TEMPLATES = {
-	// Archivo [moduleName].messages.ts
+	// Archivo [moduleName].messages.ts - basado en rol.messages.ts
 	messages: (
 		moduleName,
 		capitalizedName,
@@ -10,7 +10,7 @@ export const TEMPLATES = {
   register: '${capitalizedName} registrado exitosamente',
   update: '${capitalizedName} actualizado exitosamente',
   delete: '${capitalizedName} eliminado',
-  credential: 'Credenciales no válidos.',
+  credential: 'Credenciales no válidas.',
   userError: '${capitalizedName} no encontrado.',
   relationError: 'El ${moduleName} esta relacionado con otros datos',
 
@@ -63,9 +63,10 @@ export const TEMPLATES = {
 };
 `,
 
-	// Controlador
+	// Controlador - basado en rol.controller.ts
 	controller: (moduleName, capitalizedName) => `
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
+import { UidDTO } from '@/dto/uid.dto';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
 import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
@@ -82,17 +83,17 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ${capitalizedName}DeleteDTO } from './dto/${moduleName}Delete.dto';
-import { ${capitalizedName}GetDTO } from './dto/${moduleName}Get.dto';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ${capitalizedName}GetAllDTO } from './dto/${moduleName}GetAll.dto';
 import { ${capitalizedName}RegisterDTO } from './dto/${moduleName}Register.dto';
 import { ${capitalizedName}UpdateDTO } from './dto/${moduleName}Update.dto';
-import { Permission } from '@/modules/security/rol/enum/permissions';
+import { ${capitalizedName} } from './entities/${moduleName}.entity';
 import { ${moduleName}Messages } from './${moduleName}.messages';
 import { Create${capitalizedName}UseCase } from './use-case/create${capitalizedName}.use-case';
+import { FindAll${capitalizedName}sUseCase } from './use-case/findAll${capitalizedName}s.use-case';
 import { FindAll${capitalizedName}sPaginationUseCase } from './use-case/findAll${capitalizedName}sPagination.use-case';
 import { FindOne${capitalizedName}UseCase } from './use-case/findOne${capitalizedName}.use-case';
+import { Find${capitalizedName}PermissionsUseCase } from './use-case/find${capitalizedName}Permissions.use-case';
 import { Remove${capitalizedName}UseCase } from './use-case/remove${capitalizedName}.use-case';
 import { Update${capitalizedName}UseCase } from './use-case/update${capitalizedName}.use-case';
 
@@ -106,11 +107,21 @@ export class ${capitalizedName}Controller {
 	constructor(
 		private readonly create${capitalizedName}UseCase: Create${capitalizedName}UseCase,
 		private readonly findOne${capitalizedName}UseCase: FindOne${capitalizedName}UseCase,
+		private readonly find${capitalizedName}PermissionsUseCase: Find${capitalizedName}PermissionsUseCase,
+		private readonly findAll${capitalizedName}sUseCase: FindAll${capitalizedName}sUseCase,
 		private readonly findAll${capitalizedName}sPaginationUseCase: FindAll${capitalizedName}sPaginationUseCase,
 		private readonly update${capitalizedName}UseCase: Update${capitalizedName}UseCase,
 		private readonly remove${capitalizedName}UseCase: Remove${capitalizedName}UseCase,
 	) {}
 
+	@ApiResponse({
+		status: 201,
+		description: '${capitalizedName} creado correctamente',
+		type: ${capitalizedName},
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ValidPermission(Permission.${moduleName}Add)
 	@Post()
 	async register(@Body() data: ${capitalizedName}RegisterDTO, @Req() req: ReqUidDTO) {
@@ -120,15 +131,46 @@ export class ${capitalizedName}Controller {
 		return this.create${capitalizedName}UseCase.execute({ data, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: '${capitalizedName} encontrado',
+		type: ${capitalizedName},
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: '${capitalizedName} no encontrado' })
 	@ValidPermission(Permission.${moduleName}ReadOne)
 	@Get('/one/:uid')
-	async findOne(@Param() data: ${capitalizedName}GetDTO, @Req() req: ReqUidDTO) {
+	async findOne(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findOne}\`);
 
 		return this.findOne${capitalizedName}UseCase.execute({ uid: data.uid }, dataLog);
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: 'Permisos del ${moduleName}',
+		type: [String],
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@Get('/per')
+	async findPer(@Req() req: ReqUidDTO) {
+		const { dataLog, uidRol } = req.user;
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findOne}\`);
+
+		return this.find${capitalizedName}PermissionsUseCase.execute({ uid: uidRol, dataLog });
+	}
+
+	@ApiResponse({
+		status: 200,
+		description: '${capitalizedName}s encontrados',
+		type: [${capitalizedName}],
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ValidPermission(Permission.${moduleName}Read)
 	@Get()
 	async findAllPagination(
@@ -141,6 +183,29 @@ export class ${capitalizedName}Controller {
 		return this.findAll${capitalizedName}sPaginationUseCase.execute({ filter, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: '${capitalizedName}s encontrados',
+		type: [${capitalizedName}],
+	})
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@Get('/all')
+	async findAll(@Req() req: ReqUidDTO) {
+		const { dataLog } = req.user;
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findAll}\`);
+
+		return this.findAll${capitalizedName}sUseCase.execute({ dataLog });
+	}
+
+	@ApiResponse({
+		status: 200,
+		description: '${capitalizedName} actualizado correctamente',
+		type: ${capitalizedName},
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: '${capitalizedName} no encontrado' })
 	@ValidPermission(Permission.${moduleName}Update)
 	@Patch()
 	async update(@Body() data: ${capitalizedName}UpdateDTO, @Req() req: ReqUidDTO) {
@@ -150,9 +215,17 @@ export class ${capitalizedName}Controller {
 		return this.update${capitalizedName}UseCase.execute({ data, dataLog });
 	}
 
+	@ApiResponse({
+		status: 200,
+		description: '${capitalizedName} eliminado correctamente',
+	})
+	@ApiResponse({ status: 400, description: 'Bad request' })
+	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@ApiResponse({ status: 404, description: '${capitalizedName} no encontrado' })
 	@ValidPermission(Permission.${moduleName}Delete)
 	@Delete('/delete/:uid')
-	async delete(@Param() data: ${capitalizedName}DeleteDTO, @Req() req: ReqUidDTO) {
+	async delete(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.remove}\`);
 
@@ -161,52 +234,51 @@ export class ${capitalizedName}Controller {
 }
 `,
 
-	// Módulo
+	// Módulo - basado en rol.module.ts
 	module: (moduleName, capitalizedName) => `
-import { Module } from '@nestjs/common';
+import { UserModule } from '@/modules/security/user/user.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 import { ${capitalizedName} } from './entities/${moduleName}.entity';
 import { ${capitalizedName}Repository } from './repository/${moduleName}.repository';
 import { ${capitalizedName}Controller } from './${moduleName}.controller';
 import { Create${capitalizedName}UseCase } from './use-case/create${capitalizedName}.use-case';
 import { FindAll${capitalizedName}sPaginationUseCase } from './use-case/findAll${capitalizedName}sPagination.use-case';
+import { FindAll${capitalizedName}sUseCase } from './use-case/findAll${capitalizedName}s.use-case';
 import { FindOne${capitalizedName}UseCase } from './use-case/findOne${capitalizedName}.use-case';
+import { Find${capitalizedName}PermissionsUseCase } from './use-case/find${capitalizedName}Permissions.use-case';
 import { Remove${capitalizedName}UseCase } from './use-case/remove${capitalizedName}.use-case';
 import { Update${capitalizedName}UseCase } from './use-case/update${capitalizedName}.use-case';
 
 @Module({
 	imports: [
+		CacheModule.register(),
 		SequelizeModule.forFeature([${capitalizedName}]),
+		forwardRef(() => UserModule),
 	],
 	controllers: [${capitalizedName}Controller],
 	providers: [
+		LoggerService,
 		${capitalizedName}Repository,
+		CacheService,
 		Create${capitalizedName}UseCase,
 		FindOne${capitalizedName}UseCase,
 		FindAll${capitalizedName}sPaginationUseCase,
+		FindAll${capitalizedName}sUseCase,
 		Update${capitalizedName}UseCase,
 		Remove${capitalizedName}UseCase,
+		Find${capitalizedName}PermissionsUseCase,
 	],
+	exports: [FindOne${capitalizedName}UseCase, FindAll${capitalizedName}sUseCase, CacheService, LoggerService],
 })
 export class ${capitalizedName}Module {}
 `,
 
-	// DTOs
+	// DTOs - solo 3 DTOs basados en rol (sin DeleteDto)
 	dto: {
-		delete: (moduleName, capitalizedName) =>
-			`import { PickType } from '@nestjs/mapped-types';
-import { ${capitalizedName}RegisterDTO } from './${moduleName}Register.dto';
-
-export class ${capitalizedName}DeleteDTO extends PickType(${capitalizedName}RegisterDTO, ['uid']) {}
-`,
-
-		get: (moduleName, capitalizedName) =>
-			`import { PickType } from '@nestjs/mapped-types';
-import { ${capitalizedName}RegisterDTO } from './${moduleName}Register.dto';
-
-export class ${capitalizedName}GetDTO extends PickType(${capitalizedName}RegisterDTO, ['uid']) {}
-`,
-
 		getAll: (moduleName, capitalizedName) =>
 			`import { queryDTO } from '@/dto/query.dto';
 import { PartialType } from '@nestjs/mapped-types';
@@ -224,29 +296,14 @@ export class ${capitalizedName}GetAllDTO extends PartialType(queryDTO) {
 `,
 
 		register: (moduleName, capitalizedName) =>
-			`import {
-	IsDefined,
-	IsNotEmpty,
-	IsUUID,
-} from 'class-validator';
-import { ${moduleName}Messages } from '../${moduleName}.messages';
-
-export class ${capitalizedName}RegisterDTO {
-	@IsUUID('all', { message: ${moduleName}Messages.validation.dto.uid.valid })
-	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
-	@IsDefined({ message: ${moduleName}Messages.validation.dto.defined })
-	readonly uid: string;
-
-
-}
-`,
+			`export class ${capitalizedName}RegisterDTO {}`,
 
 		update: (moduleName, capitalizedName) =>
 			`import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { ${capitalizedName}RegisterDTO } from './${moduleName}Register.dto';
+import { ${moduleName}RegisterDTO } from './${moduleName}Register.dto';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 
-export class ${capitalizedName}UpdateDTO extends ${capitalizedName}RegisterDTO {
+export class ${capitalizedName}UpdateDTO extends ${moduleName}RegisterDTO {
 	@IsBoolean({ message: ${moduleName}Messages.validation.dto.status })
 	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
 	@IsOptional()
@@ -255,26 +312,27 @@ export class ${capitalizedName}UpdateDTO extends ${capitalizedName}RegisterDTO {
 `,
 	},
 
-	// Entidad
+	// Entidad - basado en rol.entity.ts
 	entity: (moduleName, capitalizedName) => `
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
+
 @Table({ tableName: '${capitalizedName}s' })
 export class ${capitalizedName} extends Model<${capitalizedName}> {
 	@Column({ primaryKey: true, unique: true, type: DataType.UUID, defaultValue: DataType.UUIDV4 })
 	declare uid: string;
 
-@Column({ defaultValue: true, allowNull: false, type: DataType.BOOLEAN })
+	@Column({ defaultValue: true, allowNull: false, type: DataType.BOOLEAN })
 	declare status: boolean;
 }
 `,
 
-	// Enums
+	// Enums - basado en rol (orderProperty.ts y permissions.ts)
 	enums: {
 		orderProperty: (moduleName, capitalizedName) =>
 			`export enum Order${capitalizedName}Property {}`,
 	},
 
-	// Repositorio
+	// Repositorio - basado en rol.repository.ts
 	repository: (
 		moduleName,
 		capitalizedName,
@@ -289,12 +347,16 @@ import {
 } from 'sequelize';
 import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 
 @Injectable()
 export class ${capitalizedName}Repository {
 	constructor(
 		@InjectModel(${capitalizedName}) private readonly ${moduleName}Model: typeof ${capitalizedName},
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
 	) {}
 
 	async create(data: ${capitalizedName}RegisterDTO): Promise<${capitalizedName}> {
@@ -322,7 +384,7 @@ export class ${capitalizedName}Repository {
 		...(attributes && { attributes }),
 		...(include && { include }),
 		});
-		
+
 		if (result) {
 			await this.cacheManager.set(cacheKey, result, 1000 * 60);
 		}
@@ -340,7 +402,7 @@ export class ${capitalizedName}Repository {
 		}
 
 		const result = await this.${moduleName}Model.findAndCountAll(options);
-		await this.cacheManager.set(cacheKey, result, 1000 * 60); 
+		await this.cacheManager.set(cacheKey, result, 1000 * 60);
 
 		return result;
 	}
@@ -362,7 +424,7 @@ export class ${capitalizedName}Repository {
 			where,
 			...(attributes && { attributes }),
 		});
-		await this.cacheManager.set(cacheKey, result, 1000 * 60); 
+		await this.cacheManager.set(cacheKey, result, 1000 * 60);
 
 		return result;
 	}
@@ -377,15 +439,14 @@ export class ${capitalizedName}Repository {
 }
 `,
 
-	// Use Cases
+	// Use Cases - 7 use cases basados en rol
 	useCases: {
 		create: (
 			moduleName,
 			capitalizedName,
-		) => `import { throwHttpExceptionProperties } from '@/functions/throwHttpException';
-import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Op } from 'sequelize';
+		) => `import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
+import { Injectable, Logger } from '@nestjs/common';
+import { WhereOptions } from 'sequelize';
 import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
@@ -397,21 +458,78 @@ export class Create${capitalizedName}UseCase {
 	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
 
 	async execute({ data, dataLog }: { data: ${capitalizedName}RegisterDTO; dataLog: string }) {
-		const { } = data;
-		const whereClause = { [Op.or]: [{ }] };
-		const existingPatient = await this.${moduleName}Repository.findOne({where: whereClause});
+		const { name } = data;
+		const whereClause: WhereOptions<${capitalizedName}> = { name };
+		const existing = await this.${moduleName}Repository.findOne({where: whereClause});
 
-	validatePropertyData({
-			property: { uid },
-			data: existingPatient,
+		validatePropertyData({
+			property: { name },
+			data: existing as unknown as Record<string, unknown> ?? undefined,
 			msg: ${moduleName}Messages,
 		});
 
-		await this.${moduleName}Repository.create(data);
+		await this.${moduleName}Repository.create(data as ${capitalizedName});
 
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.createSuccess}\`);
 
 		return { msg: ${moduleName}Messages.register };
+	}
+}
+`,
+
+		findAll: (
+			moduleName,
+			capitalizedName,
+		) => `import { Injectable, Logger } from '@nestjs/common';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
+import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
+
+@Injectable()
+export class FindAll${capitalizedName}sUseCase {
+	private readonly CACHE_TTL = 3600000;
+
+	constructor(
+		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
+	) {}
+
+	async execute({ dataLog }: { dataLog: string }) {
+		const cacheKey = this.cacheService.buildRoleListKey();
+
+		const cached =
+			await this.cacheService.get<{ value: string; label: string }[]>(cacheKey);
+		if (cached) {
+			this.logger.debug(\`Retornando ${moduleName}s desde caché: \${cacheKey}\`, {
+				type: '${moduleName}_find_all',
+				fromCache: true,
+			});
+			return cached;
+		}
+
+		const ${moduleName} = await this.${moduleName}Repository.findAll({
+			where: { status: true },
+			attributes: ['uid', 'name'],
+		});
+
+		const formatterData = ${moduleName}.map(item => ({
+			value: item.uid,
+			label: item.name,
+		}));
+
+		await this.cacheService.set(cacheKey, formatterData, this.CACHE_TTL);
+
+		this.logger.info(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`, {
+			type: '${moduleName}_find_all',
+			count: formatterData.length,
+			fromCache: false,
+		});
+
+		this.logger.logMetric('${moduleName}.buscar_todos', formatterData.length);
+
+		return formatterData;
 	}
 }
 `,
@@ -425,7 +543,7 @@ import { PaginationResult } from '@/types';
 import { Injectable, Logger } from '@nestjs/common';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { ${capitalizedName}GetAllDTO } from '../dto/${moduleName}GetAll.dto';
-import { ${capitalizedName} } from '../entities/${moduleName}.entity';
+import { ${capitalizedName} } from '../entities/${capitalizedName}.entity';
 import { Order${capitalizedName}Property } from '../enum/orderProperty';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
@@ -532,10 +650,12 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 }
 `,
 
-		findOne: (moduleName, capitalizedName) => `;
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+		findOne: (
+			moduleName,
+			capitalizedName,
+		) => `import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
-import { ${capitalizedName} } from '../entities/${moduleName}.entity';
+import { ${capitalizedName} } from '../entities/${capitalizedName}.entity';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
@@ -548,8 +668,8 @@ export class FindOne${capitalizedName}UseCase {
 	async execute(where: WhereOptions<${capitalizedName}>, dataLog?: string) {
 		const ${moduleName} = await this.${moduleName}Repository.findOne({
 			where: {
-			...where,
-			status: true,}
+				...where,
+				status: true,}
 		});
 
 		if (!${moduleName}) {
@@ -566,8 +686,48 @@ export class FindOne${capitalizedName}UseCase {
 }
 `,
 
-		remove: (moduleName, capitalizedName) => `;
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+		findPermissions: (
+			moduleName,
+			capitalizedName,
+		) => `import { objectError } from '@/functions/objectError';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { Injectable, Logger } from '@nestjs/common';
+import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
+
+@Injectable()
+export class Find${capitalizedName}PermissionsUseCase {
+	private readonly logger = new Logger(Find${capitalizedName}PermissionsUseCase.name);
+
+	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
+	
+	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
+		const ${moduleName} = await this.${moduleName}Repository.findOne({
+			where: {
+				uid,
+				status: true,
+			},
+			attributes: ['uid', 'name', 'permissions'],
+		});
+
+		if (!${moduleName}) {
+			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'uid', msg: ${moduleName}Messages.findOne }),
+			);
+		}
+
+		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findOneSuccess}\`);
+
+		return ${moduleName};
+	}
+}
+`,
+
+		remove: (
+			moduleName,
+			capitalizedName,
+		) => `import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
@@ -596,8 +756,10 @@ export class Remove${capitalizedName}UseCase {
 }
 `,
 
-		update: (moduleName, capitalizedName) => `;
-import { Injectable, Logger } from '@nestjs/common';
+		update: (
+			moduleName,
+			capitalizedName,
+		) => `import { Injectable, Logger } from '@nestjs/common';
 import { ${capitalizedName}UpdateDTO } from '../dto/${moduleName}Update.dto';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
@@ -630,7 +792,6 @@ export class Update${capitalizedName}UseCase {
 	},
 
 	// Types definition file
-	types: (moduleName) => `// Types for ${moduleName} module
-
+	types: moduleName => `// Types for ${moduleName} module
 `,
 };

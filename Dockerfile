@@ -1,10 +1,10 @@
 # =============================================================================
 # Stage 1: Base - Dependencies
 # =============================================================================
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 
-# Install pnpm globally
-RUN corepack enable && corepack prepare pnpm@10.15.0 --activate
+# Install corepack first (required for pnpm management)
+RUN npm install -g corepack && corepack enable && corepack prepare pnpm@10.15.0 --activate
 
 # Create app directory
 WORKDIR /usr/src/app

@@ -2,7 +2,7 @@ services:
   # Nginx Reverse Proxy (solo producción)
   nginx:
     image: nginx:1.27-alpine
-    container_name: api_nest-nginx
+    container_name: adminproject_api-nginx
     ports:
       - '${NGINX_PORT:-80}:80'
       - '${NGINX_SSL_PORT:-443}:443'
@@ -32,8 +32,8 @@ services:
       target: ${NODE_ENV:-development}
       args:
         NODE_ENV: ${NODE_ENV:-development}
-    image: api_nest:${VERSION:-latest}
-    container_name: api_nest
+    image: adminproject_api:${VERSION:-latest}
+    container_name: adminproject_api
     ports:
       - '${PORT:-3000}:3000'
     expose:
@@ -68,7 +68,7 @@ services:
   # PostgreSQL Database
   db:
     image: postgres:17-alpine
-    container_name: api_nest-db
+    container_name: adminproject_api-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -94,7 +94,7 @@ services:
   # Redis Cache
   redis:
     image: redis:8.2.1-alpine
-    container_name: api_nest-redis
+    container_name: adminproject_api-redis
     ports:
       - '${REDIS_PORT}:6379'
     expose:

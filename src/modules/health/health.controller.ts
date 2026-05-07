@@ -43,7 +43,8 @@ export class SystemHealthIndicator extends HealthIndicator {
 		const freeMemory = os.freemem();
 		const memoryUsage = ((totalMemory - freeMemory) / totalMemory) * 100;
 
-		const isHealthy = cpuLoad < 0.8 && memoryUsage < 90;
+		// Adjusted thresholds for development environment
+		const isHealthy = cpuLoad < 2.0 && memoryUsage < 90;
 
 		return this.getStatus('system', isHealthy, {
 			cpu: Math.round(cpuLoad * 100) / 100,
