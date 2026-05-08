@@ -419,11 +419,17 @@ export class ${capitalizedName}Repository {
 
 	private async invalidateCache(): Promise<void> {
 		try {
-			const cache = this.cacheManager as unknown as {
-				reset: () => Promise<void>;
-			};
-			if (typeof cache.reset === 'function') {
-				await cache.reset();
+			await this.cacheManager.del('cache:${moduleName}:all');
+			const store = (this.cacheManager as Record<string, unknown>)
+				.store as Record<string, unknown>;
+			const keysFn = store?.keys as
+				| ((pattern?: string) => string[])
+				| undefined;
+			if (typeof keysFn === 'function') {
+				const keys = keysFn(`cache:${moduleName}:pagination:*`);
+				for (const key of keys) {
+					await this.cacheManager.del(key);
+				}
 			}
 			this.logger.log('Cache invalidated successfully');
 		} catch (error) {
