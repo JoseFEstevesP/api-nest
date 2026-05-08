@@ -11,15 +11,15 @@ export const TEMPLATES = {
   update: '${capitalizedName} actualizado exitosamente',
   delete: '${capitalizedName} eliminado',
   credential: 'Credenciales no válidas.',
-  userError: '${capitalizedName} no encontrado.',
-  relationError: 'El ${moduleName} esta relacionado con otros datos',
+  ${moduleName}Error: '${capitalizedName} no encontrado.',
+  relationError: 'El ${moduleName} está relacionado con otros datos',
 
   // Validation messages
   validation: {
     disability: 'Este ${moduleName} ya está registrado, pero está deshabilitado',
     default: 'Este ${moduleName} ya está registrado',
     dto: {
-			status: 'Este campo debe ser un booleano',
+      status: 'Este campo debe ser un booleano',
       empty: 'Este campo no puede estar vacío',
       defined: 'Este campo no está definido',
       stringValue: 'Este campo debe ser de tipo cadena de texto',
@@ -68,6 +68,7 @@ export const TEMPLATES = {
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { UidDTO } from '@/dto/uid.dto';
 import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
+import { Permission } from '@/modules/security/rol/enum/permissions';
 import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
 import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
@@ -93,7 +94,6 @@ import { Create${capitalizedName}UseCase } from './use-case/create${capitalizedN
 import { FindAll${capitalizedName}sUseCase } from './use-case/findAll${capitalizedName}s.use-case';
 import { FindAll${capitalizedName}sPaginationUseCase } from './use-case/findAll${capitalizedName}sPagination.use-case';
 import { FindOne${capitalizedName}UseCase } from './use-case/findOne${capitalizedName}.use-case';
-import { Find${capitalizedName}PermissionsUseCase } from './use-case/find${capitalizedName}Permissions.use-case';
 import { Remove${capitalizedName}UseCase } from './use-case/remove${capitalizedName}.use-case';
 import { Update${capitalizedName}UseCase } from './use-case/update${capitalizedName}.use-case';
 
@@ -107,7 +107,6 @@ export class ${capitalizedName}Controller {
 	constructor(
 		private readonly create${capitalizedName}UseCase: Create${capitalizedName}UseCase,
 		private readonly findOne${capitalizedName}UseCase: FindOne${capitalizedName}UseCase,
-		private readonly find${capitalizedName}PermissionsUseCase: Find${capitalizedName}PermissionsUseCase,
 		private readonly findAll${capitalizedName}sUseCase: FindAll${capitalizedName}sUseCase,
 		private readonly findAll${capitalizedName}sPaginationUseCase: FindAll${capitalizedName}sPaginationUseCase,
 		private readonly update${capitalizedName}UseCase: Update${capitalizedName}UseCase,
@@ -125,10 +124,10 @@ export class ${capitalizedName}Controller {
 	@ValidPermission(Permission.${moduleName}Add)
 	@Post()
 	async register(@Body() data: ${capitalizedName}RegisterDTO, @Req() req: ReqUidDTO) {
-		const { dataLog } = req.user;
+		const { dataLog, uid } = req.user;
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.create}\`);
 
-		return this.create${capitalizedName}UseCase.execute({ data, dataLog });
+		return this.create${capitalizedName}UseCase.execute({ data, dataLog, uidUser: uid });
 	}
 
 	@ApiResponse({
@@ -147,20 +146,6 @@ export class ${capitalizedName}Controller {
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findOne}\`);
 
 		return this.findOne${capitalizedName}UseCase.execute({ uid: data.uid }, dataLog);
-	}
-
-	@ApiResponse({
-		status: 200,
-		description: 'Permisos del ${moduleName}',
-		type: [String],
-	})
-	@ApiResponse({ status: 401, description: 'Unauthorized' })
-	@Get('/per')
-	async findPer(@Req() req: ReqUidDTO) {
-		const { dataLog, uidRol } = req.user;
-		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.controller.findOne}\`);
-
-		return this.find${capitalizedName}PermissionsUseCase.execute({ uid: uidRol, dataLog });
 	}
 
 	@ApiResponse({
@@ -249,15 +234,16 @@ import { Create${capitalizedName}UseCase } from './use-case/create${capitalizedN
 import { FindAll${capitalizedName}sPaginationUseCase } from './use-case/findAll${capitalizedName}sPagination.use-case';
 import { FindAll${capitalizedName}sUseCase } from './use-case/findAll${capitalizedName}s.use-case';
 import { FindOne${capitalizedName}UseCase } from './use-case/findOne${capitalizedName}.use-case';
-import { Find${capitalizedName}PermissionsUseCase } from './use-case/find${capitalizedName}Permissions.use-case';
 import { Remove${capitalizedName}UseCase } from './use-case/remove${capitalizedName}.use-case';
 import { Update${capitalizedName}UseCase } from './use-case/update${capitalizedName}.use-case';
+import { RolModule } from '../security/rol/rol.module';
 
 @Module({
 	imports: [
 		CacheModule.register(),
 		SequelizeModule.forFeature([${capitalizedName}]),
 		forwardRef(() => UserModule),
+		RolModule,
 	],
 	controllers: [${capitalizedName}Controller],
 	providers: [
@@ -270,101 +256,197 @@ import { Update${capitalizedName}UseCase } from './use-case/update${capitalizedN
 		FindAll${capitalizedName}sUseCase,
 		Update${capitalizedName}UseCase,
 		Remove${capitalizedName}UseCase,
-		Find${capitalizedName}PermissionsUseCase,
 	],
 	exports: [FindOne${capitalizedName}UseCase, FindAll${capitalizedName}sUseCase, CacheService, LoggerService],
 })
 export class ${capitalizedName}Module {}
 `,
 
-	// DTOs - solo 3 DTOs basados en rol (sin DeleteDto)
+	// DTOs - basados en rol
 	dto: {
 		getAll: (moduleName, capitalizedName) =>
 			`import { queryDTO } from '@/dto/query.dto';
 import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
 import { Order${capitalizedName}Property } from '../enum/orderProperty';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 
 export class ${capitalizedName}GetAllDTO extends PartialType(queryDTO) {
+	@ApiProperty({
+		example: Order${capitalizedName}Property.name,
+		enum: Order${capitalizedName}Property,
+		description: 'Propiedad por la que se ordenará',
+	})
 	@IsOptional()
 	@IsEnum(Order${capitalizedName}Property, {
 		message: ${moduleName}Messages.validation.dto.enumValue,
 	})
-	readonly orderProperty?: Order${capitalizedName}Property;
+	declare readonly orderProperty?: Order${capitalizedName}Property;
 }
 `,
 
 		register: (moduleName, capitalizedName) =>
-			`export class ${capitalizedName}RegisterDTO {}`,
-
-		update: (moduleName, capitalizedName) =>
-			`import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
-import { ${moduleName}RegisterDTO } from './${moduleName}Register.dto';
+			`import { ApiProperty } from '@nestjs/swagger';
+import { IsDefined, IsNotEmpty, IsString, Length } from 'class-validator';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 
-export class ${capitalizedName}UpdateDTO extends ${moduleName}RegisterDTO {
+export class ${capitalizedName}RegisterDTO {
+	@ApiProperty({ example: 'Nombre', description: 'Nombre del ${moduleName}' })
+	@IsString({ message: ${moduleName}Messages.validation.dto.stringValue })
+	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
+	@Length(3, 255, { message: ${moduleName}Messages.validation.dto.lengthValue })
+	@IsDefined({ message: ${moduleName}Messages.validation.dto.defined })
+	declare readonly name: string;
+}
+`,
+
+		update: (moduleName, capitalizedName) =>
+			`import { OmitType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { ${moduleName}Messages } from '../${moduleName}.messages';
+import { ${capitalizedName}RegisterDTO } from './${moduleName}Register.dto';
+
+export class ${capitalizedName}UpdateDTO extends OmitType(${capitalizedName}RegisterDTO, []) {
+	@ApiProperty({
+		example: crypto.randomUUID(),
+		description: 'Identificador único del ${moduleName}',
+	})
+	@IsUUID('all', { message: ${moduleName}Messages.validation.dto.uid.valid })
+	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
+	@IsDefined({ message: ${moduleName}Messages.validation.dto.defined })
+	declare readonly uid: string;
+
+	@ApiProperty({ example: true, description: 'Estado del ${moduleName}' })
 	@IsBoolean({ message: ${moduleName}Messages.validation.dto.status })
 	@IsNotEmpty({ message: ${moduleName}Messages.validation.dto.empty })
 	@IsOptional()
-	readonly status: boolean;
+	declare readonly status: boolean;
 }
 `,
 	},
 
-	// Entidad - basado en rol.entity.ts
+	// Entidad - basado en system.entity.ts con relación a User
 	entity: (moduleName, capitalizedName) => `
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { User } from '@/modules/security/user/entities/user.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+	BelongsTo,
+	Column,
+	DataType,
+	ForeignKey,
+	Model,
+	Table,
+} from 'sequelize-typescript';
 
-@Table({ tableName: '${capitalizedName}s' })
+@Table({
+	tableName: '${capitalizedName}s',
+	indexes: [
+		{ unique: true, fields: ['name'], name: 'idx_${moduleName}_name' },
+		{ fields: ['uidUser'], name: 'idx_${moduleName}_uid_user' },
+		{ fields: ['status'], name: 'idx_${moduleName}_status' },
+		{ fields: ['status', 'uidUser'], name: 'idx_${moduleName}_status_user' },
+	],
+})
 export class ${capitalizedName} extends Model<${capitalizedName}> {
-	@Column({ primaryKey: true, unique: true, type: DataType.UUID, defaultValue: DataType.UUIDV4 })
+	@ApiProperty({
+		example: crypto.randomUUID(),
+		description: 'Identificador único del ${moduleName}',
+	})
+	@Column({
+		primaryKey: true,
+		unique: true,
+		type: DataType.UUID,
+		defaultValue: DataType.UUIDV4,
+	})
 	declare uid: string;
 
+	@ApiProperty({ example: 'Nombre', description: 'Nombre del ${moduleName}' })
+	@Column({ allowNull: false, type: DataType.STRING })
+	declare name: string;
+
+	@ApiProperty({
+		example: crypto.randomUUID(),
+		description: 'UID del usuario que registró el ${moduleName}',
+	})
+	@ForeignKey(() => User)
+	@Column({ allowNull: false, type: DataType.UUID })
+	declare uidUser: string;
+
+	@ApiProperty({ example: true, description: 'Estado del ${moduleName}' })
 	@Column({ defaultValue: true, allowNull: false, type: DataType.BOOLEAN })
 	declare status: boolean;
+
+	@BelongsTo(() => User)
+	declare user: User;
 }
 `,
 
-	// Enums - basado en rol (orderProperty.ts y permissions.ts)
+	// Enums - basado en rol
 	enums: {
 		orderProperty: (moduleName, capitalizedName) =>
-			`export enum Order${capitalizedName}Property {}`,
+			`export enum Order${capitalizedName}Property {
+	name = 'name',
+	status = 'status',
+}`,
 	},
 
 	// Repositorio - basado en rol.repository.ts
 	repository: (
 		moduleName,
 		capitalizedName,
-	) => `import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+	) => `import { handleDatabaseError } from '@/functions/handleDatabaseError';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
 	FindAttributeOptions,
-	WhereOptions,
 	Includeable,
+	WhereOptions,
 } from 'sequelize';
-import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
 import { ${capitalizedName} } from '../entities/${moduleName}.entity';
-import { CacheService } from '@/services/cache.service';
-import { LoggerService } from '@/services/logger.service';
 
 @Injectable()
 export class ${capitalizedName}Repository {
+	private readonly logger = new Logger(${capitalizedName}Repository.name);
+
 	constructor(
 		@InjectModel(${capitalizedName}) private readonly ${moduleName}Model: typeof ${capitalizedName},
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-		private readonly cacheService: CacheService,
-		private readonly logger: LoggerService,
 	) {}
 
-	async create(data: ${capitalizedName}RegisterDTO): Promise<${capitalizedName}> {
-		return await this.${moduleName}Model.create(data);
+	private async invalidateCache(): Promise<void> {
+		try {
+			const cache = this.cacheManager as unknown as {
+				reset: () => Promise<void>;
+			};
+			if (typeof cache.reset === 'function') {
+				await cache.reset();
+			}
+			this.logger.log('Cache invalidated successfully');
+		} catch (error) {
+			this.logger.warn('Failed to invalidate cache', error);
+		}
 	}
 
-	async findOne(	
-	{
+	async create(data: Partial<${capitalizedName}>): Promise<${capitalizedName}> {
+		try {
+			const result = await this.${moduleName}Model.create(data as any);
+			await this.invalidateCache();
+			return result;
+		} catch (error) {
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la creación del ${moduleName}',
+			);
+			throw error;
+		}
+	}
+
+	async findOne({
 		where,
 		attributes,
 		include,
@@ -372,39 +454,18 @@ export class ${capitalizedName}Repository {
 		where: WhereOptions<${capitalizedName}>;
 		attributes?: FindAttributeOptions;
 		include?: Includeable[];
-	}
-	): Promise<${capitalizedName} | null> {
-		const cacheKey = \`${capitalizedName}-findOne:\${JSON.stringify(where)}\`;
-		const cachedData = await this.cacheManager.get<${capitalizedName} | null>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const result = await this.${moduleName}Model.findOne({ where,
-		...(attributes && { attributes }),
-		...(include && { include }),
+	}): Promise<${capitalizedName} | null> {
+		return this.${moduleName}Model.findOne({
+			where,
+			...(attributes && { attributes }),
+			...(include && { include }),
 		});
-
-		if (result) {
-			await this.cacheManager.set(cacheKey, result, 1000 * 60);
-		}
-
-		return result;
 	}
 
 	async findAndCountAll(
 		options: FindAndCountOptions<${capitalizedName}>,
 	): Promise<{ rows: ${capitalizedName}[]; count: number }> {
-		const cacheKey = \`${capitalizedName}-findAndCountAll:\${JSON.stringify(options)}\`;
-		const cachedData = await this.cacheManager.get<{ rows: ${capitalizedName}[]; count: number }>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const result = await this.${moduleName}Model.findAndCountAll(options);
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-
-		return result;
+		return this.${moduleName}Model.findAndCountAll(options);
 	}
 
 	async findAll({
@@ -414,32 +475,41 @@ export class ${capitalizedName}Repository {
 		where: WhereOptions<${capitalizedName}>;
 		attributes?: FindAttributeOptions;
 	}): Promise<${capitalizedName}[]> {
-		const cacheKey = \`${capitalizedName}-findAll:\${JSON.stringify({ where, attributes })}\`;
-		const cachedData = await this.cacheManager.get<${capitalizedName}[]>(cacheKey);
-		if (cachedData) {
-			return cachedData;
-		}
-
-		const result = await this.${moduleName}Model.findAll({
+		return this.${moduleName}Model.findAll({
 			where,
 			...(attributes && { attributes }),
 		});
-		await this.cacheManager.set(cacheKey, result, 1000 * 60);
-
-		return result;
 	}
 
 	async update(uid: string, data: Partial<${capitalizedName}>): Promise<void> {
-		await this.${moduleName}Model.update(data, { where: { uid } });
+		try {
+			await this.${moduleName}Model.update(data, { where: { uid } });
+			await this.invalidateCache();
+		} catch (error) {
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la actualización del ${moduleName}',
+			);
+		}
 	}
 
 	async remove(uid: string): Promise<void> {
-		await this.${moduleName}Model.destroy({ where: { uid } });
+		try {
+			await this.${moduleName}Model.destroy({ where: { uid } });
+			await this.invalidateCache();
+		} catch (error) {
+			handleDatabaseError(
+				error as Error,
+				this.logger,
+				'la eliminación del ${moduleName}',
+			);
+		}
 	}
 }
 `,
 
-	// Use Cases - 7 use cases basados en rol
+	// Use Cases - basados en rol
 	useCases: {
 		create: (
 			moduleName,
@@ -448,6 +518,7 @@ export class ${capitalizedName}Repository {
 import { Injectable, Logger } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { ${capitalizedName}RegisterDTO } from '../dto/${moduleName}Register.dto';
+import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
@@ -457,18 +528,18 @@ export class Create${capitalizedName}UseCase {
 
 	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
 
-	async execute({ data, dataLog }: { data: ${capitalizedName}RegisterDTO; dataLog: string }) {
+	async execute({ data, dataLog, uidUser }: { data: ${capitalizedName}RegisterDTO; dataLog: string; uidUser: string }) {
 		const { name } = data;
 		const whereClause: WhereOptions<${capitalizedName}> = { name };
-		const existing = await this.${moduleName}Repository.findOne({where: whereClause});
+		const existing = await this.${moduleName}Repository.findOne({ where: whereClause });
 
 		validatePropertyData({
-			property: { name },
-			data: existing as unknown as Record<string, unknown> ?? undefined,
+			property: { name } as { name: string; status: boolean },
+			data: (existing as unknown as Record<string, unknown>) ?? undefined,
 			msg: ${moduleName}Messages,
 		});
 
-		await this.${moduleName}Repository.create(data as ${capitalizedName});
+		await this.${moduleName}Repository.create({ ...data, uidUser });
 
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.createSuccess}\`);
 
@@ -480,7 +551,7 @@ export class Create${capitalizedName}UseCase {
 		findAll: (
 			moduleName,
 			capitalizedName,
-		) => `import { Injectable, Logger } from '@nestjs/common';
+		) => `import { Injectable } from '@nestjs/common';
 import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
@@ -497,7 +568,7 @@ export class FindAll${capitalizedName}sUseCase {
 	) {}
 
 	async execute({ dataLog }: { dataLog: string }) {
-		const cacheKey = this.cacheService.buildRoleListKey();
+		const cacheKey = this.cacheService.buildKey('all', '${moduleName}');
 
 		const cached =
 			await this.cacheService.get<{ value: string; label: string }[]>(cacheKey);
@@ -509,12 +580,12 @@ export class FindAll${capitalizedName}sUseCase {
 			return cached;
 		}
 
-		const ${moduleName} = await this.${moduleName}Repository.findAll({
+		const data = await this.${moduleName}Repository.findAll({
 			where: { status: true },
 			attributes: ['uid', 'name'],
 		});
 
-		const formatterData = ${moduleName}.map(item => ({
+		const formatterData = data.map(item => ({
 			value: item.uid,
 			label: item.name,
 		}));
@@ -539,21 +610,25 @@ export class FindAll${capitalizedName}sUseCase {
 			capitalizedName,
 		) => `import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { ${capitalizedName}GetAllDTO } from '../dto/${moduleName}GetAll.dto';
-import { ${capitalizedName} } from '../entities/${capitalizedName}.entity';
+import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 import { Order${capitalizedName}Property } from '../enum/orderProperty';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
 export class FindAll${capitalizedName}sPaginationUseCase {
-	private readonly logger = new Logger(FindAll${capitalizedName}sPaginationUseCase.name);
+	private readonly CACHE_TTL = 60000;
 
 	constructor(
 		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
 	) {}
 
 	async execute({
@@ -568,13 +643,23 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 			page = 1,
 			search,
 			status: olStatus,
-			orderProperty = Order${capitalizedName}Property.,
+			orderProperty = Order${capitalizedName}Property.name,
 			order = Order.ASC,
 		} = filter;
 
-		const status = olStatus ? booleanStatus({ status: olStatus }) : true;
-		const parsedLimit = Number(limit);
-		const parsedPage = Number(page);
+		const status = olStatus === undefined ? undefined : (booleanStatus({ status: olStatus }) ?? true);
+		const parsedLimit = Math.min(Number(limit), 100);
+		const parsedPage = Math.max(Number(page), 1);
+
+		const cacheKey = \`cache:${moduleName}:pagination:\${JSON.stringify({ page: parsedPage, limit: parsedLimit, search, status })}\`;
+		const cached = await this.cacheService.get<PaginationResult<${capitalizedName}>>(cacheKey);
+		if (cached) {
+			this.logger.debug(\`Retornando ${moduleName}s paginados desde caché: \${cacheKey}\`, {
+				type: '${moduleName}_find_pagination',
+				fromCache: true,
+			});
+			return cached;
+		}
 
 		const where = this.buildWhereClause(status, search);
 		const queryOptions = this.buildQueryOptions(
@@ -594,20 +679,25 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
 
+		await this.cacheService.set(cacheKey, result, this.CACHE_TTL);
+
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`);
 
 		return result;
 	}
 
 	private buildWhereClause(
-		status: boolean,
+		status: boolean | undefined,
 		search?: string,
 	): WhereOptions<${capitalizedName}> {
-		const where: WhereOptions<${capitalizedName}> = { status };
+		const where: WhereOptions<${capitalizedName}> = {};
+
+		if (status !== undefined) {
+			where.status = status;
+		}
 
 		if (search) {
-			where[Op.or] = [];
-			where[Op.or].push({ name: { [Op.iLike]: \`%\${search}%\` } });
+			where.name = { [Op.iLike]: \`%\${search}%\` };
 		}
 
 		return where;
@@ -623,7 +713,7 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 		return {
 			where,
 			attributes: {
-				exclude: ['status', 'createdAt', 'updatedAt'],
+				exclude: ['createdAt', 'updatedAt'],
 			},
 			limit,
 			offset: (page - 1) * limit,
@@ -653,73 +743,78 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 		findOne: (
 			moduleName,
 			capitalizedName,
-		) => `import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+		) => `import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
+import { CacheService } from '@/services/cache.service';
+import { LoggerService } from '@/services/logger.service';
+import { Injectable } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
-import { ${capitalizedName} } from '../entities/${capitalizedName}.entity';
+import { ${capitalizedName} } from '../entities/${moduleName}.entity';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
 export class FindOne${capitalizedName}UseCase {
-	private readonly logger = new Logger(FindOne${capitalizedName}UseCase.name);
+	private readonly CACHE_TTL = 3600000;
 
-	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
+	constructor(
+		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+		private readonly cacheService: CacheService,
+		private readonly logger: LoggerService,
+	) {}
 
 	async execute(where: WhereOptions<${capitalizedName}>, dataLog?: string) {
-		const ${moduleName} = await this.${moduleName}Repository.findOne({
-			where: {
-				...where,
-				status: true,}
-		});
-
-		if (!${moduleName}) {
-			this.logger.error(
-				\`\${dataLog ? dataLog : 'system'} - No se encontro el ${moduleName}\`,
-			);
-			throw new NotFoundException(${moduleName}Messages.findOne);
+		const uid = (where as { uid?: string }).uid;
+		if (!uid) {
+			return this.fetchAndCache(where, dataLog);
 		}
 
-		this.logger.log(\`\${dataLog ? dataLog : 'system'} - Exito al buscar el ${moduleName}\`);
+		const cacheKey = this.cacheService.buildKey(uid, '${moduleName}');
+		const cached = await this.cacheService.get<${capitalizedName}>(cacheKey);
+		if (cached) {
+			this.logger.debug(\`Retornando ${moduleName} desde caché: \${cacheKey}\`, {
+				type: '${moduleName}_find_one',
+				fromCache: true,
+			});
+			return cached;
+		}
 
-		return ${moduleName};
+		return this.fetchAndCache(where, dataLog, cacheKey);
 	}
-}
-`,
 
-		findPermissions: (
-			moduleName,
-			capitalizedName,
-		) => `import { objectError } from '@/functions/objectError';
-import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
-import { Injectable, Logger } from '@nestjs/common';
-import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
-import { ${moduleName}Messages } from '../${moduleName}.messages';
-
-@Injectable()
-export class Find${capitalizedName}PermissionsUseCase {
-	private readonly logger = new Logger(Find${capitalizedName}PermissionsUseCase.name);
-
-	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
-	
-	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
-		const ${moduleName} = await this.${moduleName}Repository.findOne({
-			where: {
-				uid,
-				status: true,
+	private async fetchAndCache(
+		where: WhereOptions<${capitalizedName}>,
+		dataLog?: string,
+		cacheKey?: string,
+	): Promise<${capitalizedName}> {
+		const data = await this.${moduleName}Repository.findOne({
+			where: { ...where },
+			attributes: {
+				exclude: ['createdAt', 'updatedAt'],
 			},
-			attributes: ['uid', 'name', 'permissions'],
 		});
 
-		if (!${moduleName}) {
-			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
+		if (!data) {
+			this.logger.error(
+				\`\${dataLog ? dataLog : 'system'} - \${${moduleName}Messages.log.findOne}\`,
+				'FindOne${capitalizedName}UseCase',
+				{ type: '${moduleName}_find_one', status: 'not_found' },
+			);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: ${moduleName}Messages.findOne }),
+				objectError({ name: 'all', msg: ${moduleName}Messages.findOne }),
 			);
 		}
 
-		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findOneSuccess}\`);
+		if (cacheKey) {
+			await this.cacheService.set(cacheKey, data, this.CACHE_TTL);
+		}
 
-		return ${moduleName};
+		this.logger.info(
+			\`\${dataLog ? dataLog : 'system'} - \${${moduleName}Messages.log.findOneSuccess}\`,
+			{ type: '${moduleName}_find_one', id: data.uid, fromCache: false },
+		);
+
+		return data;
 	}
 }
 `,
@@ -727,7 +822,9 @@ export class Find${capitalizedName}PermissionsUseCase {
 		remove: (
 			moduleName,
 			capitalizedName,
-		) => `import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+		) => `import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
+import { Injectable, Logger } from '@nestjs/common';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
@@ -735,16 +832,16 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 export class Remove${capitalizedName}UseCase {
 	private readonly logger = new Logger(Remove${capitalizedName}UseCase.name);
 
-	constructor(
-		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
-	) {}
+	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
 
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
-		const ${moduleName} = await this.${moduleName}Repository.findOne({ where: { uid, status: true } });
+		const data = await this.${moduleName}Repository.findOne({ where: { uid, status: true } });
 	
-		if (!${moduleName}) {
+		if (!data) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
-			throw new NotFoundException(${moduleName}Messages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'all', msg: ${moduleName}Messages.findOne }),
+			);
 		}
 
 		await this.${moduleName}Repository.remove(uid);
@@ -759,7 +856,9 @@ export class Remove${capitalizedName}UseCase {
 		update: (
 			moduleName,
 			capitalizedName,
-		) => `import { Injectable, Logger } from '@nestjs/common';
+		) => `import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
+import { Injectable, Logger } from '@nestjs/common';
 import { ${capitalizedName}UpdateDTO } from '../dto/${moduleName}Update.dto';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
@@ -771,17 +870,15 @@ export class Update${capitalizedName}UseCase {
 	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
 
 	async execute({ data, dataLog }: { data: ${capitalizedName}UpdateDTO; dataLog: string }) {
-		const { uid, ...updatedData } = data;
-		const ${moduleName} = await this.${moduleName}Repository.findOne({ where: { uid } });
-		if (!${moduleName}) {
+		const existing = await this.${moduleName}Repository.findOne({ where: { uid: data.uid } });
+		if (!existing) {
 			this.logger.error(\`\${dataLog} - \${${moduleName}Messages.log.${moduleName}Error}\`);
-			throw new NotFoundException(${moduleName}Messages.findOne);
+			throw new ExtendedNotFoundException(
+				objectError({ name: 'all', msg: ${moduleName}Messages.findOne }),
+			);
 		}
 
-		await ${moduleName}.update({
-			...updatedData,
-			...(updatedData.status !== undefined && { status: !updatedData.status }),
-		});
+		await this.${moduleName}Repository.update(data.uid, { ...data });
 
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.updateSuccess}\`);
 

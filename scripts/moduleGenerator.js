@@ -265,6 +265,20 @@ export default {
 				allowNull: false,
 				defaultValue: Sequelize.UUIDV4,
 			},
+			name: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			uidUser: {
+				type: Sequelize.UUID,
+				allowNull: false,
+				references: {
+					model: 'users',
+					key: 'uid',
+				},
+				onUpdate: 'CASCADE',
+				onDelete: 'RESTRICT',
+			},
 			status: {
 				type: Sequelize.BOOLEAN,
 				defaultValue: true,
@@ -280,6 +294,13 @@ export default {
 				type: Sequelize.DATE,
 				defaultValue: Sequelize.fn('NOW'),
 			},
+		}, {
+			indexes: [
+				{ unique: true, fields: ['name'], name: 'idx_${moduleName}_name' },
+				{ fields: ['uidUser'], name: 'idx_${moduleName}_uid_user' },
+				{ fields: ['status'], name: 'idx_${moduleName}_status' },
+				{ fields: ['status', 'uidUser'], name: 'idx_${moduleName}_status_user' },
+			],
 		});
 	},
 
@@ -394,14 +415,6 @@ function generateModule() {
 	createFile(
 		path.join(modulePath, 'use-case', `findOne${capitalizedName}.use-case.ts`),
 		TEMPLATES.useCases.findOne(moduleName, capitalizedName),
-	);
-	createFile(
-		path.join(
-			modulePath,
-			'use-case',
-			`find${capitalizedName}Permissions.use-case.ts`,
-		),
-		TEMPLATES.useCases.findPermissions(moduleName, capitalizedName),
 	);
 	createFile(
 		path.join(modulePath, 'use-case', `remove${capitalizedName}.use-case.ts`),
