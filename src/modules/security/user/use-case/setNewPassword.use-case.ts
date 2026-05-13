@@ -1,12 +1,12 @@
-import { objectError } from '@/functions/objectError';
-import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { EnvironmentVariables } from '@/config/env.config';
 import { ExtendedBadRequestException } from '@/exceptions/extended-bad-request.exception';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
-import { EnvironmentVariables } from '@/config/env.config';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class SetNewPasswordUseCase {
@@ -34,7 +34,7 @@ export class SetNewPasswordUseCase {
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 
@@ -43,7 +43,10 @@ export class SetNewPasswordUseCase {
 				`${dataLog} - ${userMessages.log.userErrorNewPassword}`,
 			);
 			throw new ExtendedBadRequestException(
-				objectError({ name: 'confirmPassword', msg: userMessages.msg.newPassword }),
+				objectError({
+					name: 'confirmPassword',
+					msg: userMessages.msg.newPassword,
+				}),
 			);
 		}
 

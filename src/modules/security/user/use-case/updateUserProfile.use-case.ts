@@ -1,14 +1,18 @@
-import { objectError } from '@/functions/objectError';
+import { CacheService } from '@/services/cache.service';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { Injectable, Logger } from '@nestjs/common';
 import { UserUpdateProfileDataDTO } from '../dto/userUpdateProfileData.dto';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class UpdateUserProfileUseCase {
 	private readonly logger = new Logger(UpdateUserProfileUseCase.name);
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly cacheService: CacheService,
+	) {}
 
 	async execute({
 		data,
@@ -24,11 +28,12 @@ export class UpdateUserProfileUseCase {
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 
 		await this.userRepository.update(uid, data);
+		await this.cacheService.delPattern('user:pagination');
 
 		this.logger.log(`${dataLog} - ${userMessages.log.profileSuccess}`);
 

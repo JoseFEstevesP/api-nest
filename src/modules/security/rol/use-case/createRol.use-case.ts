@@ -1,4 +1,5 @@
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
+import { CacheService } from '@/services/cache.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
 import { RolRegisterDTO } from '../dto/rolRegister.dto';
@@ -10,7 +11,10 @@ import { rolMessages } from '../rol.messages';
 export class CreateRolUseCase {
 	private readonly logger = new Logger(CreateRolUseCase.name);
 
-	constructor(private readonly rolRepository: RolRepository) {}
+	constructor(
+		private readonly rolRepository: RolRepository,
+		private readonly cacheService: CacheService,
+	) {}
 
 	async execute({ data, dataLog }: { data: RolRegisterDTO; dataLog: string }) {
 		const { name } = data;
@@ -29,6 +33,7 @@ export class CreateRolUseCase {
 		});
 
 		await this.rolRepository.create(data as Role);
+		await this.cacheService.delPattern('role:pagination');
 
 		this.logger.log(`${dataLog} - ${rolMessages.log.createSuccess}`);
 

@@ -222,10 +222,8 @@ export class ${capitalizedName}Controller {
 	// Módulo - basado en rol.module.ts
 	module: (moduleName, capitalizedName) => `
 import { UserModule } from '@/modules/security/user/user.module';
-import { CacheModule } from '@nestjs/cache-manager';
 import { Module, forwardRef } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { ${capitalizedName} } from './entities/${moduleName}.entity';
 import { ${capitalizedName}Repository } from './repository/${moduleName}.repository';
@@ -240,7 +238,6 @@ import { RolModule } from '../security/rol/rol.module';
 
 @Module({
 	imports: [
-		CacheModule.register(),
 		SequelizeModule.forFeature([${capitalizedName}]),
 		forwardRef(() => UserModule),
 		RolModule,
@@ -249,7 +246,6 @@ import { RolModule } from '../security/rol/rol.module';
 	providers: [
 		LoggerService,
 		${capitalizedName}Repository,
-		CacheService,
 		Create${capitalizedName}UseCase,
 		FindOne${capitalizedName}UseCase,
 		FindAll${capitalizedName}sPaginationUseCase,
@@ -257,7 +253,7 @@ import { RolModule } from '../security/rol/rol.module';
 		Update${capitalizedName}UseCase,
 		Remove${capitalizedName}UseCase,
 	],
-	exports: [FindOne${capitalizedName}UseCase, FindAll${capitalizedName}sUseCase, CacheService, LoggerService],
+	exports: [FindOne${capitalizedName}UseCase, FindAll${capitalizedName}sUseCase, LoggerService],
 })
 export class ${capitalizedName}Module {}
 `,
@@ -397,8 +393,7 @@ export class ${capitalizedName} extends Model<${capitalizedName}> {
 		moduleName,
 		capitalizedName,
 	) => `import { handleDatabaseError } from '@/functions/handleDatabaseError';
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import {
 	FindAndCountOptions,
@@ -414,33 +409,11 @@ export class ${capitalizedName}Repository {
 
 	constructor(
 		@InjectModel(${capitalizedName}) private readonly ${moduleName}Model: typeof ${capitalizedName},
-		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
-
-	private async invalidateCache(): Promise<void> {
-		try {
-			await this.cacheManager.del('cache:${moduleName}:all');
-			const store = (this.cacheManager as Record<string, unknown>)
-				.store as Record<string, unknown>;
-			const keysFn = store?.keys as
-				| ((pattern?: string) => string[])
-				| undefined;
-			if (typeof keysFn === 'function') {
-				const keys = keysFn(`cache:${moduleName}:pagination:*`);
-				for (const key of keys) {
-					await this.cacheManager.del(key);
-				}
-			}
-			this.logger.log('Cache invalidated successfully');
-		} catch (error) {
-			this.logger.warn('Failed to invalidate cache', error);
-		}
-	}
 
 	async create(data: Partial<${capitalizedName}>): Promise<${capitalizedName}> {
 		try {
 			const result = await this.${moduleName}Model.create(data as any);
-			await this.invalidateCache();
 			return result;
 		} catch (error) {
 			handleDatabaseError(
@@ -490,7 +463,6 @@ export class ${capitalizedName}Repository {
 	async update(uid: string, data: Partial<${capitalizedName}>): Promise<void> {
 		try {
 			await this.${moduleName}Model.update(data, { where: { uid } });
-			await this.invalidateCache();
 		} catch (error) {
 			handleDatabaseError(
 				error as Error,
@@ -502,8 +474,7 @@ export class ${capitalizedName}Repository {
 
 	async remove(uid: string): Promise<void> {
 		try {
-			await this.${moduleName}Model.destroy({ where: { uid } });
-			await this.invalidateCache();
+			await this.${moduleName}Model.destroy( { where: { uid } });
 		} catch (error) {
 			handleDatabaseError(
 				error as Error,
@@ -532,7 +503,9 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 export class Create${capitalizedName}UseCase {
 	private readonly logger = new Logger(Create${capitalizedName}UseCase.name);
 
-	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
+	constructor(
+		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+	) {}
 
 	async execute({ data, dataLog, uidUser }: { data: ${capitalizedName}RegisterDTO; dataLog: string; uidUser: string }) {
 		const { name } = data;
@@ -558,34 +531,18 @@ export class Create${capitalizedName}UseCase {
 			moduleName,
 			capitalizedName,
 		) => `import { Injectable } from '@nestjs/common';
-import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { ${moduleName}Messages } from '../${moduleName}.messages';
 import { ${capitalizedName}Repository } from '../repository/${moduleName}.repository';
 
 @Injectable()
 export class FindAll${capitalizedName}sUseCase {
-	private readonly CACHE_TTL = 3600000;
-
 	constructor(
 		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
-		private readonly cacheService: CacheService,
 		private readonly logger: LoggerService,
 	) {}
 
 	async execute({ dataLog }: { dataLog: string }) {
-		const cacheKey = this.cacheService.buildKey('all', '${moduleName}');
-
-		const cached =
-			await this.cacheService.get<{ value: string; label: string }[]>(cacheKey);
-		if (cached) {
-			this.logger.debug(\`Retornando ${moduleName}s desde caché: \${cacheKey}\`, {
-				type: '${moduleName}_find_all',
-				fromCache: true,
-			});
-			return cached;
-		}
-
 		const data = await this.${moduleName}Repository.findAll({
 			where: { status: true },
 			attributes: ['uid', 'name'],
@@ -595,8 +552,6 @@ export class FindAll${capitalizedName}sUseCase {
 			value: item.uid,
 			label: item.name,
 		}));
-
-		await this.cacheService.set(cacheKey, formatterData, this.CACHE_TTL);
 
 		this.logger.info(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`, {
 			type: '${moduleName}_find_all',
@@ -616,7 +571,6 @@ export class FindAll${capitalizedName}sUseCase {
 			capitalizedName,
 		) => `import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
-import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
 import { Injectable } from '@nestjs/common';
@@ -629,11 +583,8 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 
 @Injectable()
 export class FindAll${capitalizedName}sPaginationUseCase {
-	private readonly CACHE_TTL = 60000;
-
 	constructor(
 		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
-		private readonly cacheService: CacheService,
 		private readonly logger: LoggerService,
 	) {}
 
@@ -657,16 +608,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 		const parsedLimit = Math.min(Number(limit), 100);
 		const parsedPage = Math.max(Number(page), 1);
 
-		const cacheKey = \`cache:${moduleName}:pagination:\${JSON.stringify({ page: parsedPage, limit: parsedLimit, search, status })}\`;
-		const cached = await this.cacheService.get<PaginationResult<${capitalizedName}>>(cacheKey);
-		if (cached) {
-			this.logger.debug(\`Retornando ${moduleName}s paginados desde caché: \${cacheKey}\`, {
-				type: '${moduleName}_find_pagination',
-				fromCache: true,
-			});
-			return cached;
-		}
-
 		const where = this.buildWhereClause(status, search);
 		const queryOptions = this.buildQueryOptions(
 			where,
@@ -684,8 +625,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 			count,
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
-
-		await this.cacheService.set(cacheKey, result, this.CACHE_TTL);
 
 		this.logger.log(\`\${dataLog} - \${${moduleName}Messages.log.findAllSuccess}\`);
 
@@ -751,7 +690,6 @@ export class FindAll${capitalizedName}sPaginationUseCase {
 			capitalizedName,
 		) => `import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { objectError } from '@/functions/objectError';
-import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { WhereOptions } from 'sequelize';
@@ -761,38 +699,12 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 
 @Injectable()
 export class FindOne${capitalizedName}UseCase {
-	private readonly CACHE_TTL = 3600000;
-
 	constructor(
 		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
-		private readonly cacheService: CacheService,
 		private readonly logger: LoggerService,
 	) {}
 
 	async execute(where: WhereOptions<${capitalizedName}>, dataLog?: string) {
-		const uid = (where as { uid?: string }).uid;
-		if (!uid) {
-			return this.fetchAndCache(where, dataLog);
-		}
-
-		const cacheKey = this.cacheService.buildKey(uid, '${moduleName}');
-		const cached = await this.cacheService.get<${capitalizedName}>(cacheKey);
-		if (cached) {
-			this.logger.debug(\`Retornando ${moduleName} desde caché: \${cacheKey}\`, {
-				type: '${moduleName}_find_one',
-				fromCache: true,
-			});
-			return cached;
-		}
-
-		return this.fetchAndCache(where, dataLog, cacheKey);
-	}
-
-	private async fetchAndCache(
-		where: WhereOptions<${capitalizedName}>,
-		dataLog?: string,
-		cacheKey?: string,
-	): Promise<${capitalizedName}> {
 		const data = await this.${moduleName}Repository.findOne({
 			where: { ...where },
 			attributes: {
@@ -809,10 +721,6 @@ export class FindOne${capitalizedName}UseCase {
 			throw new ExtendedNotFoundException(
 				objectError({ name: 'all', msg: ${moduleName}Messages.findOne }),
 			);
-		}
-
-		if (cacheKey) {
-			await this.cacheService.set(cacheKey, data, this.CACHE_TTL);
 		}
 
 		this.logger.info(
@@ -838,7 +746,9 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 export class Remove${capitalizedName}UseCase {
 	private readonly logger = new Logger(Remove${capitalizedName}UseCase.name);
 
-	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
+	constructor(
+		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+	) {}
 
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
 		const data = await this.${moduleName}Repository.findOne({ where: { uid, status: true } });
@@ -873,7 +783,9 @@ import { ${capitalizedName}Repository } from '../repository/${moduleName}.reposi
 export class Update${capitalizedName}UseCase {
 	private readonly logger = new Logger(Update${capitalizedName}UseCase.name);
 
-	constructor(private readonly ${moduleName}Repository: ${capitalizedName}Repository) {}
+	constructor(
+		private readonly ${moduleName}Repository: ${capitalizedName}Repository,
+	) {}
 
 	async execute({ data, dataLog }: { data: ${capitalizedName}UpdateDTO; dataLog: string }) {
 		const existing = await this.${moduleName}Repository.findOne({ where: { uid: data.uid } });

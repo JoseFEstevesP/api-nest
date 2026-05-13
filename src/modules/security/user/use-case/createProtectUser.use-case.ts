@@ -1,4 +1,5 @@
 import { validatePropertyData } from '@/functions/validationFunction/validatePropertyData';
+import { CacheService } from '@/services/cache.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { hash } from 'bcrypt';
@@ -15,6 +16,7 @@ export class CreateProtectUserUseCase {
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly configService: ConfigService,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute({
@@ -53,6 +55,7 @@ export class CreateProtectUserUseCase {
 		} as unknown as User;
 
 		await this.userRepository.create(user);
+		await this.cacheService.delPattern('user:pagination');
 		this.logger.log(`${dataLog} ${userMessages.log.createSuccess}`);
 
 		return { msg: userMessages.msg.registerAdmin };

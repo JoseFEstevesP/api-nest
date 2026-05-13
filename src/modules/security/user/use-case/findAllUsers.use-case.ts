@@ -1,10 +1,10 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
 import { Injectable } from '@nestjs/common';
-import { FindAndCountOptions, Includeable, Op, WhereOptions } from 'sequelize';
-import { Role } from '../../rol/entities/rol.entity';
+import { FindAndCountOptions, Op, WhereOptions } from 'sequelize';
 import { Permission } from '../../rol/enum/permissions';
 import { UserGetAllDTO } from '../dto/userGetAll.dto';
 import { User } from '../entities/user.entity';
@@ -64,61 +64,40 @@ export class FindAllUsersUseCase {
 
 		this.logger.logMetric('usuario.buscar_todos', count);
 
+		const formattedRows = this.formateRows(rows);
 		const result = {
-			...this.formateRows(rows),
+			...formattedRows,
 			...pagination,
-		};
-		return result;
-	}
+		} as unknown as PaginationResult<User>;
 
-	private formateRows(rows: User[]) {
-		const format = rows.filter(
-			user => !user.rol.permissions.includes(Permission.super),
-		);
-		return {
-			rows: format,
-			count: format.length,
-		};
+		return result;
 	}
 
 	private buildWhereClause(
 		uidUser: string,
 		status: boolean,
 		search?: string,
-	): WhereOptions {
-		const where: WhereOptions = {
+	): WhereOptions<User> {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const where: any = {
 			status,
 			uid: { [Op.ne]: uidUser },
-		} as WhereOptions;
+		};
 
 		if (search) {
-			const orConditions = this.getSearchConditions(search);
-			return {
-				...where,
-				[Op.or]: orConditions,
-			} as WhereOptions;
+			where[Op.or] = [
+				{ names: { [Op.iLike]: `%${search}%` } },
+				{ surnames: { [Op.iLike]: `%${search}%` } },
+				{ email: { [Op.iLike]: `%${search}%` } },
+				{ phone: { [Op.iLike]: `%${search}%` } },
+			];
 		}
 
 		return where;
 	}
 
-	private getSearchConditions(search: string): WhereOptions[] {
-		if (search.includes('@')) {
-			return [{ email: search }];
-		}
-
-		return [
-			{ names: { [Op.iLike]: `%${search}%` } },
-			{ surnames: { [Op.iLike]: `%${search}%` } },
-			{ phone: { [Op.iLike]: `%${search}%` } },
-			{ email: { [Op.iLike]: `%${search}%` } },
-			{ provider: { [Op.iLike]: `%${search}%` } },
-			{ '$rol.name$': { [Op.iLike]: `%${search}%` } },
-		];
-	}
-
 	private buildQueryOptions(
-		where: WhereOptions,
+		where: WhereOptions<User>,
 		orderProperty: OrderUserProperty,
 		order: Order,
 		limit: number,
@@ -126,35 +105,34 @@ export class FindAllUsersUseCase {
 	): FindAndCountOptions<User> {
 		return {
 			where,
-			include: this.getIncludeOptions(),
-			attributes: {
-				exclude: this.getExcludedAttributes(),
-			},
+			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
 			limit,
 			offset: (page - 1) * limit,
 			order: [[orderProperty, order]],
+			include: [
+				{
+					model: Role,
+					attributes: ['uid', 'name', 'permissions'],
+				},
+			],
 		};
 	}
 
-	private getIncludeOptions(): Includeable[] {
-		return [
-			{
-				model: Role,
-				required: true,
-				attributes: ['name', 'permissions'],
-			},
-		];
-	}
-
-	private getExcludedAttributes(): string[] {
-		return [
-			'password',
-			'createdAt',
-			'updatedAt',
-			'code',
-			'attemptCount',
-			'dataOfAttempt',
-		];
+	private formateRows(rows: User[]) {
+		return {
+			rows: rows.map(user => {
+				const userJson = user.toJSON() as unknown as Record<string, unknown>;
+				const rol = userJson.rol as Role | undefined;
+				if (rol) {
+					userJson.rol = {
+						uid: rol.uid,
+						name: rol.name,
+						permissions: rol.permissions as Permission[],
+					};
+				}
+				return userJson;
+			}),
+		};
 	}
 
 	private calculatePagination(
@@ -166,6 +144,7 @@ export class FindAllUsersUseCase {
 		const adjustedPage = currentPage > totalPages ? totalPages : currentPage;
 
 		return {
+			count: totalItems,
 			currentPage: adjustedPage,
 			nextPage: adjustedPage + 1 <= totalPages ? adjustedPage + 1 : null,
 			previousPage: adjustedPage - 1 > 0 ? adjustedPage - 1 : null,

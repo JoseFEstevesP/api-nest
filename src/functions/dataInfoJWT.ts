@@ -16,8 +16,8 @@ export const dataInfoJWT = (req: Request): DataInfoJWT => {
 	if (xForwardedFor) {
 		const ips = String(xForwardedFor)
 			.split(',')
-			.map(ip => ip.trim());
-		ip = ips.find(ip => !isPrivateIP({ ip })) || ips[0];
+			.map(ipAddr => ipAddr.trim());
+		ip = ips.find(ipAddr => !isPrivateIP({ ip: ipAddr })) || ips[0];
 	} else if (req.headers['x-real-ip']) {
 		ip = String(req.headers['x-real-ip']);
 	} else {

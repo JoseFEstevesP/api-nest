@@ -3,7 +3,7 @@ const primaryPermissions = {
 	user: 'USER',
 	rol: 'ROL',
 	audit: 'AUDIT',
-};
+} as const;
 
 const Permission = {
 	/* Super usuario */

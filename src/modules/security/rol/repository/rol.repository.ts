@@ -19,15 +19,33 @@ export class RolRepository {
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 	) {}
 
-	private async invalidateCache(): Promise<void> {
+	private async invalidateCache(uid?: string): Promise<void> {
 		try {
-			const cache = this.cacheManager as unknown as {
-				reset: () => Promise<void>;
-			};
-			if (typeof cache.reset === 'function') {
-				await cache.reset();
+			this.logger.log(`Invalidating cache for role: ${uid ?? 'all'}`);
+
+			await this.cacheManager.del('cache:role:all');
+
+			if (uid) {
+				await this.cacheManager.del(`cache:role:${uid}`);
 			}
-			this.logger.log('Cache invalidated successfully');
+
+			const store = (this.cacheManager as Record<string, unknown>)
+				.store as Record<string, unknown>;
+			const keysFn = store?.keys as
+				| ((pattern?: string) => string[])
+				| undefined;
+			if (typeof keysFn === 'function') {
+				const allKeys = keysFn('cache:role:');
+				const paginationKeys = allKeys.filter(key =>
+					key.includes('pagination'),
+				);
+				this.logger.log(
+					`Found ${paginationKeys.length} pagination cache keys to delete`,
+				);
+				await Promise.all(
+					paginationKeys.map((key: string) => this.cacheManager.del(key)),
+				);
+			}
 		} catch (error) {
 			this.logger.warn('Failed to invalidate cache', error);
 		}
@@ -35,8 +53,8 @@ export class RolRepository {
 
 	async create(data: Role): Promise<Role> {
 		try {
-			const result = await this.rolModel.create(data as any);
-			await this.invalidateCache();
+			const result = await this.rolModel.create(data);
+			await this.invalidateCache(result.uid);
 			return result;
 		} catch (error) {
 			handleDatabaseError(error as Error, this.logger, 'la creación del rol');
@@ -82,7 +100,7 @@ export class RolRepository {
 	async update(uid: string, data: Partial<Role>): Promise<void> {
 		try {
 			await this.rolModel.update(data, { where: { uid } });
-			await this.invalidateCache();
+			await this.invalidateCache(uid);
 		} catch (error) {
 			handleDatabaseError(
 				error as Error,
@@ -95,7 +113,7 @@ export class RolRepository {
 	async remove(uid: string): Promise<void> {
 		try {
 			await this.rolModel.destroy({ where: { uid } });
-			await this.invalidateCache();
+			await this.invalidateCache(uid);
 		} catch (error) {
 			handleDatabaseError(
 				error as Error,

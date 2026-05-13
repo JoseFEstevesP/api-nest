@@ -1,3 +1,4 @@
+import { CacheService } from '@/services/cache.service';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { objectError } from '@/functions/objectError';
 import { Injectable, Logger } from '@nestjs/common';
@@ -9,7 +10,10 @@ import { rolMessages } from '../rol.messages';
 export class UpdateRolUseCase {
 	private readonly logger = new Logger(UpdateRolUseCase.name);
 
-	constructor(private readonly rolRepository: RolRepository) {}
+	constructor(
+		private readonly rolRepository: RolRepository,
+		private readonly cacheService: CacheService,
+	) {}
 
 	async execute({ data, dataLog }: { data: RolUpdateDTO; dataLog: string }) {
 		const rol = await this.rolRepository.findOne({ where: { uid: data.uid } });
@@ -23,6 +27,7 @@ export class UpdateRolUseCase {
 		await this.rolRepository.update(rol.uid, {
 			...data,
 		});
+		await this.cacheService.delPattern('role:pagination');
 
 		this.logger.log(`${dataLog} - ${rolMessages.log.updateSuccess}`);
 

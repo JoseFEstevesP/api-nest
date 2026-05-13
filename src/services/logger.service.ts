@@ -211,8 +211,12 @@ export class LoggerService {
 		res: { statusCode: number },
 		responseTime: number,
 	) {
-		const level =
-			res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
+		let level = 'info';
+		if (res.statusCode >= 500) {
+			level = 'error';
+		} else if (res.statusCode >= 400) {
+			level = 'warn';
+		}
 		const logData = {
 			correlationId: req.correlationId,
 			userId: req.userId,

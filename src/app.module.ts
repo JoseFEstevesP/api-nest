@@ -13,6 +13,7 @@ import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuditModule } from './modules/security/audit/audit.module';
 import { AuthModule } from './modules/security/auth/auth.module';
+import { JwtModule } from './modules/security/jwt/jwt.module';
 import { RolModule } from './modules/security/rol/rol.module';
 import { UserModule } from './modules/security/user/user.module';
 import { CacheCleanupService } from './services/cache-cleanup.service';
@@ -86,6 +87,7 @@ import { LoggerService } from './services/logger.service';
 			isGlobal: true,
 		}),
 		FilesModule,
+		JwtModule,
 		UserModule,
 		RolModule,
 		AuditModule,

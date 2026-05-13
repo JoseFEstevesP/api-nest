@@ -1,27 +1,35 @@
+import { TokenExpiredException } from '@/exceptions/token-expired.exception';
+import { PayloadJWT } from '@/modules/security/auth/types';
+import { JwtService } from '@/services/jwt.service';
 import {
+	CanActivate,
 	ExecutionContext,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { TokenExpiredException } from '@/exceptions/token-expired.exception';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-	handleRequest<TUser = any>(
-		err: any,
-		user: TUser,
-		info: any,
-		_context: ExecutionContext,
-	) {
-		if (info?.name === 'TokenExpiredError') {
-			throw new TokenExpiredException('access');
+export class JwtAuthGuard implements CanActivate {
+	constructor(private readonly jwtService: JwtService) {}
+
+	async canActivate(context: ExecutionContext): Promise<boolean> {
+		const request = context.switchToHttp().getRequest<Request>();
+		const token = request.cookies?.accessToken;
+
+		if (!token) {
+			throw new UnauthorizedException('No autenticado');
 		}
 
-		if (err || !user) {
-			throw err || new UnauthorizedException('No autenticado');
+		try {
+			const payload = (await this.jwtService.verifyAsync(token)) as PayloadJWT;
+			request.user = payload;
+			return true;
+		} catch {
+			if (this.jwtService.isTokenExpired(token)) {
+				throw new TokenExpiredException('access');
+			}
+			throw new UnauthorizedException('Token inválido');
 		}
-
-		return user;
 	}
 }

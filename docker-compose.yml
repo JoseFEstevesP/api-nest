@@ -133,7 +133,12 @@ services:
       - .env
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-    command: pnpm run migrate
+    volumes:
+      - ./src/migrations:/usr/src/app/src/migrations
+      - ./src/seeders:/usr/src/app/src/seeders
+      - ./src/config:/usr/src/app/src/config
+      - ./scripts:/usr/src/app/scripts
+    command: pnpm exec sequelize db:migrate --config src/config/config.cjs --migrations-path src/migrations --seeders-path src/seeders
     restart: 'no'
     security_opt:
       - no-new-privileges:true
@@ -154,7 +159,12 @@ services:
       - .env
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-    command: pnpm run migrate:undo
+    volumes:
+      - ./src/migrations:/usr/src/app/src/migrations
+      - ./src/seeders:/usr/src/app/src/seeders
+      - ./src/config:/usr/src/app/src/config
+      - ./scripts:/usr/src/app/scripts
+    command: pnpm exec sequelize db:migrate:undo:all --config src/config/config.cjs
     restart: 'no'
     security_opt:
       - no-new-privileges:true
@@ -175,7 +185,12 @@ services:
       - .env
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-    command: pnpm run migrate:fresh
+    volumes:
+      - ./src/migrations:/usr/src/app/src/migrations
+      - ./src/seeders:/usr/src/app/src/seeders
+      - ./src/config:/usr/src/app/src/config
+      - ./scripts:/usr/src/app/scripts
+    command: pnpm exec sequelize db:migrate:undo:all --config src/config/config.cjs --migrations-path src/migrations --seeders-path src/seeders && pnpm exec sequelize db:migrate --config src/config/config.cjs --migrations-path src/migrations --seeders-path src/seeders && pnpm exec sequelize db:seed:undo:all --config src/config/config.cjs --migrations-path src/migrations --seeders-path src/seeders
     restart: 'no'
     security_opt:
       - no-new-privileges:true

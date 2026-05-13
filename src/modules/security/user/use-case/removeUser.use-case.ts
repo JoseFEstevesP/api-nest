@@ -1,16 +1,18 @@
-import { objectError } from '@/functions/objectError';
-import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { CacheService } from '@/services/cache.service';
 import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
-import { Injectable } from '@nestjs/common';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { LoggerService } from '@/services/logger.service';
-import { userMessages } from '../user.messages';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class RemoveUserUseCase {
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly logger: LoggerService,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute({
@@ -40,12 +42,13 @@ export class RemoveUserUseCase {
 				},
 			);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 
 		try {
 			await this.userRepository.delete(uid);
+			await this.cacheService.delPattern('user:pagination');
 
 			this.logger.info(`${dataLog} - ${userMessages.log.unregisterSuccess}`, {
 				type: 'user_remove',
@@ -67,7 +70,7 @@ export class RemoveUserUseCase {
 				},
 			);
 			throw new ExtendedConflictException(
-				objectError({ name: 'uid', msg: userMessages.log.relationError }),
+				objectError({ name: 'all', msg: userMessages.log.relationError }),
 			);
 		}
 	}

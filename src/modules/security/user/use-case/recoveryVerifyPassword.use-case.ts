@@ -2,7 +2,7 @@ import { objectError } from '@/functions/objectError';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@/services/jwt.service';
 import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
 

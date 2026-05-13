@@ -1,8 +1,8 @@
-import { objectError } from '@/functions/objectError';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { FindAttributeOptions, Includeable } from 'sequelize';
-import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
 import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
@@ -45,7 +45,7 @@ export class GetUserProfileUseCase {
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 

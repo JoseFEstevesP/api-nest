@@ -1,6 +1,7 @@
-import { objectError } from '@/functions/objectError';
-import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { CacheService } from '@/services/cache.service';
 import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from '../../user/repository/user.repository';
 import { FindOneUserUseCase } from '../../user/use-case/findOneUser.use-case';
@@ -16,6 +17,7 @@ export class RemoveRolUseCase {
 		private readonly userRepository: UserRepository,
 		@Inject(forwardRef(() => FindOneUserUseCase))
 		private readonly findOneUserUseCase: FindOneUserUseCase,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute({ uid, dataLog }: { uid: string; dataLog: string }) {
@@ -25,7 +27,7 @@ export class RemoveRolUseCase {
 		if (!rol) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: rolMessages.findOne }),
+				objectError({ name: 'all', msg: rolMessages.findOne }),
 			);
 		}
 
@@ -36,11 +38,12 @@ export class RemoveRolUseCase {
 		if (user) {
 			this.logger.error(`${dataLog} - ${rolMessages.log.rolError}`);
 			throw new ExtendedConflictException(
-				objectError({ name: 'uid', msg: rolMessages.findUserExit }),
+				objectError({ name: 'all', msg: rolMessages.findUserExit }),
 			);
 		}
 
 		await this.rolRepository.remove(uid);
+		await this.cacheService.delPattern('role:pagination');
 
 		this.logger.log(`${dataLog} - ${rolMessages.log.removeSuccess}`);
 

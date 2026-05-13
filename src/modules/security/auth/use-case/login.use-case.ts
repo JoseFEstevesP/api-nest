@@ -12,7 +12,7 @@ import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validat
 import { LoggerService } from '@/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@/services/jwt.service';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Transaction } from 'sequelize';

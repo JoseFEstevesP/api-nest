@@ -54,28 +54,38 @@ export class UserRepository {
 		where,
 		attributes,
 		include,
+		useCache = true,
 	}: {
 		where: WhereOptions<User>;
 		attributes?: FindAttributeOptions;
 		include?: Includeable[];
+		useCache?: boolean;
 	}): Promise<User | null> {
-		const cacheKey = `User-findOne:${JSON.stringify({ where, attributes, include })}`;
-		const cachedData = await this.cacheManager.get<User | null>(cacheKey);
-		if (cachedData) {
-			return cachedData;
+		if (useCache) {
+			const cacheKey = `User-findOne:${JSON.stringify({ where, attributes, include })}`;
+			const cachedData = await this.cacheManager.get<User | null>(cacheKey);
+			if (cachedData) {
+				return cachedData;
+			}
+
+			const user = await this.userModel.findOne({
+				where,
+				...(attributes && { attributes }),
+				...(include && { include }),
+			});
+
+			if (user) {
+				await this.cacheManager.set(cacheKey, user, 1000 * 60);
+			}
+
+			return user;
 		}
 
-		const user = await this.userModel.findOne({
+		return this.userModel.findOne({
 			where,
 			...(attributes && { attributes }),
 			...(include && { include }),
 		});
-
-		if (user) {
-			await this.cacheManager.set(cacheKey, user, 1000 * 60);
-		}
-
-		return user;
 	}
 
 	async findAll(): Promise<User[]> {

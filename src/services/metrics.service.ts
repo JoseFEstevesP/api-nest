@@ -74,7 +74,7 @@ export class MetricsService {
 		const key = this.getKey(name, labels);
 		const hist = this.histograms.get(key) || { values: [], count: 0, sum: 0 };
 		hist.values.push(value);
-		hist.count++;
+		hist.count += 1;
 		hist.sum += value;
 		this.histograms.set(key, hist);
 	}

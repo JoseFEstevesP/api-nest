@@ -1,9 +1,9 @@
 import { AuditModule } from '@/modules/security/audit/audit.module';
+import { JwtModule } from '@/modules/security/jwt/jwt.module';
 import { RolModule } from '@/modules/security/rol/rol.module';
 import { EmailService } from '@/services/email.service';
 import { LoggerService } from '@/services/logger.service';
 import { forwardRef, Module } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Role } from '../rol/entities/rol.entity';
 import { User } from './entities/user.entity';
@@ -34,6 +34,7 @@ import { UserController } from './user.controller';
 		SequelizeModule.forFeature([User, Role]),
 		forwardRef(() => AuditModule),
 		forwardRef(() => RolModule),
+		JwtModule,
 	],
 
 	controllers: [UserController],
@@ -41,7 +42,6 @@ import { UserController } from './user.controller';
 	providers: [
 		LoggerService,
 		EmailService,
-		JwtService,
 		UserRepository,
 		CreateProtectUserUseCase,
 		FindAllUsersUseCase,

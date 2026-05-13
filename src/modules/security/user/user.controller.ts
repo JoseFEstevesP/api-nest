@@ -21,7 +21,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@/services/jwt.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserActivateCountDTO } from './dto/userActivateCount.dto';
 import { UserChartDataResponseDTO } from './dto/userChartData.dto';
@@ -349,13 +349,14 @@ export class UserController {
 			});
 
 			const { uid, dataLog } = payload;
-			this.logger.log(`${dataLog} - ${userMessages.log.newPassword}`);
+			const dataLogValue = dataLog ?? 'system';
+			this.logger.log(`${dataLogValue} - ${userMessages.log.newPassword}`);
 
 			return this.setNewPasswordUseCase.execute({
 				newPassword: data.newPassword,
 				confirmPassword: data.confirmPassword,
 				uidUser: uid,
-				dataLog,
+				dataLog: dataLogValue,
 			});
 		} catch (error) {
 			const err = error as Error;

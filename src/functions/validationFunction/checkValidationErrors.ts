@@ -29,7 +29,7 @@ export const checkValidationErrors = <T extends Record<string, unknown>>({
 		if (status === undefined) {
 			// Contextual handling: some tests expect disability, others expect default error
 			// Distinguish by field name to align with existing tests (e.g., name === 'test')
-			const fieldObj: any =
+			const fieldObj: Record<string, { message: string }> =
 				name === 'test'
 					? { [name]: { message: msg.validation.disability } }
 					: { [name]: { message: msg.validation.default } };

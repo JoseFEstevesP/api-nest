@@ -668,18 +668,41 @@ pnpm run lintStaged    # Ejecutar en archivos staged
 ### Generación de Módulos
 
 ```bash
-# Generar nuevo módulo completo
+# Generar módulo básico (solo controller y module, como health)
+pnpm run module:generate:basic nombre-del-modulo
+
+# Generar módulo estándar (controller, messages, module, use-cases, como files)
+pnpm run module:generate:standard nombre-del-modulo
+
+# Generar módulo completo (estructura completa con DTOs, entities, etc.)
 pnpm run module:generate nombre-del-modulo
+# o
+pnpm run module:generate:complete nombre-del-modulo
 ```
 
-Esto creará la estructura completa:
+Tipos de módulos:
 
+**Básico** (`--basic`):
 - Controller
 - Module
-- DTOs
-- Use cases
-- Repository
+
+**Estándar** (`--standard`):
+- Controller
+- Messages
+- Module
+- Use cases básicos
+
+**Completo** (default, `--complete`):
+- Controller
+- Messages
+- Module
+- DTOs (5 archivos)
 - Entity
+- Enums
+- Repository
+- Use cases (5 archivos)
+- Migración automática
+- Actualización de permisos
 
 ---
 

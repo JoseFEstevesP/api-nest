@@ -1,3 +1,4 @@
+import { CacheService } from '@/services/cache.service';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { objectError } from '@/functions/objectError';
 import { LoggerService } from '@/services/logger.service';
@@ -11,6 +12,7 @@ export class UpdateUserUseCase {
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly logger: LoggerService,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute({
@@ -40,7 +42,7 @@ export class UpdateUserUseCase {
 				},
 			);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 
@@ -48,6 +50,7 @@ export class UpdateUserUseCase {
 			...updatedData,
 			...(updatedData.activatedAccount === true ? { code: undefined } : {}),
 		});
+		await this.cacheService.delPattern('user:pagination');
 
 		this.logger.info(`${dataLog} - ${userMessages.log.updateSuccess}`, {
 			type: 'user_update',

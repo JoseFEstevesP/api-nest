@@ -7,7 +7,7 @@ import { UserRepository } from '@/modules/security/user/repository/user.reposito
 import { TokenExpiredException } from '@/exceptions/token-expired.exception';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@/services/jwt.service';
 import { Request, Response } from 'express';
 import { LoggerService } from '@/services/logger.service';
 import { LogoutUseCase } from './logout.use-case';

@@ -1,5 +1,4 @@
-import { objectError } from '@/functions/objectError';
-import { ExtendedConflictException } from '@/exceptions/extended-conflict.exception';
+import { CacheService } from '@/services/cache.service';
 import { Injectable } from '@nestjs/common';
 import { Transaction } from 'sequelize';
 import { LoggerService } from '@/services/logger.service';
@@ -13,6 +12,7 @@ export class CreateAuditUseCase {
 	constructor(
 		private readonly auditRepository: AuditRepository,
 		private readonly logger: LoggerService,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute(
@@ -49,6 +49,7 @@ export class CreateAuditUseCase {
 		} else {
 			created = await this.auditRepository.create(data, t);
 		}
+		await this.cacheService.delPattern('audit:pagination');
 
 		this.logger.info(auditMessages.log.createSuccess, {
 			type: 'audit_create',

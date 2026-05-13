@@ -29,6 +29,11 @@ export class CacheService implements OnModuleDestroy {
 		this.prefixes.set('config', 'cache:config');
 		this.prefixes.set('user', 'cache:user');
 		this.prefixes.set('health', 'cache:health');
+		this.prefixes.set('payments', 'cache:payments');
+		this.prefixes.set('paymentMethod', 'cache:paymentMethod');
+		this.prefixes.set('language', 'cache:language');
+		this.prefixes.set('company', 'cache:company');
+		this.prefixes.set('companySyste', 'cache:companySyste');
 	}
 
 	async get<T>(key: string): Promise<T | undefined> {
@@ -63,23 +68,98 @@ export class CacheService implements OnModuleDestroy {
 		}
 	}
 
+	private extractRedisClient(
+		store: Record<string, unknown>,
+	): { scan: Function } | undefined {
+		// Direct KeyvRedis: store.client
+		const client = store.client as { scan: Function } | undefined;
+		if (client?.scan) return client;
+
+		// Keyv wrapping: store.opts.store.client
+		const optsStore = (
+			store.opts as Record<string, unknown> | undefined
+		)?.store as Record<string, unknown> | undefined;
+		if (optsStore) {
+			const nestedClient = optsStore.client as
+				| { scan: Function }
+				| undefined;
+			if (nestedClient?.scan) return nestedClient;
+		}
+
+		return undefined;
+	}
+
 	async delPattern(pattern: string): Promise<void> {
 		try {
-			const store = (this.cacheManager as Record<string, unknown>)
-				.store as Record<string, unknown>;
-			const keysFn = store?.keys as
-				| ((pattern?: string) => string[])
-				| undefined;
-			if (typeof keysFn === 'function') {
-				const keys = keysFn(`*${pattern}*`);
-				for (const key of keys) {
-					await this.cacheManager.del(key);
+			const cm = this.cacheManager as Record<string, unknown>;
+
+			// Try cache-manager v7 stores[] first
+			const stores = cm.stores as Record<string, unknown>[] | undefined;
+			if (stores && stores.length > 0) {
+				for (const store of stores) {
+					const client = this.extractRedisClient(store);
+					if (client) {
+						await this.scanAndDelete(client, pattern);
+						return;
+					}
 				}
 			}
-			this.logger.debug(`Cache DEL pattern: ${pattern}`);
-		} catch {
+
+			// Fallback: cache-manager v5 .store (single)
+			const store = cm.store as Record<string, unknown> | undefined;
+			if (store) {
+				const client = this.extractRedisClient(store);
+				if (client) {
+					await this.scanAndDelete(client, pattern);
+					return;
+				}
+
+				// In-memory fallback
+				const keysFn = store.keys as
+					| ((pattern?: string) => string[])
+					| undefined;
+				if (typeof keysFn === 'function') {
+					const keys = keysFn(`*${pattern}*`);
+					await Promise.all(
+						keys.map((key: string) => this.cacheManager.del(key)),
+					);
+					this.logger.debug(
+						`Cache DEL pattern: ${pattern} (in-memory, ${keys.length} keys)`,
+					);
+					return;
+				}
+			}
+
 			this.logger.warn(`Cache DEL pattern not supported: ${pattern}`);
+		} catch (error) {
+			this.logger.warn(`Cache DEL pattern error: ${pattern}`, error);
 		}
+	}
+
+	private async scanAndDelete(
+		client: { scan: Function },
+		pattern: string,
+	): Promise<void> {
+		const scanPattern = `*${pattern}*`;
+		let cursor = 0;
+		let deleted = 0;
+		do {
+			const result = await client.scan(cursor, {
+				MATCH: scanPattern,
+				COUNT: 100,
+			});
+			cursor = Number(result.cursor);
+			const keys: string[] = result.keys;
+			if (keys.length > 0) {
+				await Promise.all(
+					keys.map((key: string) => this.cacheManager.del(key)),
+				);
+				deleted += keys.length;
+			}
+		} while (cursor !== 0);
+		this.logger.debug(
+			`Cache DEL pattern: ${pattern} (Redis SCAN, ${deleted} keys)`,
+		);
 	}
 
 	async getOrSet<T>(options: CacheWithFallbackOptions<T>): Promise<T> {
@@ -142,23 +222,9 @@ export class CacheService implements OnModuleDestroy {
 		return this.buildKey('all', 'role');
 	}
 
-	async reset(): Promise<void> {
-		try {
-			const store = (this.cacheManager as Record<string, unknown>)
-				.store as Record<string, unknown>;
-			const keysFn = store?.keys as
-				| ((pattern?: string) => string[])
-				| undefined;
-			if (typeof keysFn === 'function') {
-				const keys = keysFn('cache:*');
-				for (const key of keys) {
-					await this.cacheManager.del(key);
-				}
-			}
-			this.logger.log('Cache reset complete');
-		} catch {
-			this.logger.warn('Cache reset not supported, skipping');
-		}
+async reset(): Promise<void> {
+		await this.delPattern('cache:');
+		this.logger.log('Cache reset complete');
 	}
 
 	async onModuleDestroy(): Promise<void> {

@@ -2,22 +2,22 @@ import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
 
 @Injectable()
 export class SanitizeInputPipe implements PipeTransform {
-	transform(value: any, _metadata: ArgumentMetadata): any {
+	transform(value: unknown, _metadata: ArgumentMetadata): unknown {
 		if (value && typeof value === 'object') {
 			return this.sanitizeObject(value);
 		}
 		return value;
 	}
 
-	private sanitizeObject(obj: any): any {
+	private sanitizeObject(obj: unknown): unknown {
 		if (Array.isArray(obj)) {
 			return obj.map(item => this.sanitizeObject(item));
 		}
 
 		if (obj !== null && typeof obj === 'object') {
-			const sanitized: any = {};
-			for (const key of Object.keys(obj)) {
-				sanitized[key] = this.sanitizeValue(obj[key]);
+			const sanitized: Record<string, unknown> = {};
+			for (const key of Object.keys(obj as object)) {
+				sanitized[key] = this.sanitizeValue((obj as Record<string, unknown>)[key]);
 			}
 			return sanitized;
 		}
@@ -25,7 +25,7 @@ export class SanitizeInputPipe implements PipeTransform {
 		return this.sanitizeValue(obj);
 	}
 
-	private sanitizeValue(value: any): any {
+	private sanitizeValue(value: unknown): unknown {
 		if (typeof value === 'string') {
 			return this.sanitizeString(value);
 		}

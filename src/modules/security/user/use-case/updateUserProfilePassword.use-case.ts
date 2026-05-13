@@ -1,16 +1,14 @@
-import { objectError } from '@/functions/objectError';
+import { EnvironmentVariables } from '@/config/env.config';
+import { CacheService } from '@/services/cache.service';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { ExtendedUnauthorizedException } from '@/exceptions/extended-unauthorized.exception';
-import {
-	Injectable,
-	Logger,
-} from '@nestjs/common';
+import { objectError } from '@/functions/objectError';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { compare, hash } from 'bcrypt';
 import { RemoveAuditUseCase } from '../../audit/use-case/removeAudit.use-case';
 import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
-import { EnvironmentVariables } from '@/config/env.config';
 
 @Injectable()
 export class UpdateUserProfilePasswordUseCase {
@@ -19,6 +17,7 @@ export class UpdateUserProfilePasswordUseCase {
 		private readonly userRepository: UserRepository,
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
 		private readonly configService: ConfigService<EnvironmentVariables>,
+		private readonly cacheService: CacheService,
 	) {}
 
 	async execute({
@@ -35,7 +34,7 @@ export class UpdateUserProfilePasswordUseCase {
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 
@@ -43,7 +42,10 @@ export class UpdateUserProfilePasswordUseCase {
 		if (!checkPassword) {
 			this.logger.error(`${dataLog} - ${userMessages.log.passwordError}`);
 			throw new ExtendedUnauthorizedException(
-				objectError({ name: 'olPassword', msg: userMessages.msg.passwordError }),
+				objectError({
+					name: 'olPassword',
+					msg: userMessages.msg.passwordError,
+				}),
 			);
 		}
 
@@ -52,7 +54,8 @@ export class UpdateUserProfilePasswordUseCase {
 			this.configService.get<number>('SALT_ROUNDS', { infer: true }) ?? 10,
 		);
 		await this.userRepository.update(uid, { password: await hashPass });
-		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog); // This is an external dependency, needs to be injected
+		await this.removeAuditUseCase.execute({ uidUser: uid }, dataLog);
+		await this.cacheService.delPattern('user:pagination');
 
 		this.logger.log(`${dataLog} - ${userMessages.log.profileSuccess}`);
 

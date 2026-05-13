@@ -59,7 +59,7 @@ export class FindOneRolUseCase {
 				},
 			);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: rolMessages.findOne }),
+				objectError({ name: 'all', msg: rolMessages.findOne }),
 			);
 		}
 

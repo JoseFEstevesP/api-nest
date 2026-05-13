@@ -1,8 +1,8 @@
-import { objectError } from '@/functions/objectError';
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
+import { objectError } from '@/functions/objectError';
 import { Injectable, Logger } from '@nestjs/common';
-import { userMessages } from '../user.messages';
 import { UserRepository } from '../repository/user.repository';
+import { userMessages } from '../user.messages';
 
 @Injectable()
 export class UnregisterUserUseCase {
@@ -21,7 +21,7 @@ export class UnregisterUserUseCase {
 		if (!user) {
 			this.logger.error(`${dataLog} - ${userMessages.log.userError}`);
 			throw new ExtendedNotFoundException(
-				objectError({ name: 'uid', msg: userMessages.msg.findOne }),
+				objectError({ name: 'all', msg: userMessages.msg.findOne }),
 			);
 		}
 

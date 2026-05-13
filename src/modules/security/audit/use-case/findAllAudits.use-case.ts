@@ -1,5 +1,5 @@
 import { Order } from '@/constants/dataConstants';
-import { User } from '@/modules/security/user/entities/user.entity';
+import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
 import { Injectable } from '@nestjs/common';
 import {
@@ -9,7 +9,7 @@ import {
 	OrderItem,
 	WhereOptions,
 } from 'sequelize';
-import { LoggerService } from '@/services/logger.service';
+import { User } from '@/modules/security/user/entities/user.entity';
 import { auditMessages } from '../audit.messages';
 import { AuditGetAllDTO } from '../dto/auditGetAll.dto';
 import { Audit } from '../entities/audit.entity';

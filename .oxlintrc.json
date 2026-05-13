@@ -158,7 +158,9 @@
     "clearInterval": "readonly",
     "crypto": "readonly",
     "global": "readonly",
-    "vi": "readonly"
+    "vi": "readonly",
+    "TextEncoder": "readonly",
+    "TextDecoder": "readonly"
   },
   "ignorePatterns": [
     "dist/",
@@ -166,6 +168,7 @@
     "*.js",
     "*.json",
     "src/config/config.cjs",
-    "src/test/"
+    "src/test/",
+    "src/scripts/"
   ]
 }

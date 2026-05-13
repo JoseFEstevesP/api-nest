@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Includeable } from 'sequelize';
-import { Role } from '../../rol/entities/rol.entity';
 import { User } from '../entities/user.entity';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 import { UserRepository } from '../repository/user.repository';
 
 @Injectable()

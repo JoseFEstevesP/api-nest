@@ -22,6 +22,17 @@ async function seed() {
 		await client.query('BEGIN');
 
 		console.log('\n🧹 Limpiando tablas existentes...');
+		await client.query('DELETE FROM audit CASCADE');
+		await client.query('DELETE FROM "HistoryPayments" CASCADE');
+		await client.query('DELETE FROM "Payments" CASCADE');
+		await client.query('DELETE FROM "PaymentMethods" CASCADE');
+		await client.query('DELETE FROM "Plans" CASCADE');
+		await client.query('DELETE FROM "Systems" CASCADE');
+		await client.query('DELETE FROM "Languages" CASCADE');
+		await client.query('DELETE FROM "CompanyApplications" CASCADE');
+		await client.query('DELETE FROM "Notifications" CASCADE');
+		await client.query('DELETE FROM "CompanySystems" CASCADE');
+		await client.query('DELETE FROM "Companys" CASCADE');
 		await client.query('DELETE FROM users CASCADE');
 		await client.query('DELETE FROM roles CASCADE');
 		console.log('✓ Datos existentes eliminados');

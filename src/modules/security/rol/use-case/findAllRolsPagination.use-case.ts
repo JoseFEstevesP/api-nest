@@ -1,6 +1,5 @@
 import { Order } from '@/constants/dataConstants';
 import { booleanStatus } from '@/functions/booleanStatus';
-import { CacheService } from '@/services/cache.service';
 import { LoggerService } from '@/services/logger.service';
 import { PaginationResult } from '@/types';
 import { Injectable } from '@nestjs/common';
@@ -13,11 +12,8 @@ import { rolMessages } from '../rol.messages';
 
 @Injectable()
 export class FindAllRolsPaginationUseCase {
-	private readonly CACHE_TTL = 60000;
-
 	constructor(
 		private readonly rolRepository: RolRepository,
-		private readonly cacheService: CacheService,
 		private readonly logger: LoggerService,
 	) {}
 
@@ -45,23 +41,6 @@ export class FindAllRolsPaginationUseCase {
 		const parsedLimit = Math.min(Number(limit), 100);
 		const parsedPage = Math.max(Number(page), 1);
 
-		const cacheKey = this.buildCacheKey(
-			parsedPage,
-			parsedLimit,
-			search,
-			status,
-			permission,
-		);
-		const cached =
-			await this.cacheService.get<PaginationResult<Role>>(cacheKey);
-		if (cached) {
-			this.logger.debug(`Retornando roles paginados desde caché: ${cacheKey}`, {
-				type: 'role_find_pagination',
-				fromCache: true,
-			});
-			return cached;
-		}
-
 		const where = this.buildWhereClause(status, search, permission);
 		const queryOptions = this.buildQueryOptions(
 			where,
@@ -80,22 +59,9 @@ export class FindAllRolsPaginationUseCase {
 			...this.calculatePagination(count, parsedLimit, parsedPage),
 		};
 
-		await this.cacheService.set(cacheKey, result, this.CACHE_TTL);
-
 		this.logger.log(`${dataLog} - ${rolMessages.log.findAllSuccess}`);
 
 		return result;
-	}
-
-	private buildCacheKey(
-		page: number,
-		limit: number,
-		search?: string,
-		status?: boolean,
-		permission?: string,
-	): string {
-		const params = { page, limit, search, status, permission };
-		return `cache:role:pagination:${JSON.stringify(params)}`;
 	}
 
 	private buildWhereClause(

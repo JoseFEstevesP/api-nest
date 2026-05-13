@@ -1,15 +1,15 @@
 import { LoggerService } from '@/services/logger.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { col, fn } from 'sequelize';
-import { Role } from '../../rol/entities/rol.entity';
-import {
-	UserChartDataResponseDTO,
-	UsersByActivationDTO,
-	UsersByRoleDTO,
-	UsersByStatusDTO,
-} from '../dto/userChartData.dto';
+import { fn, col } from 'sequelize';
+import { Role } from '@/modules/security/rol/entities/rol.entity';
 import { UserRepository } from '../repository/user.repository';
 import { userMessages } from '../user.messages';
+import {
+	UserChartDataResponseDTO,
+	UsersByStatusDTO,
+	UsersByActivationDTO,
+	UsersByRoleDTO,
+} from '../dto/userChartData.dto';
 
 @Injectable()
 export class GetUserChartsUseCase {
@@ -28,11 +28,13 @@ export class GetUserChartsUseCase {
 		this.logger.log(`${dataLog} - ${userMessages.log.charts}`);
 
 		try {
-			const [usersByStatus, usersByActivation, usersByRole] = await Promise.all([
-				this.getUsersByStatus(),
-				this.getUsersByActivation(),
-				this.getUsersByRole(),
-			]);
+			const [usersByStatus, usersByActivation, usersByRole] = await Promise.all(
+				[
+					this.getUsersByStatus(),
+					this.getUsersByActivation(),
+					this.getUsersByRole(),
+				],
+			);
 
 			this.logger.log(`${dataLog} - ${userMessages.log.chartsSuccess}`);
 
@@ -45,7 +47,10 @@ export class GetUserChartsUseCase {
 			};
 		} catch (error) {
 			const err = error as Error;
-			this.logger.error(`${dataLog} - Error obteniendo gráficos de usuarios: ${err.message}`, err.stack);
+			this.logger.error(
+				`${dataLog} - Error obteniendo gráficos de usuarios: ${err.message}`,
+				err.stack,
+			);
 			throw error;
 		}
 	}
@@ -101,5 +106,4 @@ export class GetUserChartsUseCase {
 			};
 		});
 	}
-
-	}
+}
