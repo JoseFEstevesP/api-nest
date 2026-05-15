@@ -3,6 +3,7 @@ const primaryPermissions = {
 	user: 'USER',
 	rol: 'ROL',
 	audit: 'AUDIT',
+	dashboard: 'DASHBOARD',
 } as const;
 
 const Permission = {
@@ -32,7 +33,8 @@ const Permission = {
 	auditDelete: `${primaryPermissions.audit}_DELETE`,
 
 	/* Dashboard */
-	dashboardRead: `${primaryPermissions.user}_DASHBOARD`,
+	dashboard: primaryPermissions.dashboard,
+	dashboardRead: `${primaryPermissions.dashboard}_DASHBOARD`,
 } as const;
 
 type Permission = (typeof Permission)[keyof typeof Permission];
