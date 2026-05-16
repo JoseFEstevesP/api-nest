@@ -1,18 +1,18 @@
+import { SkipThrottle, ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import {
 	ApiErrorResponse,
-	ApiUnauthorizedResponse,
 	ApiTooManyRequestsResponse,
+	ApiUnauthorizedResponse,
 } from '@/dto/api-response.dto';
-import { SkipThrottle, ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { dataInfoJWT } from '@/functions/dataInfoJWT';
 import {
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Logger,
-	Get,
 	Post,
 	Req,
 	Res,
@@ -28,10 +28,10 @@ import type { Request, Response } from 'express';
 import { authMessages } from './auth.messages';
 import { AuthLoginDTO } from './dto/authLogin.dto';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
+import { CheckSessionUseCase } from './use-case/checkSession.use-case';
 import { LoginUseCase } from './use-case/login.use-case';
 import { LogoutUseCase } from './use-case/logout.use-case';
 import { RefreshTokenUseCase } from './use-case/refreshToken.use-case';
-import { CheckSessionUseCase } from './use-case/checkSession.use-case';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -68,6 +68,7 @@ Ninguno - Endpoint público
 		description: 'Login exitoso - Devuelve tokens en cookies',
 		example: {
 			msg: 'Inicio de sesión exitoso',
+			rol: 'iv:authTag:encryptedData',
 		},
 	})
 	@ApiResponse({
@@ -94,8 +95,12 @@ Ninguno - Endpoint público
 		@Req() req: Request & ReqUidDTO,
 	) {
 		this.logger.log(`system - ${authMessages.log.login}`);
-		await this.loginUseCase.execute({ data, res, loginInfo: dataInfoJWT(req) });
-		return { msg: authMessages.msg.loginSuccess };
+		const { rol } = await this.loginUseCase.execute({
+			data,
+			res,
+			loginInfo: dataInfoJWT(req),
+		});
+		return { msg: authMessages.msg.loginSuccess, rol };
 	}
 
 	@ApiOperation({

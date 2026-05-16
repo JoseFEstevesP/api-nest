@@ -3,16 +3,17 @@ import { ExtendedConflictException } from '@/exceptions/extended-conflict.except
 import { ExtendedNotFoundException } from '@/exceptions/extended-not-found.exception';
 import { ExtendedUnauthorizedException } from '@/exceptions/extended-unauthorized.exception';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
+import { encrypt } from '@/functions/encrypt';
 import { objectError } from '@/functions/objectError';
 import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
 import { User } from '@/modules/security/user/entities/user.entity';
 import { UserRepository } from '@/modules/security/user/repository/user.repository';
 import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
 import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
+import { JwtService } from '@/services/jwt.service';
 import { LoggerService } from '@/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@/services/jwt.service';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { Transaction } from 'sequelize';
@@ -115,6 +116,13 @@ export class LoginUseCase {
 		);
 
 		this.logger.logMetric('auth.login.exitoso', 1, { email });
+
+		const encryptedRol = encrypt(
+			JSON.stringify(user.rol),
+			this.configService.get<string>('ENCRYPTION_KEY')!,
+		);
+
+		return { rol: encryptedRol };
 	}
 
 	private setCookies(res: Response, accessToken: string, refreshToken: string) {

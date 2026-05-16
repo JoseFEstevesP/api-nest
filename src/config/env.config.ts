@@ -32,6 +32,12 @@ export const CONFIG_DOCS = {
 		minLength: 64,
 		envExample: 'your-64-character-minimum-refresh-secret',
 	},
+	ENCRYPTION_KEY: {
+		description: 'Clave secreta para encriptar datos sensibles con AES-256-GCM',
+		required: true,
+		minLength: 32,
+		envExample: 'your-32-character-minimum-encryption-key',
+	},
 	REDIS_URL: {
 		description: 'URL de conexión a Redis',
 		required: true,
@@ -116,6 +122,10 @@ export class EnvironmentVariables {
 	@Min(1)
 	@Max(1000)
 	declare RATE_LIMIT_LIMIT: number;
+
+	@IsString()
+	@MinLength(32, { message: 'ENCRYPTION_KEY debe tener al menos 32 caracteres' })
+	declare ENCRYPTION_KEY: string;
 
 	@IsString()
 	@MinLength(5)
