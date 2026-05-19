@@ -4,7 +4,7 @@
 FROM node:26-alpine AS base
 
 # Install corepack first (required for pnpm management)
-RUN npm install -g corepack && corepack enable && corepack prepare pnpm@10.15.0 --activate
+RUN npm install -g pnpm@11.1.2
 
 # Create app directory
 WORKDIR /usr/src/app
