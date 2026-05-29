@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { LoggerService } from '../services/logger.service';
-import { authMessages } from '../modules/security/auth/auth.messages';
+import { globalMsg } from '../globalMsg';
 import { errorResponse } from '@/dto/api-response-wrapper.dto';
 
 const HTTP_STATUS_NAMES: Record<number, string> = {
@@ -70,8 +70,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		) {
 			const responseBody = errorResponse(
 				HttpStatus.TOO_MANY_REQUESTS,
-				authMessages.throttler,
-				[{ field: 'all', message: authMessages.throttler }],
+				globalMsg.throttler,
+				[{ field: 'all', message: globalMsg.throttler }],
 			);
 
 			this.logger.warn(

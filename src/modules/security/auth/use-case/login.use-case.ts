@@ -5,30 +5,24 @@ import { ExtendedUnauthorizedException } from '@/exceptions/extended-unauthorize
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
 import { encrypt } from '@/functions/encrypt';
 import { objectError } from '@/functions/objectError';
-import { CreateAuditUseCase } from '@/modules/security/audit/use-case/createAudit.use-case';
-import { User } from '@/modules/security/user/entities/user.entity';
-import { UserRepository } from '@/modules/security/user/repository/user.repository';
-import { FindUserForAuthUseCase } from '@/modules/security/user/use-case/findUserById.use-case';
-import { ValidateAttemptUseCase } from '@/modules/security/user/use-case/validateAttempt.use-case';
+import { AuthAuditGateway } from '@/modules/security/auth/ports/auth-audit.gateway';
+import { AuthUserGateway } from '@/modules/security/auth/ports/auth-user.gateway';
 import { JwtService } from '@/services/jwt.service';
 import { LoggerService } from '@/services/logger.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
-import { Transaction } from 'sequelize';
 import { authMessages } from '../auth.messages';
 import { AuthLoginDTO } from '../dto/authLogin.dto';
 
 @Injectable()
 export class LoginUseCase {
 	constructor(
-		private readonly findUserForAuthUseCase: FindUserForAuthUseCase,
-		private readonly validateAttemptUseCase: ValidateAttemptUseCase,
+		private readonly authUserGateway: AuthUserGateway,
+		private readonly authAuditGateway: AuthAuditGateway,
 		private readonly jwtService: JwtService,
-		private readonly createAuditUseCase: CreateAuditUseCase,
 		private readonly configService: ConfigService<EnvironmentVariables>,
-		private readonly userRepository: UserRepository,
 		private readonly logger: LoggerService,
 	) {}
 
@@ -42,7 +36,7 @@ export class LoginUseCase {
 		loginInfo: DataInfoJWT;
 	}) {
 		const { email, password } = data;
-		const user = await this.findUserForAuthUseCase.execute(email);
+		const user = await this.authUserGateway.findByEmail(email);
 
 		if (!user) {
 			this.logger.warn('Login fallido - usuario no encontrado', {
@@ -55,6 +49,18 @@ export class LoginUseCase {
 			);
 		}
 
+		if (!user.password) {
+			this.logger.warn('Login fallido - usuario sin contraseña', {
+				type: 'auth_login',
+				userId: user.uid,
+				email,
+				status: 'failed',
+			});
+			throw new ExtendedUnauthorizedException(
+				objectError({ name: 'all', msg: authMessages.msg.credential }),
+			);
+		}
+
 		const checkPassword = await compare(password, user.password);
 		if (!checkPassword) {
 			this.logger.warn('Login fallido - contraseña inválida', {
@@ -63,7 +69,7 @@ export class LoginUseCase {
 				email,
 				status: 'failed',
 			});
-			await this.validateAttemptUseCase.execute({ user });
+			await this.authUserGateway.validateAttempts(user.uid);
 			throw new ExtendedUnauthorizedException(
 				objectError({ name: 'all', msg: authMessages.msg.credential }),
 			);
@@ -75,21 +81,9 @@ export class LoginUseCase {
 		const loginInfoArray = Object.values(loginInfo);
 
 		try {
-			await this.userRepository.transaction(async (t: Transaction) => {
-				await user.update({ attemptCount: 0 }, { transaction: t });
-
-				const formaData = {
-					uidUser: user.uid,
-					refreshToken,
-					dataToken: loginInfoArray,
-				};
-
-				await this.createAuditUseCase.execute(
-					{
-						data: formaData,
-					},
-					t,
-				);
+			await this.authUserGateway.beginTransaction(async (t) => {
+				await this.authUserGateway.resetAttempts(user.uid, t);
+				await this.authAuditGateway.create(user.uid, refreshToken, loginInfoArray, t);
 			});
 
 			this.setCookies(res, accessToken, refreshToken);
@@ -143,7 +137,10 @@ export class LoginUseCase {
 			});
 	}
 
-	private async generateAccessToken(user: User, loginInfo: DataInfoJWT) {
+	private async generateAccessToken(
+		user: { uid: string; uidRol: string; surnames: string; names: string },
+		loginInfo: DataInfoJWT,
+	) {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
@@ -157,7 +154,10 @@ export class LoginUseCase {
 		});
 	}
 
-	private async generateRefreshToken(user: User, loginInfo: DataInfoJWT) {
+	private async generateRefreshToken(
+		user: { uid: string },
+		loginInfo: DataInfoJWT,
+	) {
 		const dataToken = {
 			uid: user.uid,
 			...loginInfo,

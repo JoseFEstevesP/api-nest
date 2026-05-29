@@ -1,9 +1,7 @@
 import { EnvironmentVariables } from '@/config/env.config';
 import { DataInfoJWT } from '@/functions/dataInfoJWT.d';
-import { FindOneAuditUseCase } from '@/modules/security/audit/use-case/findOneAudit.use-case';
-import { UpdateAuditUseCase } from '@/modules/security/audit/use-case/updateAudit.use-case';
-import { User } from '@/modules/security/user/entities/user.entity';
-import { UserRepository } from '@/modules/security/user/repository/user.repository';
+import { AuthAuditGateway } from '@/modules/security/auth/ports/auth-audit.gateway';
+import { AuthUserGateway } from '@/modules/security/auth/ports/auth-user.gateway';
 import { TokenExpiredException } from '@/exceptions/token-expired.exception';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,14 +9,12 @@ import { JwtService } from '@/services/jwt.service';
 import { Request, Response } from 'express';
 import { LoggerService } from '@/services/logger.service';
 import { LogoutUseCase } from './logout.use-case';
-import { Role } from '@/modules/security/rol/entities/rol.entity';
 
 @Injectable()
 export class RefreshTokenUseCase {
 	constructor(
-		private readonly findOneAuditUseCase: FindOneAuditUseCase,
-		private readonly updateAuditUseCase: UpdateAuditUseCase,
-		private readonly userRepository: UserRepository,
+		private readonly authAuditGateway: AuthAuditGateway,
+		private readonly authUserGateway: AuthUserGateway,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService<EnvironmentVariables>,
 		private readonly logoutUseCase: LogoutUseCase,
@@ -62,10 +58,7 @@ export class RefreshTokenUseCase {
 		}
 
 		const loginInfoArray = Object.values(loginInfo);
-		const auditRef = await this.findOneAuditUseCase.execute({
-			refreshToken,
-			dataToken: loginInfoArray,
-		});
+		const auditRef = await this.authAuditGateway.findByRefreshToken(refreshToken, loginInfoArray);
 
 		if (!auditRef) {
 			this.logger.warn('Refresh token no encontrado en auditoría', {
@@ -78,11 +71,7 @@ export class RefreshTokenUseCase {
 			});
 		}
 
-		const user = await this.userRepository.findOne({
-			where: { uid: auditRef.uidUser, status: true },
-			attributes: { exclude: ['password', 'status', 'createdAt', 'updatedAt'] },
-			include: [{ model: Role, required: true, attributes: ['name', 'permissions'] }],
-		});
+		const user = await this.authUserGateway.findById(auditRef.uidUser);
 
 		if (!user) {
 			this.logger.warn('Usuario no encontrado para refresh token', {
@@ -113,9 +102,7 @@ export class RefreshTokenUseCase {
 		const newAccessToken = await this.generateAccessToken(user, loginInfo);
 		const newRefreshToken = await this.generateRefreshToken(user, loginInfo);
 
-		await this.updateAuditUseCase.execute({
-			data: { uid: auditRef.uid, refreshToken: newRefreshToken },
-		});
+		await this.authAuditGateway.updateToken(auditRef.uid, newRefreshToken);
 
 		this.setCookies(res, newAccessToken, newRefreshToken);
 
@@ -146,7 +133,10 @@ export class RefreshTokenUseCase {
 			});
 	}
 
-	private async generateAccessToken(user: User, loginInfo: DataInfoJWT) {
+	private async generateAccessToken(
+		user: { uid: string; uidRol: string; surnames: string; names: string },
+		loginInfo: DataInfoJWT,
+	) {
 		const dataToken = {
 			uid: user.uid,
 			uidRol: user.uidRol,
@@ -160,7 +150,7 @@ export class RefreshTokenUseCase {
 		});
 	}
 
-	private async generateRefreshToken(user: User, loginInfo: DataInfoJWT) {
+	private async generateRefreshToken(user: { uid: string }, loginInfo: DataInfoJWT) {
 		const dataToken = {
 			uid: user.uid,
 			...loginInfo,

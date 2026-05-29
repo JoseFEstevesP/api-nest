@@ -16,9 +16,10 @@ import { AuthModule } from './modules/security/auth/auth.module';
 import { JwtModule } from './modules/security/jwt/jwt.module';
 import { RolModule } from './modules/security/rol/rol.module';
 import { UserModule } from './modules/security/user/user.module';
+import { DatabaseModule } from './shared/database/database.module';
+import { LoggerModule } from './shared/logger/logger.module';
 import { CacheCleanupService } from './services/cache-cleanup.service';
 import { AppConfigService } from './services/config.service';
-import { LoggerService } from './services/logger.service';
 
 @Module({
 	imports: [
@@ -86,6 +87,8 @@ import { LoggerService } from './services/logger.service';
 			}),
 			isGlobal: true,
 		}),
+		LoggerModule,
+		DatabaseModule,
 		FilesModule,
 		JwtModule,
 		UserModule,
@@ -104,7 +107,6 @@ import { LoggerService } from './services/logger.service';
 			useClass: AppConfigService,
 		},
 		CacheCleanupService,
-		LoggerService,
 	],
 	exports: [AppConfigService],
 })

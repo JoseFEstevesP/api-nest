@@ -1,11 +1,7 @@
-import { UserModule } from '@/modules/security/user/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { Module, forwardRef } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { DatabaseModule } from '@/shared/database/database.module';
+import { Module } from '@nestjs/common';
 import { CacheService } from '@/services/cache.service';
-import { LoggerService } from '@/services/logger.service';
-import { Role } from './entities/rol.entity';
-import { RolRepository } from './repository/rol.repository';
 import { RolController } from './rol.controller';
 import { CreateRolUseCase } from './use-case/createRol.use-case';
 import { FindAllRolsPaginationUseCase } from './use-case/findAllRolsPagination.use-case';
@@ -16,15 +12,12 @@ import { RemoveRolUseCase } from './use-case/removeRol.use-case';
 import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 
 @Module({
-	imports: [
-		CacheModule.register(),
-		SequelizeModule.forFeature([Role]),
-		forwardRef(() => UserModule),
-	],
+imports: [
+	CacheModule.register(),
+	DatabaseModule,
+],
 	controllers: [RolController],
 	providers: [
-		LoggerService,
-		RolRepository,
 		CacheService,
 		CreateRolUseCase,
 		FindOneRolUseCase,
@@ -34,6 +27,6 @@ import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 		RemoveRolUseCase,
 		FindRolPermissionsUseCase,
 	],
-	exports: [FindOneRolUseCase, FindAllRolsUseCase, CacheService, LoggerService],
+	exports: [FindOneRolUseCase, FindAllRolsUseCase, CacheService],
 })
 export class RolModule {}

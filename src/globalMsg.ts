@@ -1,5 +1,6 @@
 export const globalMsg = {
 	userUnauthorized: 'Usuario no autorizado',
+	throttler: 'Demasiadas solicitudes. Intente de nuevo más tarde.',
 	dto: {
 		arrayValue: 'Este valor debe ser un array',
 		uid: {

@@ -1,18 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Op } from 'sequelize';
 import { encrypt } from '@/functions/encrypt';
-import { AuditRepository } from '@/modules/security/audit/repository/audit.repository';
-import { Role } from '@/modules/security/rol/entities/rol.entity';
-import { UserRepository } from '@/modules/security/user/repository/user.repository';
+import { AuthAuditGateway } from '@/modules/security/auth/ports/auth-audit.gateway';
+import { AuthUserGateway } from '@/modules/security/auth/ports/auth-user.gateway';
 
 @Injectable()
 export class CheckSessionUseCase {
 	private readonly logger = new Logger(CheckSessionUseCase.name);
 
 	constructor(
-		private readonly auditRepository: AuditRepository,
-		private readonly userRepository: UserRepository,
+		private readonly authAuditGateway: AuthAuditGateway,
+		private readonly authUserGateway: AuthUserGateway,
 		private readonly configService: ConfigService,
 	) {}
 
@@ -22,13 +20,7 @@ export class CheckSessionUseCase {
 			return { isAuthenticated: false };
 		}
 
-		const audit = await this.auditRepository.findOne({
-			where: {
-				refreshToken: {
-					[Op.eq]: refreshToken,
-				},
-			},
-		});
+		const audit = await this.authAuditGateway.findByRefreshToken(refreshToken);
 
 		if (!audit) {
 			this.logger.debug('CheckSession: No active session found');
@@ -39,11 +31,7 @@ export class CheckSessionUseCase {
 			uidUser: audit.uidUser,
 		});
 
-		const user = await this.userRepository.findOne({
-			where: { uid: audit.uidUser },
-			include: [{ model: Role, attributes: ['name', 'permissions'] }],
-			useCache: false,
-		});
+		const user = await this.authUserGateway.findById(audit.uidUser);
 
 		const encryptedRol = user?.rol
 			? encrypt(JSON.stringify(user.rol), this.configService.get<string>('ENCRYPTION_KEY')!)

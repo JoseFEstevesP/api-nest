@@ -1,10 +1,9 @@
+import { AuthAuditGateway } from '@/modules/security/auth/ports/auth-audit.gateway';
 import { RolModule } from '@/modules/security/rol/rol.module';
-import { LoggerService } from '@/services/logger.service';
-import { Module, forwardRef } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { DatabaseModule } from '@/shared/database/database.module';
+import { Module } from '@nestjs/common';
+import { AuditAuthAdapter } from './adapters/audit-auth.adapter';
 import { AuditController } from './audit.controller';
-import { Audit } from './entities/audit.entity';
-import { AuditRepository } from './repository/audit.repository';
 import { CleanUpOldAuditsUseCase } from './use-case/cleanUpOldAudits.use-case';
 import { CreateAuditUseCase } from './use-case/createAudit.use-case';
 import { FindAllAuditsUseCase } from './use-case/findAllAudits.use-case';
@@ -13,11 +12,10 @@ import { RemoveAuditUseCase } from './use-case/removeAudit.use-case';
 import { UpdateAuditUseCase } from './use-case/updateAudit.use-case';
 
 @Module({
-	imports: [SequelizeModule.forFeature([Audit]), forwardRef(() => RolModule)],
+	imports: [DatabaseModule, RolModule],
 	controllers: [AuditController],
 	providers: [
-		LoggerService,
-		AuditRepository,
+		{ provide: AuthAuditGateway, useClass: AuditAuthAdapter },
 		RemoveAuditUseCase,
 		CreateAuditUseCase,
 		FindAllAuditsUseCase,
@@ -26,13 +24,12 @@ import { UpdateAuditUseCase } from './use-case/updateAudit.use-case';
 		CleanUpOldAuditsUseCase,
 	],
 	exports: [
-		AuditRepository,
+		AuthAuditGateway,
 		RemoveAuditUseCase,
 		CreateAuditUseCase,
 		FindAllAuditsUseCase,
 		FindOneAuditUseCase,
 		UpdateAuditUseCase,
-		LoggerService,
 	],
 })
 export class AuditModule {}

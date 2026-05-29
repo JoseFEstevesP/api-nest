@@ -68,3 +68,5 @@ skills-lock.json
 src/metadata.ts
 AI_PROJECT_DOCUMENTATION.md
 opencode.json
+.sentrux
+.sentruxignore

@@ -1,13 +1,9 @@
-import { AuditModule } from '@/modules/security/audit/audit.module';
 import { JwtModule } from '@/modules/security/jwt/jwt.module';
-import { RolModule } from '@/modules/security/rol/rol.module';
+import { AuthUserGateway } from '@/modules/security/auth/ports/auth-user.gateway';
+import { DatabaseModule } from '@/shared/database/database.module';
 import { EmailService } from '@/services/email.service';
-import { LoggerService } from '@/services/logger.service';
-import { forwardRef, Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Role } from '../rol/entities/rol.entity';
-import { User } from './entities/user.entity';
-import { UserRepository } from './repository/user.repository';
+import { Module } from '@nestjs/common';
+import { UserAuthAdapter } from './adapters/user-auth.adapter';
 import { ActivateAccountUseCase } from './use-case/activateAccount.use-case';
 import { CreateProtectUserUseCase } from './use-case/createProtectUser.use-case';
 import { FindAllUsersUseCase } from './use-case/findAllUsers.use-case';
@@ -30,19 +26,16 @@ import { ValidateAttemptUseCase } from './use-case/validateAttempt.use-case';
 import { UserController } from './user.controller';
 
 @Module({
-	imports: [
-		SequelizeModule.forFeature([User, Role]),
-		forwardRef(() => AuditModule),
-		forwardRef(() => RolModule),
-		JwtModule,
-	],
+imports: [
+	JwtModule,
+	DatabaseModule,
+],
 
-	controllers: [UserController],
+controllers: [UserController],
 
 	providers: [
-		LoggerService,
 		EmailService,
-		UserRepository,
+		{ provide: AuthUserGateway, useClass: UserAuthAdapter },
 		CreateProtectUserUseCase,
 		FindAllUsersUseCase,
 		UpdateUserUseCase,
@@ -63,13 +56,12 @@ import { UserController } from './user.controller';
 		RecoveryVerifyPasswordUseCase,
 		GetUserChartsUseCase,
 	],
-	exports: [
-		UserRepository,
-		FindOneUserUseCase,
-		FindOneUserByUidUseCase,
-		FindUserForAuthUseCase,
-		ValidateAttemptUseCase,
-		LoggerService,
-	],
+exports: [
+	AuthUserGateway,
+	FindOneUserUseCase,
+	FindOneUserByUidUseCase,
+	FindUserForAuthUseCase,
+	ValidateAttemptUseCase,
+],
 })
 export class UserModule {}
