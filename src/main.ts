@@ -88,9 +88,6 @@ async function bootstrap() {
 		logger,
 	});
 
-	// Swagger completamente desactivado
-	// setupSwagger(app);
-
 	app.use(
 		compression({
 			threshold: 1024,
