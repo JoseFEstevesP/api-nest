@@ -2,6 +2,8 @@
 
 Indice de documentacion detallada por modulo del proyecto API Nest.
 
+> **Documentacion completa del proyecto**: [DOCUMENTATION.md](../DOCUMENTATION.md) — incluye stack tecnologico, arquitectura, infraestructura, patrones, decoradores, servicios, testing y endpoints por modulo.
+
 ## Modulos
 
 | Modulo | Descripcion | Documentacion |
