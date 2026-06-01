@@ -1,15 +1,11 @@
+import { Auth } from '@/decorators/auth.decorator';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
-import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
-import { Controller, Get, Logger, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Logger, Req } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DashboardResponseDTO } from './dto/dashboard.dto';
 import { GetDashboardDataUseCase } from './use-case/getDashboardData.use-case';
 
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardController {
@@ -19,7 +15,7 @@ export class DashboardController {
 		private readonly getDashboardDataUseCase: GetDashboardDataUseCase,
 	) {}
 
-	@ValidPermission(Permission.dashboardRead)
+	@Auth(Permission.dashboardRead)
 	@ApiResponse({
 		status: 200,
 		description: 'Datos del dashboard obtenidos correctamente',

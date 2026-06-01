@@ -1,8 +1,6 @@
+import { Auth } from '@/decorators/auth.decorator';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
-import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
 	Controller,
 	Delete,
@@ -11,18 +9,15 @@ import {
 	Param,
 	Query,
 	Req,
-	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuditGetAllDTO } from './dto/auditGetAll.dto';
 import { auditMessages } from './audit.messages';
 import { FindAllAuditsUseCase } from './use-case/findAllAudits.use-case';
 import { RemoveAuditUseCase } from './use-case/removeAudit.use-case';
 import { Audit } from './entities/audit.entity';
 
-@ApiBearerAuth()
 @ApiTags('Audit')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('audit')
 export class AuditController {
 	private readonly logger = new Logger(AuditController.name);
@@ -32,6 +27,7 @@ export class AuditController {
 		private readonly removeAuditUseCase: RemoveAuditUseCase,
 	) {}
 
+	@Auth(Permission.auditRead)
 	@ApiResponse({
 		status: 200,
 		description: 'Auditorias encontradas',
@@ -40,7 +36,6 @@ export class AuditController {
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@ValidPermission(Permission.auditRead)
 	@Get()
 	async findAllPagination(
 		@Query() filter: AuditGetAllDTO,
@@ -56,6 +51,7 @@ export class AuditController {
 		});
 	}
 
+	@Auth(Permission.auditDelete)
 	@ApiResponse({
 		status: 200,
 		description: 'Auditoria eliminada correctamente',
@@ -64,7 +60,6 @@ export class AuditController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ApiResponse({ status: 404, description: 'Not Found' })
-	@ValidPermission(Permission.auditDelete)
 	@Delete('/delete/:uid')
 	async delete(@Param('uid') uid: string, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;

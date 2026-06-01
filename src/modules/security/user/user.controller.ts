@@ -1,10 +1,8 @@
+import { Auth, AuthPublic } from '@/decorators/auth.decorator';
 import { ThrottleAuth } from '@/decorators/rate-limit.decorator';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { UidDTO } from '@/dto/uid.dto';
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
 import { Permission } from '@/modules/security/rol/enum/permissions';
-import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
 	Body,
 	Controller,
@@ -18,7 +16,6 @@ import {
 	Query,
 	Req,
 	UnauthorizedException,
-	UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@/services/jwt.service';
@@ -76,9 +73,7 @@ export class UserController {
 		private readonly configService: ConfigService,
 	) {}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userAdd)
+	@Auth(Permission.userAdd)
 	@ApiResponse({ status: 201, description: 'Usuario creado', type: User })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -91,9 +86,7 @@ export class UserController {
 		return this.createProtectUserUseCase.execute({ data, dataLog });
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userRead)
+	@Auth(Permission.userRead)
 	@ApiResponse({
 		status: 200,
 		description: 'Usuarios encontrados',
@@ -113,9 +106,7 @@ export class UserController {
 		});
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userRead)
+	@Auth(Permission.userRead)
 	@ApiResponse({ status: 200, description: 'Usuario encontrado', type: User })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
@@ -128,9 +119,7 @@ export class UserController {
 		return this.findOneUserByUidUseCase.execute(data.uid, dataLog);
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userRead)
+	@Auth(Permission.userRead)
 	@ApiResponse({
 		status: 200,
 		description: 'Datos para gráficos de usuarios',
@@ -155,9 +144,7 @@ export class UserController {
 		}
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userUpdate)
+	@Auth(Permission.userUpdate)
 	@ApiResponse({ status: 200, description: 'Usuario actualizado', type: User })
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -171,9 +158,7 @@ export class UserController {
 		return this.updateUserUseCase.execute({ data, dataLog });
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userProfile)
+	@Auth(Permission.userProfile)
 	@ApiResponse({ status: 200, description: 'Perfil de usuario', type: User })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
@@ -186,9 +171,7 @@ export class UserController {
 		return this.getUserProfileUseCase.execute({ uid, dataLog });
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userProfile)
+	@Auth(Permission.userProfile)
 	@ApiResponse({
 		status: 200,
 		description: 'Perfil de usuario actualizado',
@@ -209,9 +192,7 @@ export class UserController {
 		return this.updateUserProfileUseCase.execute({ data, uid, dataLog });
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userProfile)
+	@Auth(Permission.userProfile)
 	@ApiResponse({
 		status: 200,
 		description: 'Correo de perfil de usuario actualizado',
@@ -236,9 +217,7 @@ export class UserController {
 		});
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userProfile)
+	@Auth(Permission.userProfile)
 	@ApiResponse({
 		status: 200,
 		description: 'Contraseña de perfil de usuario actualizada',
@@ -262,9 +241,7 @@ export class UserController {
 		});
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userProfile)
+	@Auth(Permission.userProfile)
 	@ApiResponse({ status: 200, description: 'Usuario dado de baja' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
@@ -277,9 +254,7 @@ export class UserController {
 		return this.unregisterUserUseCase.execute({ uid, dataLog });
 	}
 
-	@ApiBearerAuth()
-	@UseGuards(JwtAuthGuard, PermissionsGuard)
-	@ValidPermission(Permission.userDelete)
+	@Auth(Permission.userDelete)
 	@ApiResponse({ status: 200, description: 'Usuario eliminado' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })

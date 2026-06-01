@@ -1,8 +1,6 @@
+import { Auth, AuthPublic } from '@/decorators/auth.decorator';
 import { ReqUidDTO } from '@/dto/ReqUid.dto';
 import { UidDTO } from '@/dto/uid.dto';
-import { JwtAuthGuard } from '@/modules/security/auth/guards/jwtAuth.guard';
-import { ValidPermission } from '@/modules/security/valid-permission/validPermission.decorator';
-import { PermissionsGuard } from '@/modules/security/valid-permission/validPermission.guard';
 import {
 	Body,
 	Controller,
@@ -14,9 +12,8 @@ import {
 	Post,
 	Query,
 	Req,
-	UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RolGetAllDTO } from './dto/rolGetAll.dto';
 import { RolRegisterDTO } from './dto/rolRegister.dto';
 import { RolUpdateDTO } from './dto/rolUpdate.dto';
@@ -31,8 +28,6 @@ import { FindRolPermissionsUseCase } from './use-case/findRolPermissions.use-cas
 import { RemoveRolUseCase } from './use-case/removeRol.use-case';
 import { UpdateRolUseCase } from './use-case/updateRol.use-case';
 
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @ApiTags('Rol')
 @Controller('rol')
 export class RolController {
@@ -48,6 +43,7 @@ export class RolController {
 		private readonly removeRolUseCase: RemoveRolUseCase,
 	) {}
 
+	@Auth(Permission.rolAdd)
 	@ApiResponse({
 		status: 201,
 		description: 'Rol creado correctamente',
@@ -56,7 +52,6 @@ export class RolController {
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@ValidPermission(Permission.rolAdd)
 	@Post()
 	async register(@Body() data: RolRegisterDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -65,6 +60,7 @@ export class RolController {
 		return this.createRolUseCase.execute({ data, dataLog });
 	}
 
+	@Auth(Permission.rolReadOne)
 	@ApiResponse({
 		status: 200,
 		description: 'Rol encontrado',
@@ -74,7 +70,6 @@ export class RolController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
-	@ValidPermission(Permission.rolReadOne)
 	@Get('/one/:uid')
 	async findOne(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -83,6 +78,7 @@ export class RolController {
 		return this.findOneRolUseCase.execute({ uid: data.uid }, dataLog);
 	}
 
+	@AuthPublic()
 	@ApiResponse({
 		status: 200,
 		description: 'Permisos del rol',
@@ -97,6 +93,7 @@ export class RolController {
 		return this.findRolPermissionsUseCase.execute({ uid: uidRol, dataLog });
 	}
 
+	@Auth(Permission.rolRead)
 	@ApiResponse({
 		status: 200,
 		description: 'Roles encontrados',
@@ -105,7 +102,6 @@ export class RolController {
 	@ApiResponse({ status: 400, description: 'Bad request' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@ValidPermission(Permission.rolRead)
 	@Get()
 	async findAllPagination(
 		@Query() filter: RolGetAllDTO,
@@ -117,6 +113,7 @@ export class RolController {
 		return this.findAllRolsPaginationUseCase.execute({ filter, dataLog });
 	}
 
+	@AuthPublic()
 	@ApiResponse({
 		status: 200,
 		description: 'Roles encontrados',
@@ -131,6 +128,7 @@ export class RolController {
 		return this.findAllRolsUseCase.execute({ dataLog });
 	}
 
+	@Auth(Permission.rolUpdate)
 	@ApiResponse({
 		status: 200,
 		description: 'Rol actualizado correctamente',
@@ -140,7 +138,6 @@ export class RolController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
-	@ValidPermission(Permission.rolUpdate)
 	@Patch()
 	async update(@Body() data: RolUpdateDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
@@ -149,6 +146,7 @@ export class RolController {
 		return this.updateRolUseCase.execute({ data, dataLog });
 	}
 
+	@Auth(Permission.rolDelete)
 	@ApiResponse({
 		status: 200,
 		description: 'Rol eliminado correctamente',
@@ -157,7 +155,6 @@ export class RolController {
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@ApiResponse({ status: 404, description: 'Rol no encontrado' })
-	@ValidPermission(Permission.rolDelete)
 	@Delete('/delete/:uid')
 	async delete(@Param() data: UidDTO, @Req() req: ReqUidDTO) {
 		const { dataLog } = req.user;
